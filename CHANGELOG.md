@@ -1,5 +1,13 @@
 # Rutina · Changelog
 
+## v1.14 · 19 nov 2026 · Auditoría, trozo 5: funciones básicas
+- Hora en el editor (`h.time={start,dur}`) para hábitos sin bloques en la agenda del plan (`hasBase`): `dayEvents` crea su bloque (respeta anular, mover y cambiar hora), `habitTime`, `typicalDur` y `agendaHash` lo tienen en cuenta.
+- Cuenta atrás (`countdowns`): exámenes de la agenda (`EXAM_RE`) y metas de los hábitos; línea en Hoy y `countdownSheet`.
+- Celebración al completar el día (`celebrate`, una vez al día, `S.settings.celebrated`), respeta `prefers-reduced-motion`.
+- Historial de notas (`notesSheet`): notas del día y de cada hábito, con buscador.
+- Guía de bienvenida de 4 pantallas (`welcomeSheet`), la primera vez y desde Ajustes.
+- Tests: `tests/test_v114.py`.
+
 ## v1.13.1 · 19 nov 2026
 - Ejemplos: no se añade un ejemplo si ya tienes un hábito con ese nombre; quedan marcados (`example`) y se quitan con «Quitar los hábitos de ejemplo». Con un plan cargado ya no se ofrece añadirlos.
 - Borrar datos: hoja con «Borrar solo mis registros» (`wipeLogs`: registros, notas, check-ins, simulacros, pausas y cambios de agenda; conserva hábitos, plan y agenda) y «Borrar todo» (`wipeAll`: después vuelve a cargar `plan.json`). Ambas guardan antes una copia automática.

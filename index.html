@@ -585,6 +585,29 @@ nav button svg{width:24px;height:24px}
 .ci-row .ci{flex:1;margin:0;gap:var(--s1)}
 .card.tmc{display:block;width:100%;text-align:left}
 .tmc .go{color:var(--acc);font-weight:600;font-size:var(--fs-sm)}
+
+/* ═════════════ v1.14 · Cuenta atrás, celebración, notas, bienvenida ═════════════ */
+.cd-row{display:flex;align-items:center;gap:var(--s2);width:100%;min-height:44px;padding:var(--s2) var(--s3);margin:0 0 var(--s2);border-radius:var(--r-md);background:var(--card);border:1px solid var(--border);font-size:var(--fs-sm);color:var(--muted);text-align:left;overflow:hidden;white-space:nowrap}
+.cd-row span{overflow:hidden;text-overflow:ellipsis}.cd-row b{color:var(--text);font-weight:600}.cd-row i{font-style:normal;color:var(--dim)}
+.cd-row em{margin-left:auto;font-style:normal;color:var(--acc);font-weight:700}
+.cd-n{margin-left:auto;font-size:var(--fs-h2);font-weight:700;text-align:right;line-height:1;font-variant-numeric:tabular-nums}.cd-n small{display:block;font-size:var(--fs-xs);color:var(--muted);font-weight:600}
+.celebrate{position:fixed;inset:0;z-index:500;display:grid;place-items:center;overflow:hidden;background:rgba(0,0,0,.25);animation:fade .2s ease}
+.celebrate.out{opacity:0;transition:opacity .4s}
+.celebrate i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:conf linear forwards}
+@keyframes conf{to{top:105%;transform:rotate(540deg) translateX(30px)}}
+.cel-card{background:var(--card3);border:1px solid var(--border2);border-radius:var(--r-xl);box-shadow:var(--e2);padding:var(--s5) var(--s6);text-align:center;animation:pop .45s var(--ease)}
+.cel-card b{display:block;font-size:var(--fs-h2);font-weight:700;margin-top:var(--s2)}
+.cel-card small{display:block;color:var(--muted);font-size:var(--fs-sm);margin-top:var(--s1)}
+.cel-big{font-size:56px;line-height:1}
+.note-it{display:block;width:100%;text-align:left;padding:var(--s3) 0;border-bottom:1px solid var(--border);min-height:44px}
+.note-it span{font-size:var(--fs-xs);color:var(--muted)}.note-it span b{color:var(--text);font-weight:600}
+.note-it p{font-size:var(--fs-body);margin-top:var(--s1);white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.welcome{text-align:center;padding:var(--s2) 0}
+.welcome p{color:var(--muted);font-size:var(--fs-body);line-height:1.55;margin:var(--s3) 0}
+.welcome p b{color:var(--text)}
+.wl-ic{font-size:52px;margin:var(--s2) 0 var(--s3)}
+.wl-dots{display:flex;justify-content:center;gap:6px;margin:var(--s4) 0 0}
+.wl-dots i{width:7px;height:7px;border-radius:50%;background:var(--border2)}.wl-dots i.on{background:var(--acc);width:20px;border-radius:99px}
 </style>
 </head>
 <body>
@@ -647,8 +670,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.13.1';
+const APP_VERSION='1.14';
 const CHANGELOG=[
+  ['1.14','19 nov 2026',['🕗 Hora en tus hábitos: los que crees tú salen en la agenda, en «Ahora / Después» y en el calendario','⏳ Cuenta atrás en Hoy: tus próximos exámenes y metas (B2, B1…)','🎉 Celebración al completar el día','📝 Tus notas: todas juntas y con buscador','👋 Guía rápida de la app (también en Ajustes)']],
   ['1.13.1','19 nov 2026',['Arreglado: «Añadir hábitos de ejemplo» ya no duplica los hábitos de tu plan, y se pueden quitar de una vez','«Borrar datos» ahora deja elegir: solo tus registros (el plan y la agenda se quedan) o todo y volver al plan inicial']],
   ['1.13','19 nov 2026',['🧭 4 pestañas: Hoy, Agenda, Progreso (hábitos + estadísticas) y Ajustes','Hoy más limpio: una sola tarjeta con lo importante y el resto en la campana 🔔; tus hábitos se ven sin hacer scroll','Toca el nombre de un hábito para ver u ocultar su plan; el botón ⋯ abre 5 opciones claras','✍️ «Apuntar»: tiempo, cantidad, progreso y nota en una sola ventana','👈 Desliza un hábito a la izquierda para pasarlo a mañana o saltarlo','Franjas «Por la mañana / tarde / noche» (ya no se confunde con «Mañana»)','Ajustes ordenados: una forma de calendario y una de copia','Tus cambios en un hábito ya no se pierden al actualizar el plan']],
   ['1.12','19 nov 2026',['🎨 Nuevo sistema visual: colores más cuidados, cinco tamaños de letra, espacios y esquinas coherentes','Sombras suaves y tarjetas con tres niveles de profundidad','Iconos propios en Ajustes, la nube y las copias; el ✓ de completar ahora es un icono','Los botones se hunden al pulsarlos y los campos se iluminan al escribir','Colores nuevos, menos chillones, para tus próximos hábitos']],
@@ -835,8 +859,13 @@ function hasLog(h,k){return !!(S.logs[k]&&S.logs[k][h.id])&&isDone(h,k);}
 function habitTime(h,k){
   const mi=agOv(k,'in:'+h.id);if(mi)return mi.start?{start:mi.start,end:mi.end}:null;
   const o=agOv(k,'h:'+h.id);if(o&&o.start)return{start:o.start,end:o.end};
-  const b=baseEvent(k,'h:'+h.id);return b?{start:b.start,end:b.end}:null;
+  const b=baseEvent(k,'h:'+h.id);if(b)return{start:b.start,end:b.end};
+  if(h.time&&h.time.start&&!hasBase(h))return{start:h.time.start,end:fmtT(tm(h.time.start)+(h.time.dur||30))};
+  return null;
 }
+// ¿Tiene este hábito bloques en la agenda del plan? (si no, su hora sale del editor)
+function hasBase(h){const c=hasBase._c||(hasBase._c=new Map());const key=h.id+'|'+Object.keys(S.agendaBase||{}).length;if(c.has(key))return c.get(key);
+  let r=false;for(const k in S.agendaBase||{})if(S.agendaBase[k].some(e=>e.id==='h:'+h.id)){r=true;break;}c.set(key,r);return r;}
 function classCancelled(k){const o=agOv(k,'clase');return !!(o&&o.cancel);}
 function momentOfTime(s){const m=tm(s);return m<14*60?'manana':m<20*60?'tarde':'noche';}
 function hasDatePlan(h,k){return !!(h.plan&&((h.plan.dates&&h.plan.dates[k])||(h.plan.program&&h.plan.program[k])));}
@@ -1067,6 +1096,7 @@ function renderHoy(){
   html+=`<div class="dayhead"><span class="dh-ring">${ring(pct,40,5,'var(--acc)')}</span>
     <div class="dh-t"><b>${fut?`${hs.length} programado${hs.length===1?'':'s'}`:hs.length?(done===hs.length?'Día completo 🔥':`${done} de ${hs.length} hechos`):'Día libre'}</b><small>${fut?'Así se presenta el día':hs.length&&done<hs.length?`Te falta${hs.length-done===1?'':'n'} ${hs.length-done}`:hs.length?'¡Bien hecho!':'No hay nada programado'}</small></div>
     ${k!==t?`<button class="back-today" onclick="pick('${t}')">Volver a hoy</button>`:hs.length?`<button class="min-btn ${minOn?'on':''}" onclick="toggleMinDay('${k}')" aria-pressed="${minOn}">🪫 ${minOn?'Día flojo activado':'Día flojo'}</button>`:''}</div>`;
+  if(k===t)html+=countdownRow();
   if(minOn)html+=`<p class="hint" style="margin:0 4px 8px">Cada hábito muestra su versión corta. Hazla y cuenta para la racha.</p>`;
   // 3 · Hábitos por franjas
   if(!hs.length){
@@ -1087,6 +1117,7 @@ function renderHoy(){
   // 4 · Total semanal (plegado) y nota
   html+=weekCard(k);
   html+=`<div class="sec">Nota del día</div><div class="card note"><textarea id="noteIn" placeholder="Cómo ha ido, sensaciones, qué ajustar…" oninput="setNote(this.value)">${esc(S.notes[k]||'')}</textarea></div>`;
+  if(Object.keys(S.notes).length||Object.values(S.logs).some(d=>Object.values(d).some(e=>e&&e.note)))html+=`<button class="btn ghost" onclick="NQ='';notesSheet()">📝 Ver todas tus notas</button>`;
   body.innerHTML=html;
 }
 /* Avisos: una lista con prioridad. Hoy enseña solo el primero; el resto queda en la campana. */
@@ -1204,6 +1235,7 @@ function commit(h,k,was){
     toast(st.total&&st.done===st.total?(k===todayK()?'¡Todo hecho hoy! 🔥':'¡Día completo! 🔥'):`✓ ${h.name}`,acts);
   } else toast(now?'Actualizado':was?`${h.name} desmarcado`:'Guardado',acts);
   render();
+  if(now&&!was&&k===todayK()){const st=dayStats(k);if(st.total&&st.done===st.total)celebrate(k);}
   if(now&&!was){const el=document.getElementById('hc-'+h.id);if(el){el.classList.add('pop');}}
 }
 function act(id,k=sel){ // k: el día del bloque o tarjeta que se ha tocado (por defecto, el seleccionado)
@@ -1367,6 +1399,16 @@ function dayEvents(k){
     const ev={...e,date:k};
     if(o){if(o.cancel){ev.cancelled=true;ev.reason=o.reason||'';}if(o.start){ev.start=o.start;ev.end=o.end;ev.edited=true;}}
     if(e.id==='h:fuerza'&&classCancelled(k)){const hp=getH('fuerza'),pe=hp&&hp.plan&&hp.plan.program&&hp.plan.program[k];if(pe&&pe.alt)ev.title='Fuerza / calistenia · sesión completa (sin clase)';}
+    out.push(ev);
+  }
+  // Hábitos con hora propia (creados por ti, sin bloque en la agenda del plan)
+  for(const h of S.habits){
+    if(h.archived||!h.time||!h.time.start)continue;const id='h:'+h.id;
+    if(((S.agendaBase||{})[k]||[]).some(e=>e.id===id))continue;
+    const o=agOv(k,id);if(o&&o.moveTo)continue;
+    const due=h.schedule.mode==='xweek'?(showOn(h,k)||!!(o&&o.cancel)):(k>=h.start&&(isScheduled(h,k)||hasDatePlan(h,k)));if(!due)continue;
+    const ev={id,title:h.name,kind:'habito',habit:h.id,date:k,start:h.time.start,end:fmtT(tm(h.time.start)+(h.time.dur||30)),own:true};
+    if(o){if(o.cancel){ev.cancelled=true;ev.reason=o.reason||'';}if(o.start){ev.start=o.start;ev.end=o.end;ev.edited=true;}}
     out.push(ev);
   }
   const ag=(S.agenda||{})[k]||{};
@@ -1680,6 +1722,10 @@ function edR(){
     <div class="types">${TYPES.map(([v,l,d])=>`<button class="${D.type===v?'on':''}" onclick="edType('${v}')"><b>${l}</b><small>${d}</small></button>`).join('')}</div>
     ${typeExtra}
 
+    ${hasBase(D)?`<label class="lbl">Hora</label><p class="hint" style="margin-top:0">La hora de este hábito viene de tu agenda: cámbiala tocando o arrastrando su bloque en Agenda.</p>`:`<label class="lbl">Hora (opcional)</label>
+    <div class="two"><input type="time" aria-label="Hora de inicio" value="${D.time&&D.time.start||''}" onchange="D.time=this.value?{start:this.value,dur:(D.time&&D.time.dur)||30}:null;edR()">
+      <select aria-label="Duración" ${D.time?'':'disabled'} onchange="if(D.time)D.time.dur=+this.value">${[10,15,20,30,45,60,75,90,120].map(m=>`<option value="${m}" ${((D.time&&D.time.dur)||30)===m?'selected':''}>${fmtDur(m)}</option>`).join('')}</select></div>
+    <p class="hint">Con hora, sale en la agenda, en «Ahora / Después» y en el calendario suscrito, y se coloca solo en su franja.</p>`}
     <label class="lbl">Momento del día</label>
     ${seg(MOMENTS.map(([v,l])=>[v,l.replace('En cualquier momento','Cualquiera').replace('Por la ','')]),D.moment,'edMoment')}
 
@@ -1726,6 +1772,7 @@ function edSave(){
   const p=D.plan;
   for(const d in p.weekly)if(!String(p.weekly[d]).trim())delete p.weekly[d];
   if(p.mode==='cycle'&&!p.cycle.some(c=>c.trim()))p.mode='none';
+  if(D.time&&!D.time.start)delete D.time;
   const isNew=D._new;delete D._new;
   if(!isNew&&S.packs&&Object.keys(S.packs).length)D.userEdited=true; // la próxima actualización del plan respeta tus cambios
   if(isNew)S.habits.push(D);else{const i=S.habits.findIndex(h=>h.id===D.id);S.habits[i]=D;}
@@ -1801,6 +1848,8 @@ function renderSet(){
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
     <div class="sec">Otros</div>
+    <button class="row-btn" onclick="welcomeSheet(0)">${ri('note')}<div>Guía rápida de la app<small>Cómo marcar, ver el plan, mover y saltar</small></div></button>
+    <button class="row-btn" onclick="NQ='';notesSheet()">${ri('pen')}<div>Tus notas<small>Todas las notas del día y de cada hábito, con buscador</small></div></button>
     ${S.habits.some(h=>h.example)?`<button class="row-btn" onclick="removeExamples()">${ri('flask')}<div>Quitar los hábitos de ejemplo<small>${S.habits.filter(h=>h.example).length} ejemplos</small></div></button>`:hasPlan()?'':`<button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>`}
     <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar datos<small>Solo tus registros, o todo y volver al plan inicial</small></div></button>
     ${isStandalone()?'':`<div class="card"><p class="hint" style="margin:0">Instálala: en iPhone, ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación».</p></div>`}
@@ -1939,6 +1988,74 @@ async function removeExamples(){
   if(S.timer&&ids.has(S.timer.hid))S.timer=null;
   save();render();toast('Ejemplos quitados');
 }
+
+/* ═════════════ CUENTA ATRÁS ═════════════
+   Próximos exámenes de la agenda y metas de los hábitos (B2, B1…), lo más cercano primero. */
+const EXAM_RE=/examen|parcial|prueba|presentaci/i;
+function countdowns(){
+  const t=todayK(),lim=addDays(t,120),out=[],seen=new Set();
+  for(const k of Object.keys(S.agendaBase||{}).filter(k=>k>=t&&k<=lim).sort())for(const e of S.agendaBase[k]){
+    if(e.kind!=='fijo'||!EXAM_RE.test(e.title)||seen.has(e.title))continue;const o=agOv(k,e.id);if(o&&o.cancel)continue;
+    seen.add(e.title);out.push({k,label:e.title.replace(' · ',' '),icon:'🎓',go:`closeSheet();pick('${k}')`});}
+  for(const h of S.habits)if(!h.archived&&h.goal&&h.goal.date>=t&&/examen|objetivo|b1|b2|delf|first/i.test(h.goal.label))
+    out.push({k:h.goal.date,label:h.goal.label,icon:h.emoji,go:`closeSheet();fullPlan('${h.id}')`});
+  return out.sort((a,b)=>a.k<b.k?-1:1);
+}
+function cdText(k){const d=diffDays(todayK(),k);return d===0?'hoy':d===1?'mañana':d<60?`en ${d} días`:`en ${Math.round(d/7)} semanas`;}
+function countdownRow(){
+  const c=countdowns();if(!c.length)return '';
+  return `<button class="cd-row" onclick="countdownSheet()" aria-label="Cuenta atrás">⏳ ${c.slice(0,2).map(x=>`<span><b>${esc(x.label)}</b> ${cdText(x.k)}</span>`).join('<i>·</i>')}<em>›</em></button>`;
+}
+function countdownSheet(){
+  const c=countdowns();
+  openSheet(`<div class="sheet-title">⏳ Cuenta atrás</div><div class="sub mb12">Exámenes de tu agenda y metas de tus hábitos</div>
+    ${c.map(x=>`<button class="row-btn" onclick="${x.go}"><span class="ri" style="font-size:18px">${x.icon}</span><div>${esc(x.label)}<small>${longDate(x.k)} · ${cdText(x.k)}</small></div><b class="cd-n">${Math.max(0,diffDays(todayK(),x.k))}<small>días</small></b></button>`).join('')}`);
+}
+
+/* ═════════════ CELEBRACIÓN AL CERRAR EL DÍA ═════════════ */
+function celebrate(k){
+  S.settings.celebrated=S.settings.celebrated||{};if(S.settings.celebrated[k])return;S.settings.celebrated[k]=true;
+  for(const d in S.settings.celebrated)if(d<addDays(k,-14))delete S.settings.celebrated[d];save();
+  const best=S.habits.filter(h=>!h.archived).map(h=>streaks(h)).sort((a,b)=>b.cur-a.cur)[0];
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const el=document.createElement('div');el.className='celebrate';el.setAttribute('role','status');
+  const C=['#22C55E','#60A5FA','#FBBF24','#F472B6','#C084FC','#2DD4BF','#FB923C'];
+  el.innerHTML=(reduce?'':Array.from({length:42},(_,i)=>`<i style="left:${Math.random()*100}%;background:${C[i%C.length]};animation-delay:${Math.random()*.35}s;animation-duration:${1.3+Math.random()*.9}s;transform:rotate(${Math.random()*360}deg)"></i>`).join(''))+
+    `<div class="cel-card"><div class="cel-big">🔥</div><b>¡Día completo!</b><small>${best&&best.cur>1?`Racha de ${best.cur} ${best.unit==='sem'?'semanas':'días'}. Sigue así.`:'Todo lo de hoy, hecho.'}</small></div>`;
+  document.body.appendChild(el);buzz();setTimeout(()=>buzz(),180);
+  el.addEventListener('click',()=>el.remove());setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},2600);
+}
+
+/* ═════════════ HISTORIAL DE NOTAS ═════════════ */
+let NQ='';
+function allNotes(){
+  const out=[];
+  for(const k in S.notes)if(S.notes[k])out.push({k,who:'📝 Nota del día',text:S.notes[k]});
+  for(const k in S.logs)for(const id in S.logs[k]){const e=S.logs[k][id],h=getH(id);if(e&&e.note&&h)out.push({k,who:`${h.emoji} ${h.name}`,text:e.note});}
+  return out.sort((a,b)=>a.k<b.k?1:-1);
+}
+function notesSheet(){
+  const q=NQ.trim().toLowerCase(),all=allNotes(),list=q?all.filter(n=>(n.text+' '+n.who).toLowerCase().includes(q)):all;
+  openSheet(`<div class="sheet-title">📝 Tus notas</div><div class="sub mb12">${all.length} nota${all.length===1?'':'s'}: las del día y las de cada hábito</div>
+    <input id="nq" placeholder="Buscar: rodilla, cansado, isla…" value="${esc(NQ)}" oninput="NQ=this.value;clearTimeout(window._nqT);window._nqT=setTimeout(()=>{notesSheet();const i=$('#nq');i.focus();i.setSelectionRange(i.value.length,i.value.length);},300)">
+    ${list.length?list.slice(0,200).map(n=>`<button class="note-it" onclick="closeSheet();pick('${n.k}');go('hoy')"><span><b>${esc(longDate(n.k))}</b> · ${esc(n.who)}</span><p>${esc(n.text)}</p></button>`).join(''):`<p class="hint">${q?'No hay notas con eso.':'Todavía no hay notas. Escríbelas al final de Hoy o al apuntar un hábito.'}</p>`}`);
+}
+
+/* ═════════════ BIENVENIDA ═════════════ */
+const WELCOME=[
+  ['👋','Esto es Rutina','Cada día te dice qué hacer exactamente. Empieza en <b>Hoy</b>: arriba ves lo más importante del momento y, debajo, tus hábitos por franjas.'],
+  ['✅','Marcar y ver el plan','Toca el <b>círculo</b> de la derecha para marcar un hábito. Toca su <b>nombre</b> para ver u ocultar el plan del día. El botón <b>⋯</b> tiene todo lo demás: apuntar tiempo, mover, cambiar el plan o editar.'],
+  ['👈','Moverlo o saltarlo','<b>Desliza un hábito a la izquierda</b> para pasarlo a mañana o saltarlo. En <b>Agenda</b>, mantén pulsado un bloque y arrástralo para cambiarle la hora. Todo se puede deshacer.'],
+  ['📊','Tu progreso y tus datos','En <b>Progreso</b> ves rachas, mapas de calor y la revisión semanal. En <b>Ajustes</b> conecta la nube y suscribe el calendario para tener avisos con el móvil bloqueado.'],
+];
+function welcomeSheet(i=0){
+  const [ic,t,txt]=WELCOME[i],last=i===WELCOME.length-1;
+  openSheet(`<div class="welcome"><div class="wl-ic">${ic}</div><div class="sheet-title" style="padding:0">${t}</div><p>${txt}</p>
+    <div class="wl-dots">${WELCOME.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>
+    <div class="btns">${i?`<button class="btn ghost" onclick="welcomeSheet(${i-1})">Atrás</button>`:`<button class="btn ghost" onclick="welcomeDone()">Saltar</button>`}<button class="btn pri" onclick="${last?'welcomeDone()':`welcomeSheet(${i+1})`}">${last?'Empezar':'Siguiente'}</button></div></div>`);
+  S.settings.welcomed=true;save();
+}
+function welcomeDone(){S.settings.welcomed=true;save();closeSheet();}
 
 /* ═════════════ AHORA / SIGUIENTE ═════════════ */
 function nowCard(k){
@@ -2372,7 +2489,7 @@ async function gh(path,opt={}){
 }
 function lightState(){return JSON.parse(JSON.stringify(S,(k,v)=>HEAVY.has(k)||k==='_needPlanSave'?undefined:v));}
 function devName(){const u=navigator.userAgent;return /iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':'Ordenador';}
-function agendaHash(){const s=JSON.stringify([S.agenda,S.habits.map(h=>[h.id,h.archived,h.plan&&h.plan.dates]),S.agendaUntil]);let x=0;for(let i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return x;}
+function agendaHash(){const s=JSON.stringify([S.agenda,S.habits.map(h=>[h.id,h.archived,h.plan&&h.plan.dates,h.time]),S.agendaUntil]);let x=0;for(let i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return x;}
 function dataFile(savedAt){return {content:JSON.stringify({kind:'rutina-sync',savedAt,device:devName(),state:lightState()})};}
 function icsFile(){const t=todayK();return {content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text};}
 // Si hubiera varios (p. ej. de pruebas), el más reciente
@@ -2597,7 +2714,7 @@ function saveMins(id,k){
 }
 
 /* ═════════════ SESIONES EXTRA ═════════════ */
-function typicalDur(h){for(const k in S.agendaBase||{}){const e=S.agendaBase[k].find(x=>x.id==='h:'+h.id);if(e)return tm(e.end)-tm(e.start);}return h.type==='time'&&h.target?h.target:60;}
+function typicalDur(h){for(const k in S.agendaBase||{}){const e=S.agendaBase[k].find(x=>x.id==='h:'+h.id);if(e)return tm(e.end)-tm(e.start);}if(h.time&&h.time.dur)return h.time.dur;return h.type==='time'&&h.target?h.target:60;}
 function extraSheet(k){
   const opts=S.habits.filter(h=>!h.archived&&!showOn(h,k));
   if(!opts.length)return toast('Ese día ya tienes todos tus hábitos');
@@ -2691,6 +2808,7 @@ swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();
 askPersist();
+if(!S.settings.welcomed&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on'))welcomeSheet(0);},900);
 autoPlan().then(()=>cloudPull()).then(()=>snapSoon());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
