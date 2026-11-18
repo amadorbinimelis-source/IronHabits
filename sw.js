@@ -1,5 +1,5 @@
 // Network-first: si hay conexión carga la última versión; si no, tira de caché.
-const CACHE = 'rutina-v10';
+const CACHE = 'rutina-v11';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './plan.json'];
 
 self.addEventListener('install', e => {

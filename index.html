@@ -333,6 +333,10 @@ nav button.on{color:var(--acc)}
 .fp-item.today .fp-row{background:color-mix(in srgb,var(--hc) 12%,transparent);border-radius:10px}
 .fp-item.past .t{color:var(--muted)}
 .fp-body{padding:0 2px 12px}
+.dragging{z-index:30!important;box-shadow:0 10px 28px rgba(0,0,0,.55),0 0 0 2px var(--c)!important;opacity:.95;transition:none!important;cursor:grabbing}
+.drag-tip{position:fixed;z-index:400;pointer-events:none;background:var(--text);color:var(--bg);font-weight:800;font-size:.8rem;padding:5px 9px;border-radius:8px;transform:translate(-50%,-130%)}
+body.drag-on{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.ag-ev,.agw-ev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #toast{position:fixed;left:50%;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);transform:translate(-50%,10px);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #toast button{margin-left:12px;color:var(--acc);font-weight:800}
@@ -405,8 +409,9 @@ nav button.on{color:var(--acc)}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.7.1';
+const APP_VERSION='1.8';
 const CHANGELOG=[
+  ['1.8','18 nov 2026',['Agenda: mantén pulsado un bloque y arrástralo para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva mientras lo mueves)','Funciona en Día, 3 días y Semana; con ratón en el ordenador','Sigue existiendo el cambio manual tocando el bloque, y puedes Deshacer']],
   ['1.7.1','18 nov 2026',['Arreglado: en el iPhone no se podían cerrar las ventanas de las tareas','Ahora se cierran con ✕, tocando la zona oscura, deslizando hacia abajo o con el botón atrás']],
   ['1.7','18 nov 2026',['Publicada en GitHub Pages: instalable en el iPhone y se actualiza sola','📅 Suscripción al calendario del iPhone / Google con aviso 5 min antes de cada tarea']],
   ['1.6.1','18 nov 2026',['Botones grandes «‹ Anterior» y «Siguiente ›» para cambiar de semana en Hoy y en la Agenda','Se ve qué semana miras («Dentro de 2 semanas · 30 nov – 6 dic»); tócalo para volver a hoy','También puedes deslizar el dedo sobre los días']],
@@ -1030,7 +1035,7 @@ function renderAgenda(){
     const hb=e.habit?getH(e.habit):null,done=hb&&isDone(hb,k);
     const flags=(e.cancelled?' · anulado':'')+(e.edited?' · ✏️':'')+(e.moved?' · ↪':'');
     const short=h<34;
-    html+=`<button class="ag-ev ${e.kind} ${e.cancelled?'cancel':''} ${short?'short':''}" style="--c:${evColor(e)};top:${top}px;height:${h}px;width:${w};left:${left}" onclick="evSheet('${k}','${e.id}')">
+    html+=`<button class="ag-ev ${e.kind} ${e.cancelled?'cancel':''} ${short?'short':''}" style="--c:${evColor(e)};top:${top}px;height:${h}px;width:${w};left:${left}" onclick="evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,AG0,AG1)}>
       <b>${evIcon(e)} ${esc(e.title)}${done?' <span class="ok">✓</span>':''}</b><small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}${flags}</small></button>`;
   }
   if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();if(m>=AG0&&m<=AG1)html+=`<div class="ag-now" style="top:${(m-AG0)*PX}px"></div>`;}
@@ -1064,11 +1069,11 @@ function weekGrid(n=7){
       const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60),top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
       const w=100/e._lanes,title=WEEK_SHORT[e.id]||e.title.replace(/ · /,' ');
       const hb=e.habit?getH(e.habit):null,ok=hb&&isDone(hb,k)?' ✓':'';
-      html+=`<button class="agw-ev ${e.cancelled?'cancel':''}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 2px);width:calc(${w}% - 4px);right:auto" onclick="evSheet('${k}','${e.id}')"><b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}</small>`:''}</button>`;
+      html+=`<button class="agw-ev ${e.cancelled?'cancel':''}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 2px);width:calc(${w}% - 4px);right:auto" onclick="evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,h0*60,h1*60)}><b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}</small>`:''}</button>`;
     }
     html+=`</div>`;
   });
-  html+=`</div></div><p class="hint" style="text-align:center">Solo lo importante. Toca un día para verlo entero (comidas, trayectos y huecos) o un bloque para modificarlo.</p>`;
+  html+=`</div></div><p class="hint" style="text-align:center">Solo lo importante. Toca un día para verlo entero o un bloque para modificarlo. <b>Mantén pulsado un bloque y arrástralo</b> para cambiarle la hora.</p>`;
   if(n===7)setTimeout(()=>{const w=$('#agwWrap');if(!w)return;const i=days.indexOf(sel);if(i>2)w.scrollLeft=(i-2)*80;},30);
   return html;
 }
@@ -1110,12 +1115,15 @@ function overlaps(k,id,s,e){return dayEvents(k).filter(x=>x.id!==id&&!x.cancelle
 function evSetTime(k,id){
   const s=$('#evS').value,e=$('#evE').value;
   if(!s||!e||tm(e)<=tm(s))return toast('La hora de fin tiene que ser posterior');
+  setEvTime(k,id,s,e);
+}
+function setEvTime(k,id,s,e){
   pushUndo();
   const hid=id.startsWith('h:')?id.slice(2):null,mi=hid?agOv(k,'in:'+hid):null;
   if(mi){agSet(k,'in:'+hid,{...mi,start:s,end:e});}
   else{const b=baseEvent(k,id);if(b&&b.start===s&&fmtT(tm(b.end))===e)agSet(k,id,null);else agSet(k,id,{start:s,end:e});}
   const ov=overlaps(k,id,tm(s),tm(e));
-  afterAg(ov.length?`Hora cambiada · ojo, se solapa con: ${ov[0]}`:'Hora cambiada');
+  afterAg(ov.length?`${fmtT(tm(s))}–${fmtT(tm(e))} · ojo, se solapa con: ${ov[0]}`:`Hora cambiada a las ${fmtT(tm(s))}`);
 }
 function evCancel(k,id){
   const r=($('#evR')||{}).value||'';
@@ -1689,6 +1697,67 @@ function checkNotify(m){
   for(const e of dayEvents(k)){if(e.cancelled||!(e.kind==='habito'||e.kind==='fijo'))continue;
     const st=tm(e.start),key=k+e.id;if(st-5<=m&&m<st&&!_notified.has(key)){_notified.add(key);notify(`${evIcon(e)} ${e.title} a las ${fmtT(st)}`,'Empieza en 5 minutos');}}
 }
+
+/* ═════════════ ARRASTRAR BLOQUES ═════════════
+   Móvil: mantener pulsado 0,35 s y arrastrar (así no se confunde con hacer scroll). Ordenador: arrastrar con el ratón.
+   Encaja cada 15 min; al soltar guarda la hora nueva igual que el cambio manual (con Deshacer). */
+function dragAttrs(k,e,px,lo,hi){
+  if(e.cancelled||['libre','sueno'].includes(e.kind))return '';
+  return ` data-drag="1" data-k="${k}" data-id="${e.id}" data-px="${px}" data-lo="${lo}" data-hi="${hi}" data-s="${tm(e.start)}" data-e="${tm(e.end)}"`;
+}
+const DRAG={el:null,timer:null,on:false,y0:0,x0:0,top0:0,d:0,tip:null,eatClick:false};
+const SNAP=15;
+function dragStart(el,x,y,instant){
+  DRAG.el=el;DRAG.x0=x;DRAG.y0=y;DRAG.d=0;DRAG.on=false;DRAG.top0=parseFloat(el.style.top);
+  clearTimeout(DRAG.timer);
+  if(!instant)DRAG.timer=setTimeout(()=>dragActivate(),350);
+}
+function dragActivate(){
+  const el=DRAG.el;if(!el)return;DRAG.on=true;el.classList.add('dragging');document.body.classList.add('drag-on');
+  if(navigator.vibrate)navigator.vibrate(15);
+  DRAG.tip=document.createElement('div');DRAG.tip.className='drag-tip';document.body.appendChild(DRAG.tip);dragShow(DRAG.y0,DRAG.x0);
+}
+function dragNewTimes(el=DRAG.el){
+  const px=+el.dataset.px,s=+el.dataset.s,e=+el.dataset.e,lo=+el.dataset.lo,hi=+el.dataset.hi,dur=e-s;
+  let ns=Math.round((s+DRAG.d/px)/SNAP)*SNAP;ns=Math.max(lo,Math.min(hi-dur,ns));return[ns,ns+dur];
+}
+function dragShow(y,x){
+  const el=DRAG.el,px=+el.dataset.px,[ns,ne]=dragNewTimes();
+  el.style.top=(DRAG.top0+(ns-+el.dataset.s)*px)+'px';
+  const sm=el.querySelector('small');if(sm)sm.textContent=`${fmtT(ns)}–${fmtT(ne)}`;
+  if(DRAG.tip){DRAG.tip.textContent=`${fmtT(ns)}–${fmtT(ne)}`;DRAG.tip.style.left=x+'px';DRAG.tip.style.top=y+'px';}
+}
+function dragMove(x,y,ev){
+  if(!DRAG.el)return;
+  if(!DRAG.on){
+    if(Math.hypot(x-DRAG.x0,y-DRAG.y0)>8){
+      if(ev.type==='mousemove')dragActivate();      // ratón: arrastrar directamente
+      else{clearTimeout(DRAG.timer);DRAG.el=null;return;} // dedo antes de tiempo: es scroll
+    }else return;
+  }
+  if(ev.cancelable)ev.preventDefault();
+  DRAG.d=y-DRAG.y0;dragShow(y,x);
+}
+function dragEnd(){
+  clearTimeout(DRAG.timer);const el=DRAG.el;DRAG.el=null;
+  if(DRAG.tip){DRAG.tip.remove();DRAG.tip=null;}
+  document.body.classList.remove('drag-on');
+  if(!el||!DRAG.on)return;
+  DRAG.on=false;DRAG.eatClick=true;setTimeout(()=>DRAG.eatClick=false,400);
+  el.classList.remove('dragging');
+  const[ns,ne]=dragNewTimes(el);
+  if(ns===+el.dataset.s){render();return;}
+  setEvTime(el.dataset.k,el.dataset.id,fmtT(ns),fmtT(ne));
+}
+document.addEventListener('touchstart',e=>{const el=e.target.closest('[data-drag]');if(el&&e.touches.length===1)dragStart(el,e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+document.addEventListener('touchmove',e=>{if(DRAG.el)dragMove(e.touches[0].clientX,e.touches[0].clientY,e);},{passive:false});
+document.addEventListener('touchend',dragEnd,{passive:true});
+document.addEventListener('touchcancel',()=>{if(DRAG.on){DRAG.d=0;}dragEnd();},{passive:true});
+document.addEventListener('mousedown',e=>{if(e.button!==0)return;const el=e.target.closest('[data-drag]');if(el){dragStart(el,e.clientX,e.clientY,true);e.preventDefault();}});
+document.addEventListener('mousemove',e=>{if(DRAG.el)dragMove(e.clientX,e.clientY,e);});
+document.addEventListener('mouseup',dragEnd);
+document.addEventListener('click',e=>{if(DRAG.eatClick&&e.target.closest('[data-drag]')){e.stopPropagation();e.preventDefault();DRAG.eatClick=false;}},true);
+document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-drag]'))e.preventDefault();});
 
 /* ═════════════ PLAN COMPLETO ═════════════ */
 function planEnd(h){const pr=h.plan&&h.plan.program?Object.keys(h.plan.program).sort():[];return (h.goal&&h.goal.date)||pr[pr.length-1]||S.agendaUntil||addDays(todayK(),90);}

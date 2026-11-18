@@ -1,5 +1,10 @@
 # Rutina · Changelog
 
+## v1.8 · 18 nov 2026
+- Arrastrar bloques en la agenda (Día, 3 días, Semana): pulsación larga de 0,35 s en móvil (un deslizamiento rápido sigue siendo scroll), arrastre directo con ratón; ajuste a 15 min, etiqueta con la hora nueva, vibración al coger el bloque.
+- Al soltar usa la misma lógica que el cambio manual (`setEvTime`): repercute en Hoy, estadísticas y avisos de solape; con Deshacer.
+- Test nuevo `tests/test_drag_movil.py`.
+
 ## v1.7.1 · 18 nov 2026
 - Arreglado: en iPhone las hojas no se podían cerrar (Safari no dispara `click` en un `div` sin `cursor:pointer`, y la hoja cubría casi toda la pantalla).
 - Botón ✕ fijo arriba, zona libre de 70 px para tocar fuera, deslizar hacia abajo para cerrar, botón atrás y tecla Esc.
