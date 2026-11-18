@@ -1827,13 +1827,14 @@ function subscribeSheet(){
 function openSheet(html,keep){
   if(html!==null&&html!==undefined)$('#sheetBody').innerHTML=html;
   $('#sheet').scrollTop=0;
-  if(!$('#sheet').classList.contains('on')&&!(history.state&&history.state.sheet)){try{history.pushState({sheet:1},'');}catch(e){}}
+  if(!$('#sheet').classList.contains('on')&&!_pushed){try{history.pushState({sheet:1},'');_pushed=true;}catch(e){}}
   $('#ov').classList.add('on');$('#sheet').classList.add('on');document.body.style.overflow='hidden';
 }
-var _skipPop=false;
+var _skipPop=false,_pushed=false;
+try{if(history.state&&history.state.sheet)history.replaceState(null,'');}catch(e){}
 function closeSheet(fromPop){
   if(!$('#sheet').classList.contains('on'))return;
-  if(!fromPop&&history.state&&history.state.sheet){_skipPop=true;try{history.back();}catch(e){_skipPop=false;}}
+  if(_pushed){_pushed=false;if(!fromPop){_skipPop=true;try{history.back();}catch(e){_skipPop=false;}}}
   $('#sheet').style.transform='';
   $('#ov').classList.remove('on');$('#sheet').classList.remove('on');document.body.style.overflow='';D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
 
