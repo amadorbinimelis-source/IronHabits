@@ -66,7 +66,7 @@ async def main():
         await pg.evaluate("S.logs={};(S.logs[addDays(todayK(),-2)]={}).fr={v:1,steps:[]};save()"); await pg.wait_for_timeout(4600)
         r = await pg.evaluate("snapList().then(a=>a.map(x=>x.id+'|'+x.days))")
         check(any(x.startswith("auto-") and x.endswith("|1") for x in r), f"copia automática del día {r}")
-        await pg.evaluate("(()=>{wipe();})()"); await confirm(pg); await confirm(pg); await pg.wait_for_timeout(400)
+        await pg.evaluate("(()=>{wipeAll();})()"); await confirm(pg); await pg.wait_for_timeout(1500)
         n = await pg.evaluate("Object.keys(S.logs).length")
         pre = await pg.evaluate("snapList().then(a=>a.filter(x=>x.kind==='pre').map(x=>x.id))")
         check(n == 0 and pre, "borrar todo deja antes una copia de seguridad")

@@ -1,5 +1,9 @@
 # Rutina · Changelog
 
+## v1.13.1 · 19 nov 2026
+- Ejemplos: no se añade un ejemplo si ya tienes un hábito con ese nombre; quedan marcados (`example`) y se quitan con «Quitar los hábitos de ejemplo». Con un plan cargado ya no se ofrece añadirlos.
+- Borrar datos: hoja con «Borrar solo mis registros» (`wipeLogs`: registros, notas, check-ins, simulacros, pausas y cambios de agenda; conserva hábitos, plan y agenda) y «Borrar todo» (`wipeAll`: después vuelve a cargar `plan.json`). Ambas guardan antes una copia automática.
+
 ## v1.13 · 19 nov 2026 · Auditoría, trozo 4: navegación y Hoy
 - 4 pestañas: Hábitos y Estadísticas se fusionan en Progreso (`renderProg`; `go('hab'|'stats')` redirige). Sin ranking (repetía los %), simulacros solo en el detalle de Inglés, mapas de calor de la lista con mínimo 24 semanas.
 - Hoy: `noticeList` con prioridades y `spotlight` (una tarjeta destacada; el resto en la campana `#hoyBell` / `noticesSheet`), cabecera compacta del día con Día flojo, franjas «Por la mañana/tarde/noche», total semanal plegado y al final, flechas de semana de 44 px, check-in en dos filas compactas.

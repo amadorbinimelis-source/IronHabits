@@ -647,8 +647,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.13';
+const APP_VERSION='1.13.1';
 const CHANGELOG=[
+  ['1.13.1','19 nov 2026',['Arreglado: «Añadir hábitos de ejemplo» ya no duplica los hábitos de tu plan, y se pueden quitar de una vez','«Borrar datos» ahora deja elegir: solo tus registros (el plan y la agenda se quedan) o todo y volver al plan inicial']],
   ['1.13','19 nov 2026',['🧭 4 pestañas: Hoy, Agenda, Progreso (hábitos + estadísticas) y Ajustes','Hoy más limpio: una sola tarjeta con lo importante y el resto en la campana 🔔; tus hábitos se ven sin hacer scroll','Toca el nombre de un hábito para ver u ocultar su plan; el botón ⋯ abre 5 opciones claras','✍️ «Apuntar»: tiempo, cantidad, progreso y nota en una sola ventana','👈 Desliza un hábito a la izquierda para pasarlo a mañana o saltarlo','Franjas «Por la mañana / tarde / noche» (ya no se confunde con «Mañana»)','Ajustes ordenados: una forma de calendario y una de copia','Tus cambios en un hábito ya no se pierden al actualizar el plan']],
   ['1.12','19 nov 2026',['🎨 Nuevo sistema visual: colores más cuidados, cinco tamaños de letra, espacios y esquinas coherentes','Sombras suaves y tarjetas con tres niveles de profundidad','Iconos propios en Ajustes, la nube y las copias; el ✓ de completar ahora es un icono','Los botones se hunden al pulsarlos y los campos se iluminan al escribir','Colores nuevos, menos chillones, para tus próximos hábitos']],
   ['1.11','18 nov 2026',['📱 Hecha para el iPhone: todos los botones son fáciles de tocar (44 px) y no hay letra diminuta','⌨️ El teclado ya no tapa lo que escribes: la ventana sube con él','Los selectores de fecha y hora salen en modo oscuro','Al abrir una ventana, lo de detrás ya no se mueve y al cerrarla vuelves al mismo sitio','Los avisos largos se leen enteros y no tapan lo que hay debajo','A medianoche, «Hoy» pasa solo al día nuevo','Vibración al completar en iPhone (iOS 18 o posterior)','Respeta «Reducir movimiento» del iPhone']],
@@ -1800,8 +1801,8 @@ function renderSet(){
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
     <div class="sec">Otros</div>
-    <button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>
-    <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar todos los datos<small>Antes se guarda una copia automática</small></div></button>
+    ${S.habits.some(h=>h.example)?`<button class="row-btn" onclick="removeExamples()">${ri('flask')}<div>Quitar los hábitos de ejemplo<small>${S.habits.filter(h=>h.example).length} ejemplos</small></div></button>`:hasPlan()?'':`<button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>`}
+    <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar datos<small>Solo tus registros, o todo y volver al plan inicial</small></div></button>
     ${isStandalone()?'':`<div class="card"><p class="hint" style="margin:0">Instálala: en iPhone, ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación».</p></div>`}
     <p class="hint" style="text-align:center;margin-top:16px">Rutina v${APP_VERSION} · datos v${S.schema} · ${S.habits.length} hábitos · ${Object.keys(S.logs).length} días con registros</p>`;
 }
@@ -1844,11 +1845,27 @@ function importData(input){
   };
   rd.readAsText(f);input.value='';
 }
-async function wipe(){
-  if(!await ask('Se borrarán TODOS los hábitos, registros y notas.','Continuar',true))return;
-  if(!await ask('¿Seguro del todo? Guardaré una copia automática en este móvil por si te arrepientes (Ajustes › Copias automáticas).','Borrar todo',true))return;
+/* Borrar: dos opciones claras. Antes de cualquiera de las dos se guarda una copia automática. */
+function hasPlan(){return !!(S.packs&&Object.keys(S.packs).length);}
+function wipe(){
+  openSheet(`<div class="sheet-title">🗑️ Borrar datos</div><p class="hint">Elige qué quieres borrar. Antes se guarda una copia automática en este móvil (Ajustes › Copias automáticas) por si te arrepientes.</p>
+    <button class="row-btn" onclick="wipeLogs()">${ri('trash')}<div>Borrar solo mis registros<small>Lo que has marcado, notas, check-ins y cambios de la agenda. Se quedan tus hábitos, el plan y la agenda</small></div></button>
+    <button class="row-btn danger" onclick="wipeAll()">${ri('trash')}<div>Borrar todo y empezar de cero<small>${hasPlan()?'Después se vuelve a cargar el plan inicial (hábitos y agenda), sin registros':'Se borran todos los hábitos, registros y notas'}</small></div></button>`);
+}
+async function wipeLogs(){
+  if(!await ask('Se borrarán lo que has marcado, las notas, los check-ins, los simulacros, las pausas y los cambios de la agenda. Tus hábitos, el plan y la agenda se quedan.','Borrar mis registros',true))return;
+  await safetySnap('Antes de borrar los registros');dropUndo();
+  Object.assign(S,{logs:{},notes:{},agenda:{},checkins:{},mocks:[],pauses:[],minDays:{},reviews:{},timer:null});
+  for(const h of S.habits)if(h.plan)h.plan.dates={};
+  save();sel=todayK();go('hoy');toast('Registros borrados · tu plan sigue intacto');
+}
+async function wipeAll(){
+  const plan=hasPlan();
+  if(!await ask(plan?'Se borra todo y se vuelve a cargar el plan inicial, como el primer día.':'Se borrarán TODOS los hábitos, registros y notas.','Borrar todo',true))return;
   await safetySnap('Antes de borrar todo');dropUndo();
-  S=JSON.parse(JSON.stringify(DEF));save();try{localStorage.removeItem(PLAN_KEY);}catch(e){}applyAccent();go('hoy');toast('Datos borrados');
+  S=JSON.parse(JSON.stringify(DEF));save();try{localStorage.removeItem(PLAN_KEY);}catch(e){}applyAccent();sel=todayK();go('hoy');
+  if(plan){await autoPlan();render();toast(S.habits.length?'Empiezas de cero con tu plan ✨':'Datos borrados · el plan se cargará cuando tengas conexión');}
+  else toast('Datos borrados');
 }
 
 /* Planes (plan.json) */
@@ -1904,7 +1921,23 @@ function loadExamples(){
     mk({name:'Inglés',emoji:'🇬🇧',color:'#14B8A6',type:'time',target:20,moment:'noche'}),
     mk({name:'Agua',emoji:'💧',color:'#06B6D4',type:'count',target:8,unit:'vasos'}),
   ];
-  S.habits.push(...ex);save();closeSheet();go('hoy');toast('Ejemplos añadidos: edítalos o bórralos');
+  // No duplicar: si ya tienes un hábito con ese nombre (p. ej. Boxeo o Francés del plan), ese ejemplo no se añade
+  const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const have=S.habits.map(h=>norm(h.name));
+  const add=ex.filter(e=>!have.some(n=>n===norm(e.name)||n.startsWith(norm(e.name)+' ')));
+  if(!add.length){closeSheet();return toast('Ya tienes estos hábitos');}
+  add.forEach(e=>e.example=true);
+  S.habits.push(...add);save();closeSheet();go('hoy');toast(`${add.length} ejemplo${add.length===1?'':'s'} añadido${add.length===1?'':'s'} · se quitan en Ajustes`);
+}
+async function removeExamples(){
+  const ex=S.habits.filter(h=>h.example);if(!ex.length)return;
+  if(!await ask(`Se quitarán ${ex.length} hábitos de ejemplo y lo que hayas marcado en ellos.`,'Quitar ejemplos',true))return;
+  await safetySnap('Antes de quitar los ejemplos');dropUndo();
+  const ids=new Set(ex.map(h=>h.id));S.habits=S.habits.filter(h=>!ids.has(h.id));
+  for(const k in S.logs){for(const id of ids)delete S.logs[k][id];if(!Object.keys(S.logs[k]).length)delete S.logs[k];}
+  for(const k in S.agenda){for(const id of ids){delete S.agenda[k]['h:'+id];delete S.agenda[k]['in:'+id];}if(!Object.keys(S.agenda[k]).length)delete S.agenda[k];}
+  if(S.timer&&ids.has(S.timer.hid))S.timer=null;
+  save();render();toast('Ejemplos quitados');
 }
 
 /* ═════════════ AHORA / SIGUIENTE ═════════════ */
