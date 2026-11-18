@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0A0A0D">
+<meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +16,7 @@
 <style>
 :root{
   --bg:#0A0A0D;--bg2:#111116;--card:#15151B;--card2:#1C1C24;--border:#25252E;
-  --text:#F3F3F6;--muted:#8B8B99;--dim:#55555F;--acc:#22C55E;--danger:#EF4444;
+  --text:#F3F3F6;--muted:#8B8B99;--dim:#80808C;--acc:#22C55E;--danger:#EF4444;
   --r:18px;--nav:66px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -54,10 +55,10 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 .wk-btn{font-size:.78rem;font-weight:800;color:var(--acc);background:var(--card);border:1px solid var(--border);border-radius:99px;padding:8px 12px}
 .wk-btn:active{transform:scale(.96)}
 .wk-lbl{font-size:.78rem;font-weight:700;text-align:center;line-height:1.2}
-.wk-lbl small{display:block;font-size:.66rem;color:var(--acc);font-weight:700}
+.wk-lbl small{display:block;font-size:.7rem;color:var(--acc);font-weight:700}
 .wk-days{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .wd{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;border-radius:14px;border:1px solid transparent}
-.wd-l{font-size:.66rem;font-weight:700;color:var(--muted)}
+.wd-l{font-size:.7rem;font-weight:700;color:var(--muted)}
 .wd-r{position:relative;width:32px;height:32px;display:grid;place-items:center}
 .wd-r svg{position:absolute;inset:0}
 .wd-r b{position:relative;font-size:.78rem;font-weight:700}
@@ -97,7 +98,7 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 .ctl:disabled{opacity:.35}
 .mini{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);font-weight:700;color:var(--muted)}
 .hc-plan{margin-top:10px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--hc);border-radius:12px;padding:10px 12px;font-size:.86rem;line-height:1.5}
-.pl-tag{font-size:.64rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--hc);margin-bottom:4px}
+.pl-tag{font-size:.7rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--hc);margin-bottom:4px}
 .pl-li{padding-left:14px;position:relative}
 .pl-li::before{content:'';position:absolute;left:3px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--hc)}
 .pl-gap{height:6px}
@@ -141,7 +142,7 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 .hm-wrap{overflow-x:auto;padding-bottom:4px}
 .hm-big{display:grid;gap:3px;width:max-content}
 .hm-big i{display:block;width:13px;height:13px;border-radius:3px}
-.hm-months{display:grid;gap:3px;width:max-content;font-size:.6rem;color:var(--muted);margin-bottom:4px;height:12px}
+.hm-months{display:grid;gap:3px;width:max-content;font-size:.7rem;color:var(--muted);margin-bottom:4px;height:12px}
 .hm-months span{white-space:nowrap;overflow:visible}
 
 /* Stats */
@@ -153,8 +154,8 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 .bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px}
 .bar i{display:block;width:100%;border-radius:6px 6px 3px 3px;background:var(--acc);min-height:3px;position:relative}
 .bar i.cur{opacity:.55}
-.bar span{font-size:.58rem;color:var(--muted)}
-.bar em{font-style:normal;font-size:.58rem;color:var(--muted)}
+.bar span{font-size:.7rem;color:var(--muted)}
+.bar em{font-style:normal;font-size:.7rem;color:var(--muted)}
 .rk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
 .rk:last-child{border-bottom:none}
 .rk-n{flex:1;min-width:0}
@@ -167,7 +168,7 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 .det-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}
 .det-kpis div{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:10px 6px;text-align:center}
 .det-kpis b{display:block;font-size:1.2rem;font-weight:800;color:var(--hc)}
-.det-kpis span{font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.det-kpis span{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 
 /* Editor */
 .seg{display:flex;flex-wrap:wrap;gap:6px}
@@ -212,14 +213,14 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 /* Nav */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:100;background:rgba(12,12,16,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
 nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav)}
-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.66rem;font-weight:700;color:var(--dim)}
+nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.7rem;font-weight:700;color:var(--dim)}
 nav button svg{width:23px;height:23px}
 nav button.on{color:var(--acc)}
 
 /* Agenda */
 .ag-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .ag-bar .seg{flex:1}
-.ag-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.68rem;color:var(--muted);margin:2px 2px 12px}
+.ag-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.7rem;color:var(--muted);margin:2px 2px 12px}
 .ag-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .ag-day{position:relative;margin-left:0}
 .ag-hour{position:absolute;left:0;right:0;border-top:1px solid var(--border)}
@@ -228,7 +229,7 @@ nav button.on{color:var(--acc)}
 .ag-hour span{position:absolute;top:4px;left:0;width:40px;font-size:.72rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
 .ag-ev{position:absolute;border-radius:9px;padding:3px 7px;font-size:.72rem;overflow:hidden;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 22%,var(--card));cursor:pointer;line-height:1.25;text-align:left;color:var(--text)}
 .ag-ev b{font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ag-ev small{display:block;color:var(--muted);font-size:.64rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ag-ev small{display:block;color:var(--muted);font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ag-ev.short{display:flex;align-items:center;gap:6px;padding-top:0;padding-bottom:0}
 .ag-ev.short b{display:inline;flex:1;min-width:0}
 .ag-ev.short small{display:inline}
@@ -244,18 +245,18 @@ nav button.on{color:var(--acc)}
 .agw-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px 6px;-webkit-overflow-scrolling:touch}
 .agw{display:grid;grid-template-columns:40px repeat(7,minmax(78px,1fr));min-width:600px}
 .agw-hd{position:sticky;top:0;z-index:4;background:var(--bg);text-align:center;padding:6px 0 8px;cursor:pointer;border-bottom:1px solid var(--border)}
-.agw-hd b{display:block;font-size:.66rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.agw-hd b{display:block;font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase}
 .agw-hd span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;font-weight:800;font-size:.95rem;margin-top:2px}
 .agw-hd.today span{background:var(--acc);color:#0A0A0D}
 .agw-hd.sel b{color:var(--text)}
 .agw-hrs{position:relative}
-.agw-hrs span{position:absolute;right:6px;font-size:.66rem;font-weight:700;color:var(--muted);transform:translateY(-50%);font-variant-numeric:tabular-nums}
+.agw-hrs span{position:absolute;right:6px;font-size:.7rem;font-weight:700;color:var(--muted);transform:translateY(-50%);font-variant-numeric:tabular-nums}
 .agw-day{position:relative;border-left:1px solid var(--border)}
 .agw-ev{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 4px;overflow:hidden;background:color-mix(in srgb,var(--c) 30%,var(--card));border-left:3px solid var(--c);text-align:left;color:var(--text);line-height:1.15}
-.agw-ev b{display:block;font-size:.62rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.agw-ev small{display:block;font-size:.56rem;color:var(--muted);white-space:nowrap}
+.agw-ev b{display:block;font-size:.7rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agw-ev small{display:block;font-size:.7rem;color:var(--muted);white-space:nowrap}
 .agw-ev.cancel{opacity:.35}.agw-ev.cancel b{text-decoration:line-through}
-.agw-h{font-size:.66rem;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
+.agw-h{font-size:.7rem;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
 .agw-h.today{color:var(--acc)}
 .agw-col{position:relative;background:var(--card);border-radius:8px;cursor:pointer;border:1px solid var(--border)}
 .agw-col.sel{border-color:var(--acc)}
@@ -263,8 +264,8 @@ nav button.on{color:var(--acc)}
 .agw-b.libre{background:transparent}
 .agw-b.cancel{opacity:.25}
 .agw-t{position:relative}
-.agw-t span{position:absolute;right:2px;font-size:.55rem;color:var(--dim);transform:translateY(-50%)}
-.badge{display:inline-block;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--card2);border:1px solid var(--border);margin:6px 6px 0 0}
+.agw-t span{position:absolute;right:2px;font-size:.7rem;color:var(--dim);transform:translateY(-50%)}
+.badge{display:inline-block;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--card2);border:1px solid var(--border);margin:6px 6px 0 0}
 .badge.warn{color:#FBBF24;border-color:color-mix(in srgb,#FBBF24 40%,var(--border))}
 .badge.bad{color:#FF8A8A;border-color:color-mix(in srgb,#EF4444 40%,var(--border))}
 .ev-row{display:flex;gap:8px;align-items:center}
@@ -274,7 +275,7 @@ nav button.on{color:var(--acc)}
 .chlog li{margin:4px 0 4px 16px;font-size:.82rem;color:var(--muted)}
 .now-card{background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 16%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--acc) 35%,var(--border));border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
 .now-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:4px 0}
-.now-row .lb{font-size:.62rem;font-weight:800;letter-spacing:1px;color:var(--acc);width:62px;flex:none}
+.now-row .lb{font-size:.7rem;font-weight:800;letter-spacing:1px;color:var(--acc);width:62px;flex:none}
 .now-row.next .lb{color:var(--muted)}
 .now-row .tx{flex:1;min-width:0}
 .now-row .tx b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -317,7 +318,7 @@ nav button.on{color:var(--acc)}
 .wk-hist{display:flex;gap:5px;align-items:flex-end;height:70px;margin-top:6px}
 .wk-hist div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
 .wk-hist i{display:block;width:100%;border-radius:5px 5px 2px 2px;min-height:2px}
-.wk-hist span{font-size:.58rem;color:var(--muted)}
+.wk-hist span{font-size:.7rem;color:var(--muted)}
 
 .fp-goal{background:color-mix(in srgb,var(--hc) 14%,var(--card));border:1px solid color-mix(in srgb,var(--hc) 40%,var(--border));border-radius:14px;padding:12px 14px;margin:10px 0}
 .fp-goal b{display:block;font-size:.95rem}.fp-goal small{color:var(--muted);font-size:.78rem}
@@ -355,6 +356,42 @@ body.drag-on{user-select:none;-webkit-user-select:none;-webkit-touch-callout:non
 #toast{position:fixed;left:50%;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);transform:translate(-50%,10px);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #toast button{margin-left:12px;color:var(--acc);font-weight:800}
+
+/* ═══ v1.11 · iPhone: tamaños táctiles (≥44 px), letra, contraste, tema oscuro ═══ */
+:root{color-scheme:dark}
+#app{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+nav .in{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+input[type=date],input[type=time]{min-height:46px;display:block;line-height:1.3}
+input::-webkit-date-and-time-value{text-align:left;min-height:1.3em}
+.icon-btn{width:44px;height:44px}
+.wk-btn,.wk-lbl,.back-today,.min-btn{min-height:44px}
+.back-today,.min-btn{display:inline-flex;align-items:center}
+.wk-hd{min-height:44px;align-items:center}
+.wk-row,.now-row,.step,.hc-info,.chk{min-height:44px}
+.hc-more{min-height:44px;padding:0;display:flex!important;align-items:center;justify-content:center}
+.sheet-x{width:44px;height:44px;top:4px;right:8px}
+.mini{width:44px;height:44px;background:transparent;border:none;position:relative}
+.mini::before{content:'';position:absolute;inset:7px;border-radius:50%;background:var(--card2);border:1px solid var(--border);z-index:-1}
+.mini{z-index:0}
+.colors{gap:4px}.colors button{width:44px;height:44px;border-width:3px;background-clip:content-box!important;padding:4px}
+.colors button.on{border-color:var(--text)}
+.seg button,.days button,.ci button{min-height:44px}
+.ci button,.rpe button,.days button{text-align:center}
+.list-row .x,.dp-item .x{width:44px!important;height:44px!important}
+.chip{padding:0 0 0 12px}.chip button{min-width:40px;min-height:40px}
+#timerPill{min-height:44px}
+#toast{white-space:normal;width:max-content;max-width:calc(100vw - 24px);text-align:center;border-radius:18px;line-height:1.35;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 0}
+#toast button{min-height:40px;padding:0 8px;margin-left:6px}
+#toast.on{pointer-events:none}#toast.on button{pointer-events:auto} /* el aviso no tapa lo de debajo; solo sus botones se tocan */
+body.pill-on #toast{bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 70px)}
+nav button{color:var(--muted)}
+.emojis{grid-template-columns:repeat(7,1fr)}
+.ag-ev.libre{color:var(--muted)}
+/* Hojas: el teclado no tapa los campos (la hoja se sube con el teclado) */
+.sheet{bottom:var(--kb,0px);max-height:calc(var(--vvh,100dvh) - env(safe-area-inset-top) - 70px)}
+body.kb-on .sheet{transition:transform .32s cubic-bezier(.3,1.1,.5,1),bottom .15s ease;padding-bottom:16px}
+body.kb-on nav,body.kb-on #timerPill{visibility:hidden}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -420,12 +457,14 @@ body.drag-on{user-select:none;-webkit-user-select:none;-webkit-touch-callout:non
 <div class="ov" id="ov" onclick="closeSheet()" role="button" aria-label="Cerrar"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="sheet-top" id="sheetTop"><div class="handle"></div><button class="sheet-x" onclick="closeSheet()" aria-label="Cerrar">✕</button></div><div id="sheetBody"></div></div>
 <div id="toast"></div>
+<label id="hapticSw" aria-hidden="true" style="position:fixed;left:-200px;top:0;opacity:0;pointer-events:none"><input type="checkbox" switch tabindex="-1"></label>
 <button id="timerPill" onclick="sel=S.timer?S.timer.k:sel;go('hoy')"></button>
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.10';
+const APP_VERSION='1.11';
 const CHANGELOG=[
+  ['1.11','18 nov 2026',['📱 Hecha para el iPhone: todos los botones son fáciles de tocar (44 px) y no hay letra diminuta','⌨️ El teclado ya no tapa lo que escribes: la ventana sube con él','Los selectores de fecha y hora salen en modo oscuro','Al abrir una ventana, lo de detrás ya no se mueve y al cerrarla vuelves al mismo sitio','Los avisos largos se leen enteros y no tapan lo que hay debajo','A medianoche, «Hoy» pasa solo al día nuevo','Vibración al completar en iPhone (iOS 18 o posterior)','Respeta «Reducir movimiento» del iPhone']],
   ['1.10','18 nov 2026',['🛟 Copias automáticas en el móvil: una al día y otra antes de cada cambio grande; se restauran desde Ajustes','🔒 Nube más privada: tus datos y el calendario van en notas separadas (si ya la usabas, te pide 1 toque)','☁️ Si cierras la app justo después de marcar algo, se sube al volver a abrirla','Arreglado: «Deshacer» ya no puede devolver los datos a un momento antiguo','Arreglado: «Marcar hecho» desde la agenda marca el día del bloque, no el que tenías seleccionado','⚡ Abre al momento aunque haya mala cobertura']],
   ['1.9','18 nov 2026',['☁️ Copia automática en la nube (tu GitHub, privado): la recuperas en cualquier dispositivo y el calendario suscrito incluye tus cambios','💪 Carga de entreno: RPE × minutos y ratio agudo:crónico con aviso si subes demasiado rápido','🎯 Simulacros B2 First con nota en la escala oficial de Cambridge y tu parte más floja','🌙 Resumen de mañana a partir de las 20:00 (y aviso a las 22:00)','☀️ Check-in de sueño y energía: qué días rindes más','Arrastra un hábito a otro día en la vista Semana o 3 días']],
   ['1.8','18 nov 2026',['Agenda: mantén pulsado un bloque y arrástralo para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva mientras lo mueves)','Funciona en Día, 3 días y Semana; con ratón en el ordenador','Sigue existiendo el cambio manual tocando el bloque, y puedes Deshacer']],
@@ -510,7 +549,7 @@ function fmtNum(n){n=+n||0;return Number.isInteger(n)?String(n):String(Math.roun
 function fmtMin(m){m=+m||0;if(m<60)return `${fmtNum(Math.round(m*10)/10)} min`;const h=Math.floor(m/60),mm=Math.round(m%60);return `${h} h ${pad(mm)}`;}
 function fmtClock(ms){const s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;return h?`${h}:${pad(m)}:${pad(ss)}`:`${pad(m)}:${pad(ss)}`;}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-function buzz(){try{navigator.vibrate&&navigator.vibrate(12);}catch(e){}}
+function buzz(){try{if(navigator.vibrate){navigator.vibrate(12);return;}const l=document.getElementById('hapticSw');if(l&&isIOS())l.click();}catch(e){}}
 let _tt;function toast(m,actions){const t=$('#toast');t.innerHTML=esc(m)+(actions||[]).map((a,i)=>`<button onclick="toastAct(${i})">${esc(a[0])}</button>`).join('');toast._a=actions||[];t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),actions&&actions.length?5000:2400);}
 function toastAct(i){const a=(toast._a||[])[i];$('#toast').classList.remove('on');if(a)a[1]();}
 // Deshacer: foto de todo lo que se puede cambiar desde la app, justo antes de cada acción.
@@ -946,12 +985,12 @@ function stopTimer(silent){
 }
 setInterval(()=>{
   const T=S.timer,pill=$('#timerPill');
-  if(!T){pill.classList.remove('on');return;}
+  if(!T){pill.classList.remove('on');document.body.classList.remove('pill-on');return;}
   const h=getH(T.hid);if(!h)return;
   const ms=((entry(h,T.k)||{}).v||0)*60000+Date.now()-T.t0;
   if(!T.notified&&ms>=(h.target||0)*60000){T.notified=true;save();buzz();notify(`⏱ ${h.name}: objetivo de ${h.target} min cumplido`,'Puedes parar el cronómetro cuando quieras.');toast(`⏱ ${h.name}: ${h.target} min cumplidos 🎉`);}
   const el=document.getElementById('tm-'+T.hid);if(el&&view==='hoy')el.textContent=fmtClock(ms);
-  pill.textContent=`⏱ ${h.emoji} ${h.name} · ${fmtClock(ms)}`;pill.classList.toggle('on',view!=='hoy');
+  pill.textContent=`⏱ ${h.emoji} ${h.name} · ${fmtClock(ms)}`;pill.classList.toggle('on',view!=='hoy');document.body.classList.toggle('pill-on',view!=='hoy');
 },1000);
 
 /* Menú de la tarjeta */
@@ -1455,7 +1494,7 @@ function renderSet(){
     <div class="sec">Recordatorios</div>
     <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario (recomendado)<small>Tu agenda en el Calendario del iPhone o Google Calendar, con aviso 5 min antes. Se actualiza sola cuando cambia el plan</small></div></button>
     <button class="row-btn" onclick="icsSheet()">🔔<div>Exportar unas semanas al calendario<small>Exporta la agenda (.ics) a Google Calendar o Calendario de Apple: te avisa 5 min antes de cada tarea, aunque la app esté cerrada</small></div></button>
-    <button class="row-btn" onclick="toggleNotif()">💬<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Notificación al empezar cada bloque mientras la app está abierta o en segundo plano reciente</small></div></button>
+    <button class="row-btn" onclick="toggleNotif()">💬<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Solo con la app abierta en pantalla (el iPhone para la app al salir). Para avisos con el móvil bloqueado, usa «Suscribir el calendario»</small></div></button>
     <div class="sec">Pausas</div>
     <button class="row-btn" onclick="pauseSheet()">🏖️<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
@@ -1581,6 +1620,7 @@ function nowCard(k){
 }
 let _lastMin=-1;
 setInterval(()=>{const n=new Date(),m=n.getHours()*60+n.getMinutes();if(m===_lastMin)return;_lastMin=m;
+  if(dayRollover()&&!$('#sheet').classList.contains('on')&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'){render();checkNotify(m);return;}
   if(view==='hoy'&&sel===todayK()&&!$('#sheet').classList.contains('on')&&document.activeElement.id!=='noteIn')renderHoy();
   checkNotify(m);},20000);
 
@@ -1764,7 +1804,7 @@ function dragStart(el,x,y,instant){
 function dragActivate(){
   const el=DRAG.el;if(!el)return;DRAG.on=true;
   const grid=el.closest('.agw');DRAG.cols=grid?[...grid.querySelectorAll('.agw-day')]:[];DRAG.toK=el.dataset.k;el.classList.add('dragging');document.body.classList.add('drag-on');
-  if(navigator.vibrate)navigator.vibrate(15);
+  buzz();
   DRAG.tip=document.createElement('div');DRAG.tip.className='drag-tip';document.body.appendChild(DRAG.tip);dragShow(DRAG.y0,DRAG.x0);
 }
 function dragNewTimes(el=DRAG.el){
@@ -1808,7 +1848,8 @@ function dragEnd(){
   setEvTime(el.dataset.k,el.dataset.id,fmtT(ns),fmtT(ne));
 }
 document.addEventListener('touchstart',e=>{const el=e.target.closest('[data-drag]');if(el&&e.touches.length===1)dragStart(el,e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-document.addEventListener('touchmove',e=>{if(DRAG.el)dragMove(e.touches[0].clientX,e.touches[0].clientY,e);},{passive:false});
+document.addEventListener('touchmove',dragTouchMove,{passive:false});
+function dragTouchMove(e){if(DRAG.el)dragMove(e.touches[0].clientX,e.touches[0].clientY,e);}
 document.addEventListener('touchend',dragEnd,{passive:true});
 document.addEventListener('touchcancel',()=>{if(DRAG.on){DRAG.d=0;}dragEnd();},{passive:true});
 document.addEventListener('mousedown',e=>{if(e.button!==0)return;const el=e.target.closest('[data-drag]');if(el){dragStart(el,e.clientX,e.clientY,true);e.preventDefault();}});
@@ -1907,7 +1948,7 @@ function rpeSheet(id,k){
   const h=getH(id);if(!h)return;k=k||sel;const e=entry(h,k)||{},cur=e.m&&e.m.rpe;
   const L=['','Muy suave','Suave','Fácil','Moderado','Algo duro','Duro','Muy duro','Muy muy duro','Casi máximo','Máximo'];
   openSheet(`<div class="sheet-title">💪 ¿Cómo de dura ha sido?</div><div class="sub">${esc(h.emoji)} ${esc(h.name)} · ${longDate(k)} · ${fmtDur(minsOf(h,k))}</div>
-    <div class="rpe">${[1,2,3,4,5,6,7,8,9,10].map(v=>`<button class="${cur===v?'on':''}" style="${cur===v?'background:var(--acc);color:#000':''}" onclick="saveRPE('${id}','${k}',${v})">${v}<br><small style="font-weight:500;font-size:.58rem">${L[v]}</small></button>`).join('')}</div>
+    <div class="rpe">${[1,2,3,4,5,6,7,8,9,10].map(v=>`<button class="${cur===v?'on':''}" style="${cur===v?'background:var(--acc);color:#000':''}" onclick="saveRPE('${id}','${k}',${v})">${v}<br><small style="font-weight:500;font-size:.7rem">${L[v]}</small></button>`).join('')}</div>
     <p class="hint">RPE: esfuerzo percibido de toda la sesión, del 1 al 10. Con esto y los minutos calculo tu carga.</p>`);
 }
 function saveRPE(id,k,v){const h=getH(id);pushUndo();const e=ens(h,k);e.m={...(e.m||{}),rpe:v};save();closeSheet();render();toast(`RPE ${v} · carga ${Math.round(v*minsOf(h,k))}`,[undoAct()]);}
@@ -2278,6 +2319,20 @@ function subscribeSheet(){
     <p class="hint">${c&&c.gistId?'✅ Con la nube conectada este calendario incluye tus cambios (anular, mover, cambiar hora). Si ya estabas suscrito a un calendario de Rutina, quítalo (Ajustes › Calendario › Cuentas › Calendarios suscritos) para no ver todo repetido.':'Ojo: refleja tu plan, no los cambios que hagas a mano. Conecta la nube (Ajustes › Nube) para que también los incluya.'}</p>`);
 }
 
+/* ═════════════ iPHONE: SCROLL Y TECLADO ═════════════ */
+// Bloquear el fondo al abrir una hoja (en iOS «overflow:hidden» no basta): se fija el body y se recupera la posición
+let _scrollY=0;
+function lockScroll(on){const b=document.body;
+  if(on){_scrollY=window.scrollY;b.style.position='fixed';b.style.top=`-${_scrollY}px`;b.style.left='0';b.style.right='0';}
+  else if(b.style.position==='fixed'){b.style.position='';b.style.top='';b.style.left='';b.style.right='';window.scrollTo(0,_scrollY);}}
+// Teclado: la hoja se apoya encima del teclado y el campo activo se centra en lo que queda visible
+(function(){const vv=window.visualViewport;if(!vv)return;
+  const upd=()=>{const kb=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);const r=document.documentElement.style;
+    r.setProperty('--kb',(kb>80?kb:0)+'px');r.setProperty('--vvh',vv.height+'px');document.body.classList.toggle('kb-on',kb>80);};
+  vv.addEventListener('resize',upd);vv.addEventListener('scroll',upd);upd();})();
+document.addEventListener('focusin',e=>{const el=e.target;if(!el.matches||!el.matches('input,textarea,select'))return;
+  if(!el.closest('#sheet'))return;setTimeout(()=>{try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(x){}},350);});
+
 /* ═════════════ SHEET ═════════════ */
 function openSheet(html,keep){
   if(html!==null&&html!==undefined)$('#sheetBody').innerHTML=html;
@@ -2285,7 +2340,8 @@ function openSheet(html,keep){
   // Una entrada en el historial por hoja abierta (para cerrarla con «atrás»). Si aún hay un «atrás» pendiente de la hoja
   // anterior (abrir una hoja justo al cerrar otra, p. ej. dos confirmaciones seguidas), se vuelve a añadir cuando llegue.
   if(!$('#sheet').classList.contains('on')&&!_pushed){if(_skipPop){_pushed=true;_deferPush=true;}else{try{history.pushState({sheet:1},'');_pushed=true;}catch(e){}}}
-  $('#ov').classList.add('on');$('#sheet').classList.add('on');document.body.style.overflow='hidden';
+  if(!$('#sheet').classList.contains('on'))lockScroll(true);
+  $('#ov').classList.add('on');$('#sheet').classList.add('on');
 }
 var _skipPop=false,_pushed=false,_deferPush=false;
 try{if(history.state&&history.state.sheet)history.replaceState(null,'');}catch(e){}
@@ -2293,14 +2349,15 @@ function closeSheet(fromPop){
   if(!$('#sheet').classList.contains('on'))return;
   if(_pushed){_pushed=false;if(_deferPush)_deferPush=false;else if(!fromPop){_skipPop=true;try{history.back();}catch(e){_skipPop=false;}}}
   $('#sheet').style.transform='';
-  $('#ov').classList.remove('on');$('#sheet').classList.remove('on');document.body.style.overflow='';D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
+  $('#ov').classList.remove('on');$('#sheet').classList.remove('on');lockScroll(false);D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
 
 /* ═════════════ INICIO ═════════════ */
 let _lastDay=todayK();
+// Cambio de día (al volver a la app o a medianoche con la app abierta): si mirabas «hoy», pasa al día nuevo
+function dayRollover(){const t=todayK();if(t===_lastDay)return false;if(sel===_lastDay)sel=t;_lastDay=t;return true;}
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState!=='visible')return;
-  const t=todayK();if(t!==_lastDay){if(sel===_lastDay)sel=t;_lastDay=t;}
-  render();
+  dayRollover();render();
 });
 applyAccent();
 addEventListener('popstate',()=>{if(_skipPop){_skipPop=false;if(_deferPush){_deferPush=false;try{history.pushState({sheet:1},'');}catch(e){}}return;}if($('#sheet').classList.contains('on'))closeSheet(true);});

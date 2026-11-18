@@ -1,5 +1,17 @@
 # Rutina · Changelog
 
+## v1.11 · 18 nov 2026 · Auditoría, trozo 2: arreglos de iPhone
+- Objetivos táctiles de 44 px o más en todas las pantallas y hojas (medido en `tests/test_v111.py`); iconos del editor en 7 columnas.
+- Letra mínima de 11 px (antes había textos de 8,8 px); `--dim` pasa a `#80808C` (4,7:1); la barra inferior usa `--muted`.
+- `color-scheme: dark` (meta y CSS): selectores de fecha, hora y listas en oscuro; los campos de fecha y hora vacíos ya no se quedan sin altura.
+- Teclado: con `visualViewport` la hoja se apoya encima del teclado (`--kb`) y el campo activo se centra; se oculta la barra inferior mientras escribes.
+- Hojas: el fondo se bloquea con `position: fixed` (en iOS `overflow: hidden` no basta) y se recupera la posición al cerrar.
+- Toasts en varias líneas, dentro de la pantalla, por encima de la píldora del cronómetro y sin tapar lo de debajo (solo sus botones reciben toques).
+- Cambio de día a medianoche con la app abierta (`dayRollover`).
+- Vibración en iPhone con el interruptor nativo de iOS 18 (`<input switch>`); en Android, `navigator.vibrate`.
+- Texto de «Avisos con la app abierta» corregido: solo funcionan con la app en pantalla.
+- Check-in, RPE y días centrados; márgenes laterales con `safe-area` en horizontal; respeta `prefers-reduced-motion`.
+
 ## v1.10 · 18 nov 2026 · Auditoría, trozo 1: datos seguros
 - Deshacer: la foto incluye registros, agenda, pausas, día mínimo, check-in, simulacros, notas y planes de un día; cada aviso deshace solo su acción (un «Deshacer» antiguo ya no devuelve los datos atrás). Arreglado el check-in, que ofrecía deshacer sin foto.
 - «Marcar hecho» desde la agenda o el plan completo marca el día del bloque (`act(id,k)`), no el seleccionado.

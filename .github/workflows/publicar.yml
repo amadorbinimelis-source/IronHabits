@@ -32,6 +32,7 @@ jobs:
           python tests/test_drag_movil.py
           python tests/test_v19.py
           python tests/test_v110.py
+          python tests/test_v111.py
       - name: Preparar la web
         run: |
           mkdir _site
