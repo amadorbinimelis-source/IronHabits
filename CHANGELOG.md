@@ -1,5 +1,15 @@
 # Rutina · Changelog
 
+## v1.9 · 18 nov 2026 (plan v11)
+- Nube: sincronización con un gist secreto de GitHub (token solo con permiso `gist`, guardado solo en el dispositivo y excluido de las copias). Sube los cambios a los 6 s y al salir de la app; al abrirla trae lo último; pregunta si hay cambios en los dos lados. Publica `rutina-agenda.ics` con los cambios manuales para la suscripción del calendario.
+- Carga de entreno (método de Foster: RPE × min) para hábitos con métrica `rpe` (boxeo y ahora fuerza), ACWR 7/28 días con zonas y aviso en Hoy si > 1,5; botón «💪 RPE» al completar.
+- Simulacros B2 First: tablas oficiales de Cambridge (practice test → Cambridge English Scale), interpolación lineal, nota global, grado, parte más floja, historial; acceso desde Stats, el detalle de Inglés y el toast de los días de simulacro.
+- Resumen de mañana (desde las 20:00) y notificación a las 22:00 si los avisos están activos.
+- Check-in diario de sueño y energía con estadísticas (cumplimiento según energía y sueño, energía por día de la semana).
+- Arrastre horizontal en Semana / 3 días para cambiar un hábito de día (respeta movidos y extras).
+- Revisión semanal: incluye carga, sueño/energía y simulacros.
+- Tests nuevos: `tests/test_v19.py` (GitHub simulado).
+
 ## v1.8 · 18 nov 2026
 - Arrastrar bloques en la agenda (Día, 3 días, Semana): pulsación larga de 0,35 s en móvil (un deslizamiento rápido sigue siendo scroll), arrastre directo con ratón; ajuste a 15 min, etiqueta con la hora nueva, vibración al coger el bloque.
 - Al soltar usa la misma lógica que el cambio manual (`setEvTime`): repercute en Hoy, estadísticas y avisos de solape; con Deshacer.

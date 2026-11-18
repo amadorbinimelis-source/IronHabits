@@ -131,7 +131,8 @@ MINIMAL = {
 METRICS = {
     "fuerza": [{"id": "mu", "label": "Muscle-ups seguidos (mejor serie)", "unit": "reps"},
                {"id": "pino", "label": "Mejor aguante de pino", "unit": "s"},
-               {"id": "kg", "label": "Peso principal de pierna", "unit": "kg"}],
+               {"id": "kg", "label": "Peso principal de pierna", "unit": "kg"},
+               {"id": "rpe", "label": "Intensidad de la sesión (RPE)", "unit": "/10"}],
     "boxeo": [{"id": "rpe", "label": "Intensidad de la sesión (RPE)", "unit": "/10"}],
     "fr": [{"id": "isla", "label": "Isla en la que vas", "unit": "nº"}],
     "en": [{"id": "uoe", "label": "Use of English", "unit": "%"},

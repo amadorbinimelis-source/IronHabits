@@ -337,6 +337,21 @@ nav button.on{color:var(--acc)}
 .drag-tip{position:fixed;z-index:400;pointer-events:none;background:var(--text);color:var(--bg);font-weight:800;font-size:.8rem;padding:5px 9px;border-radius:8px;transform:translate(-50%,-130%)}
 body.drag-on{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .ag-ev,.agw-ev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.ci{display:flex;gap:6px;margin-top:6px}
+.ci button{flex:1;padding:9px 0;border-radius:10px;background:var(--card2);border:1px solid var(--border);font-weight:800;font-size:.9rem}
+.ci button.on{background:var(--acc);color:#000;border-color:var(--acc)}
+.ci-lb{font-size:.78rem;font-weight:700;margin-top:8px}
+.tm-row{display:flex;gap:10px;align-items:center;padding:6px 0;font-size:.85rem;border-bottom:1px solid var(--border)}
+.tm-row:last-child{border-bottom:none}.tm-row span:first-child{width:46px;font-weight:800;color:var(--acc)}
+.acwr{display:flex;align-items:center;gap:12px}
+.acwr b{font-size:1.6rem;font-weight:800}
+.zone{font-size:.72rem;font-weight:800;padding:4px 9px;border-radius:99px}
+.mock-grid{display:grid;grid-template-columns:1fr 70px 56px;gap:6px 10px;align-items:center;font-size:.84rem}
+.mock-grid input{padding:9px;text-align:center}
+.mock-grid .sc{font-weight:800;text-align:right}
+.rpe{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.rpe button{padding:12px 0;border-radius:10px;background:var(--card2);border:1px solid var(--border);font-weight:800}
+.cloud-ok{color:#22C55E}.cloud-bad{color:#F87171}
 #toast{position:fixed;left:50%;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);transform:translate(-50%,10px);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 #toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #toast button{margin-left:12px;color:var(--acc);font-weight:800}
@@ -409,8 +424,9 @@ body.drag-on{user-select:none;-webkit-user-select:none;-webkit-touch-callout:non
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.8';
+const APP_VERSION='1.9';
 const CHANGELOG=[
+  ['1.9','18 nov 2026',['☁️ Copia automática en la nube (tu GitHub, privado): la recuperas en cualquier dispositivo y el calendario suscrito incluye tus cambios','💪 Carga de entreno: RPE × minutos y ratio agudo:crónico con aviso si subes demasiado rápido','🎯 Simulacros B2 First con nota en la escala oficial de Cambridge y tu parte más floja','🌙 Resumen de mañana a partir de las 20:00 (y aviso a las 22:00)','☀️ Check-in de sueño y energía: qué días rindes más','Arrastra un hábito a otro día en la vista Semana o 3 días']],
   ['1.8','18 nov 2026',['Agenda: mantén pulsado un bloque y arrástralo para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva mientras lo mueves)','Funciona en Día, 3 días y Semana; con ratón en el ordenador','Sigue existiendo el cambio manual tocando el bloque, y puedes Deshacer']],
   ['1.7.1','18 nov 2026',['Arreglado: en el iPhone no se podían cerrar las ventanas de las tareas','Ahora se cierran con ✕, tocando la zona oscura, deslizando hacia abajo o con el botón atrás']],
   ['1.7','18 nov 2026',['Publicada en GitHub Pages: instalable en el iPhone y se actualiza sola','📅 Suscripción al calendario del iPhone / Google con aviso 5 min antes de cada tarea']],
@@ -443,11 +459,12 @@ const TYPES=[
 /* ═════════════ ESTADO ═════════════ */
 const SCHEMA=3;
 const PLAN_KEY='rutina_plan_v1'; // lo pesado (agenda y planes) va aparte y solo se guarda al cargar un plan
-const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{}};
+const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[]};
 // Migraciones: cada versión del esquema añade lo que falta sin tocar los registros.
 function migrate(s){
   s.schema=s.schema||1;
   if(s.schema<2){s.agenda=s.agenda||{};s.agendaBase=s.agendaBase||{};s.agendaUntil=s.agendaUntil||'';s.schema=2;}
+  s.checkins=s.checkins||{};s.mocks=s.mocks||[];
   if(s.schema<3){s.pauses=s.pauses||[];s.minDays=s.minDays||{};s.reviews=s.reviews||{};s._needPlanSave=true;s.schema=3;}
   return s;
 }
@@ -468,7 +485,7 @@ function savePlan(){
     localStorage.setItem(PLAN_KEY,JSON.stringify(P));}catch(e){toast('⚠️ No se pudo guardar el plan');}
 }
 let S=load();
-function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}}
+function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}if(typeof cloudDirty==='function')cloudDirty();}
 
 let view='hoy';
 let sel=todayK();
@@ -769,7 +786,7 @@ function renderHoy(){
   }
   const hs=dayHabits(k);
   const done=hs.filter(h=>isDone(h,k)).length,fut=k>t,minOn=!!(S.minDays||{})[k];
-  let html=(k===t?nowCard(k):'')+banners(k);
+  let html=(k===t?nowCard(k)+tomorrowCard()+checkinCard(k):'')+banners(k);
   html+=`<div class="card sum">
     <div class="sum-ring">${ring(hs.length?done/hs.length:0,64,7,'var(--acc)')}<b>${hs.length?Math.round(done/hs.length*100):0}%</b></div>
     <div><div class="sum-t">${fut?`${hs.length} hábito${hs.length===1?'':'s'} programado${hs.length===1?'':'s'}`:hs.length?`${done} de ${hs.length} completados`:'Día libre'}</div>
@@ -868,7 +885,10 @@ function clean(h,k){
 function commit(h,k,was){
   clean(h,k);save();
   const now=isDone(h,k);
-  const acts=[undoAct()];if(now&&!was&&(h.metrics||[]).length)acts.push(['📈 Registrar',()=>metricSheet(h.id,k)]);
+  const acts=[undoAct()];
+  if(now&&!was&&isTrain(h))acts.push(['💪 RPE',()=>rpeSheet(h.id,k)]);
+  else if(now&&!was&&h.id==='en'&&/simulacro/i.test(((planFor(h,k)||{}).tag||'')+((planFor(h,k)||{}).text||'').slice(0,120)))acts.push(['🎯 Nota',()=>mockSheet(k)]);
+  else if(now&&!was&&(h.metrics||[]).length)acts.push(['📈 Registrar',()=>metricSheet(h.id,k)]);
   if(now&&!was){
     buzz();
     const st=dayStats(k);
@@ -1064,7 +1084,7 @@ function weekGrid(n=7){
   for(let h=h0+1;h<h1;h++)html+=`<span style="top:${(h-h0)*HP}px">${pad(h)}:00</span>`;
   html+=`</div>`;
   days.forEach((k,i)=>{
-    html+=`<div class="agw-day" style="height:${H}px;${lines}">`;
+    html+=`<div class="agw-day" data-colk="${k}" style="height:${H}px;${lines}">`;
     for(const e of layout(evs[i].map(x=>({...x})))){
       const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60),top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
       const w=100/e._lanes,title=WEEK_SHORT[e.id]||e.title.replace(/ · /,' ');
@@ -1223,6 +1243,7 @@ function openDetail(id){
     <div class="hm-wrap" id="hmWrap"><div class="hm-months" style="grid-template-columns:repeat(${W},13px)">${hm.months}</div>
       <div class="hm-big" style="grid-template-columns:repeat(${W},13px)">${hm.cells}</div></div>
     ${weekHistBlock(h)}
+    ${h.id==='en'?mocksBlock(true):''}
     ${metricsBlock(h)}
     ${dp.length?`<div class="sec">Planes de días concretos</div>${dp.map(k=>`<div class="dp-item"><div><b>${longDate(k)}</b>${esc(h.plan.dates[k])}</div></div>`).join('')}`:''}
     ${goalBox(h)}
@@ -1401,6 +1422,9 @@ function renderStats(){
     <button class="banner" onclick="reviewSheet()">🗓️<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
     <div class="sec">Cumplimiento por semana</div>
     <div class="card"><div class="bars">${bars}</div></div>
+    ${loadBlock()}
+    ${mocksBlock()}
+    ${energyBlock()}
     <div class="sec">Todos los hábitos · desde el inicio</div>
     <div class="card"><div class="hm" style="grid-template-columns:repeat(${W},1fr)">${cells}</div></div>
     <div class="sec">Ranking · 30 días</div>
@@ -1425,6 +1449,8 @@ function renderSet(){
     <div class="sec">Pausas</div>
     <button class="row-btn" onclick="pauseSheet()">🏖️<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
+    <div class="sec">Nube</div>
+    ${cloudRow()}
     <div class="sec">Otros</div>
     <button class="row-btn" onclick="loadExamples()">🧪<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>
     <button class="row-btn danger" onclick="wipe()">🗑️<div>Borrar todos los datos</div></button>
@@ -1552,6 +1578,7 @@ function banners(k){
   if((wd===0||wd===1)&&!(S.reviews||{})[rk])out+=`<button class="banner" onclick="reviewSheet('${rk}')">🗓️<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`;
   const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
   if(hasData&&(!le||diffDays(le,t)>=7))out+=`<button class="banner warn" onclick="backupSheet()">💾<div><b>Haz una copia de seguridad</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'}</small></div><span class="go">Hacer ›</span></button>`;
+  const aw=acwr(t);if(aw.enough&&aw.r>1.5)out+=`<button class="banner warn" onclick="go('stats')">⚠️<div><b>Pico de carga de entreno (${aw.r.toFixed(2)})</b><small>Has subido mucho respecto a tus últimas 4 semanas. Baja intensidad o volumen unos días.</small></div></button>`;
   const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)out+=`<div class="banner warn">📅<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`;
   return out;
 }
@@ -1570,6 +1597,7 @@ function metricSheet(id,k){
   const h=getH(id);if(!h)return;k=k||sel;const e=entry(h,k)||{},m=e.m||{};
   openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">📈 ${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">${longDate(k)}</div>
     ${(h.metrics||[]).map(x=>`<div class="mrow"><label>${esc(x.label)}${x.unit?` <span class="hint">(${esc(x.unit)})</span>`:''}</label><input type="number" inputmode="decimal" step="any" id="mt-${x.id}" value="${m[x.id]??''}"></div>`).join('')}
+    ${id==='en'?`<button class="btn ghost" style="margin-top:6px" onclick="mockSheet('${k}')">🎯 Registrar un simulacro (nota en escala Cambridge)</button>`:''}
     <label class="lbl">Cómo ha ido</label><textarea id="mtNote" rows="3" placeholder="Sensaciones, cargas, lo que te ha costado…">${esc(e.note||'')}</textarea>
     <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveMetrics('${id}','${k}')">Guardar</button></div></div>`);
 }
@@ -1613,6 +1641,9 @@ function reviewText(r){
     r.canc.length?`Anulados/movidos: ${r.canc.join('; ')}`:'',
     r.metr.length?`Progreso: ${r.metr.join('; ')}`:'',
     r.next.length?`La semana que viene: ${r.next.join('; ')}`:'',
+    (()=>{const a=acwr(addDays(r.ws,6)),L=loadRange(r.ws,addDays(r.ws,6)).L;return L?`Carga de entreno: ${Math.round(L)} (RPE×min)${a.enough&&a.r?` · ACWR ${a.r.toFixed(2)} (${acwrZone(a.r)[0]})`:''}`:''})(),
+    (()=>{const c=r.days.map(k=>(S.checkins||{})[k]).filter(Boolean);if(!c.length)return '';const av=f=>{const v=c.map(x=>x[f]).filter(Boolean);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'—';};return `Sueño medio ${av('sleep')}/5 · energía media ${av('energy')}/5`;})(),
+    (()=>{const m=(S.mocks||[]).filter(m=>m.date>=r.ws&&m.date<=addDays(r.ws,6));return m.length?'Simulacros B2: '+m.map(x=>{const q=mockScore(x);return `${shortDate(x.date)} ${q.overall} (${Object.entries(q.sc).map(([p,v])=>B2T[p].n+' '+(v??'<122')).join(', ')})`;}).join('; '):''})(),
     'Notas: '+r.days.map(k=>S.notes[k]?`${shortDate(k)}: ${S.notes[k]}`:'').filter(Boolean).join(' | ')].filter(Boolean).join('\n');
 }
 function reviewSheet(ws){
@@ -1665,13 +1696,13 @@ function icsSheet(){
     <label class="chk"><input type="checkbox" id="icM"> Incluir comidas y cenas</label>
     <div class="btns"><button class="btn pri" onclick="exportICS()">Crear y abrir</button></div>`);
 }
-function buildICS(f,to,meals){
+function buildICS(f,to,meals,descLen=600){
   const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rutina//ES','CALSCALE:GREGORIAN','X-WR-CALNAME:Rutina'];let n=0;
   const dt=(k,hm)=>{let m=tm(hm),kk=k;if(m>=1440){m-=1440;kk=addDays(k,1);}return kk.replace(/-/g,'')+'T'+pad(Math.floor(m/60))+pad(m%60)+'00';};
   for(let k=f;k<=to;k=addDays(k,1))for(const e of dayEvents(k)){
     if(e.cancelled)continue;if(!(e.kind==='habito'||e.kind==='fijo'||(meals&&(e.id==='comida'||e.id==='cena'))))continue;
     const h=e.habit?getH(e.habit):null,pl=h?planFor(h,k):null;
-    const desc=pl&&pl.text?pl.text.slice(0,600):(e.detail||'');
+    const desc=pl&&pl.text?pl.text.slice(0,descLen):(e.detail||'');
     L.push('BEGIN:VEVENT',`UID:${k}-${e.id.replace(':','-')}@rutina`,`DTSTAMP:${todayK().replace(/-/g,'')}T000000Z`,`DTSTART:${dt(k,e.start)}`,`DTEND:${dt(k,e.end)}`,
       `SUMMARY:${icsEsc((h?h.emoji+' ':'')+e.title)}`,`DESCRIPTION:${icsEsc(desc)}`,'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(e.title)}`,'TRIGGER:-PT5M','END:VALARM','END:VEVENT');n++;}
   L.push('END:VCALENDAR');return{text:L.join('\r\n'),n};
@@ -1696,6 +1727,7 @@ function checkNotify(m){
   if(!S.settings.notif)return;const k=todayK();
   for(const e of dayEvents(k)){if(e.cancelled||!(e.kind==='habito'||e.kind==='fijo'))continue;
     const st=tm(e.start),key=k+e.id;if(st-5<=m&&m<st&&!_notified.has(key)){_notified.add(key);notify(`${evIcon(e)} ${e.title} a las ${fmtT(st)}`,'Empieza en 5 minutos');}}
+  if(m>=22*60&&m<22*60+5&&!_notified.has(k+'manana')){_notified.add(k+'manana');const tm_=tomorrowInfo();if(tm_)notify('🌙 Mañana',tm_.text);}
 }
 
 /* ═════════════ ARRASTRAR BLOQUES ═════════════
@@ -1713,7 +1745,8 @@ function dragStart(el,x,y,instant){
   if(!instant)DRAG.timer=setTimeout(()=>dragActivate(),350);
 }
 function dragActivate(){
-  const el=DRAG.el;if(!el)return;DRAG.on=true;el.classList.add('dragging');document.body.classList.add('drag-on');
+  const el=DRAG.el;if(!el)return;DRAG.on=true;
+  const grid=el.closest('.agw');DRAG.cols=grid?[...grid.querySelectorAll('.agw-day')]:[];DRAG.toK=el.dataset.k;el.classList.add('dragging');document.body.classList.add('drag-on');
   if(navigator.vibrate)navigator.vibrate(15);
   DRAG.tip=document.createElement('div');DRAG.tip.className='drag-tip';document.body.appendChild(DRAG.tip);dragShow(DRAG.y0,DRAG.x0);
 }
@@ -1724,8 +1757,15 @@ function dragNewTimes(el=DRAG.el){
 function dragShow(y,x){
   const el=DRAG.el,px=+el.dataset.px,[ns,ne]=dragNewTimes();
   el.style.top=(DRAG.top0+(ns-+el.dataset.s)*px)+'px';
+  // Cambiar de día (solo hábitos, en Semana / 3 días)
+  if(DRAG.cols&&DRAG.cols.length>1&&el.dataset.id.startsWith('h:')&&x!=null){
+    const own=DRAG.cols.find(c=>c.dataset.colk===el.dataset.k),r0=own.getBoundingClientRect();
+    let tgt=DRAG.cols.find(c=>{const r=c.getBoundingClientRect();return x>=r.left&&x<r.right;})||(x<r0.left?DRAG.cols[0]:x>=r0.right?DRAG.cols[DRAG.cols.length-1]:own);
+    DRAG.toK=tgt.dataset.colk;el.style.transform=`translateX(${tgt.getBoundingClientRect().left-r0.left}px)`;
+  }
+  const dl=DRAG.toK&&DRAG.toK!==el.dataset.k?`${DOW_N[dow(DRAG.toK)].slice(0,3).toLowerCase()} ${+DRAG.toK.slice(8)} · `:'';
   const sm=el.querySelector('small');if(sm)sm.textContent=`${fmtT(ns)}–${fmtT(ne)}`;
-  if(DRAG.tip){DRAG.tip.textContent=`${fmtT(ns)}–${fmtT(ne)}`;DRAG.tip.style.left=x+'px';DRAG.tip.style.top=y+'px';}
+  if(DRAG.tip){DRAG.tip.textContent=`${dl}${fmtT(ns)}–${fmtT(ne)}`;DRAG.tip.style.left=x+'px';DRAG.tip.style.top=y+'px';}
 }
 function dragMove(x,y,ev){
   if(!DRAG.el)return;
@@ -1745,7 +1785,8 @@ function dragEnd(){
   if(!el||!DRAG.on)return;
   DRAG.on=false;DRAG.eatClick=true;setTimeout(()=>DRAG.eatClick=false,400);
   el.classList.remove('dragging');
-  const[ns,ne]=dragNewTimes(el);
+  const[ns,ne]=dragNewTimes(el),toK=DRAG.toK||el.dataset.k;DRAG.toK=null;DRAG.cols=null;
+  if(toK!==el.dataset.k)return dragToDay(el.dataset.k,el.dataset.id.slice(2),toK,fmtT(ns),fmtT(ne));
   if(ns===+el.dataset.s){render();return;}
   setEvTime(el.dataset.k,el.dataset.id,fmtT(ns),fmtT(ne));
 }
@@ -1758,6 +1799,240 @@ document.addEventListener('mousemove',e=>{if(DRAG.el)dragMove(e.clientX,e.client
 document.addEventListener('mouseup',dragEnd);
 document.addEventListener('click',e=>{if(DRAG.eatClick&&e.target.closest('[data-drag]')){e.stopPropagation();e.preventDefault();DRAG.eatClick=false;}},true);
 document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-drag]'))e.preventDefault();});
+
+/* ═════════════ MOVER DE DÍA ARRASTRANDO ═════════════ */
+function dragToDay(k,hid,to,s,e){
+  const h=getH(hid);if(!h)return render();
+  if(isDone(h,k)){render();return toast(`${h.name} ya está hecho ese día: no se mueve`);}
+  if(showOn(h,to)){render();return toast(`El ${shortDate(to)} ya tienes ${h.name}`);}
+  pushUndo();
+  const mi=agOv(k,'in:'+hid);
+  if(mi&&mi.extra){agSet(k,'in:'+hid,null);agSet(to,'in:'+hid,{extra:true,start:s,end:e});}
+  else if(mi&&mi.from){agSet(k,'in:'+hid,null);
+    if(to===mi.from){agSet(mi.from,'h:'+hid,null);const b=baseEvent(to,'h:'+hid);if(!(b&&b.start===s))agSet(to,'h:'+hid,{start:s,end:e});}
+    else{agSet(mi.from,'h:'+hid,{moveTo:to});agSet(to,'in:'+hid,{from:mi.from,start:s,end:e});}}
+  else{agSet(k,'h:'+hid,{moveTo:to});agSet(to,'in:'+hid,{from:k,start:s,end:e});}
+  if(S.timer&&S.timer.hid===hid&&S.timer.k===k)S.timer=null;
+  const ov=overlaps(to,'h:'+hid,tm(s),tm(e));
+  afterAg(`${h.emoji} ${h.name} → ${DOW_N[dow(to)].toLowerCase()} ${shortDate(to)} a las ${s}${ov.length?` · se solapa con ${ov[0]}`:''}`);
+}
+
+/* ═════════════ RESUMEN DE MAÑANA ═════════════ */
+function tomorrowInfo(){
+  const t=todayK(),tk=addDays(t,1);
+  const evs=dayEvents(tk).filter(e=>!e.cancelled&&(e.kind==='habito'||e.kind==='fijo'));
+  const bed=dayEvents(t).find(e=>e.kind==='sueno'&&!e.cancelled&&tm(e.start)>=18*60);
+  const wake=bed?fmtT((tm(bed.start)+8*60)%1440):null;
+  if(!evs.length&&!wake)return null;
+  const first=evs[0];
+  return{tk,evs,bed:bed?fmtT(tm(bed.start)):null,wake,text:`${bed?`Acuéstate a las ${fmtT(tm(bed.start))} y levántate a las ${wake}. `:''}${first?`Empiezas con ${first.title} a las ${fmtT(tm(first.start))}`:''}${evs.length>1?` · ${evs.length} tareas`:''}`};
+}
+function tomorrowCard(){
+  if(new Date().getHours()<20)return '';const i=tomorrowInfo();if(!i)return '';
+  return `<div class="card"><b style="font-size:.95rem">🌙 Mañana · ${DOW_N[dow(i.tk)].toLowerCase()} ${shortDate(i.tk)}</b>${i.bed?`<p class="hint" style="margin:2px 0 6px">A dormir a las ${i.bed} · arriba a las ${i.wake}</p>`:''}
+    ${i.evs.slice(0,7).map(e=>`<div class="tm-row"><span>${fmtT(tm(e.start))}</span><span>${evIcon(e)} ${esc(e.title)}</span></div>`).join('')}
+    <button class="btn ghost mt8" onclick="pick('${i.tk}')">Ver el plan de mañana</button></div>`;
+}
+
+/* ═════════════ CHECK-IN DE SUEÑO Y ENERGÍA ═════════════ */
+function checkinCard(k){
+  const c=(S.checkins||{})[k]||{};if(c.sleep&&c.energy)return '';
+  const row=(f,lb)=>`<div class="ci-lb">${lb}</div><div class="ci">${[1,2,3,4,5].map(v=>`<button class="${c[f]===v?'on':''}" onclick="setCI('${k}','${f}',${v})">${v}</button>`).join('')}</div>`;
+  return `<div class="card"><div class="wk-hd"><b>☀️ ¿Cómo estás hoy?</b><small>1 = fatal · 5 = genial</small></div>${row('sleep','😴 Cómo has dormido')}${row('energy','⚡ Energía')}</div>`;
+}
+function setCI(k,f,v){S.checkins=S.checkins||{};S.checkins[k]={...(S.checkins[k]||{}),[f]:v};save();render();if(S.checkins[k].sleep&&S.checkins[k].energy)toast('Apuntado ☀️',[undoAct()]);}
+function energyBlock(){
+  const t=todayK(),ks=Object.keys(S.checkins||{}).filter(k=>k>addDays(t,-60)&&k<=t).sort();
+  if(ks.length<5)return `<div class="sec">Sueño y energía</div><div class="card"><p class="hint" style="margin:0">Responde el «¿Cómo estás hoy?» de Hoy unos días (${ks.length}/5) y aquí verás qué días rindes más y qué te lo quita.</p></div>`;
+  const avg=(arr)=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null,f1=v=>v==null?'—':v.toFixed(1);
+  const C=S.checkins,sl=avg(ks.map(k=>C[k].sleep).filter(Boolean)),en=avg(ks.map(k=>C[k].energy).filter(Boolean));
+  const rate=list=>{let d=0,n=0;for(const k of list){if(k>=t)continue;const s=dayStats(k);d+=s.done;n+=s.total;}return n?Math.round(d/n*100):null;};
+  const hi=rate(ks.filter(k=>C[k].energy>=4)),lo=rate(ks.filter(k=>C[k].energy&&C[k].energy<=2));
+  const sh=rate(ks.filter(k=>C[k].sleep>=4)),sb=rate(ks.filter(k=>C[k].sleep&&C[k].sleep<=2));
+  const byD=[1,2,3,4,5,6,0].map(d=>({d,v:avg(ks.filter(k=>dow(k)===d).map(k=>C[k].energy).filter(Boolean))}));
+  const best=byD.filter(x=>x.v!=null).sort((a,b)=>b.v-a.v)[0],worst=byD.filter(x=>x.v!=null).sort((a,b)=>a.v-b.v)[0];
+  const H=50;
+  return `<div class="sec">Sueño y energía · ${ks.length} días</div><div class="card">
+    <div class="kpis" style="margin:0 0 10px"><div class="kpi"><b>${f1(sl)}</b><span>😴 Sueño medio</span></div><div class="kpi"><b>${f1(en)}</b><span>⚡ Energía media</span></div></div>
+    ${[hi,lo,sh,sb].some(v=>v!=null)?'<div class="sec" style="margin-top:4px">Cuánto cumples según cómo estás</div>':''}
+    ${hi!=null?`<div class="rv-row">⚡ Días con energía alta (4–5)<span class="p">${hi}%</span></div>`:''}
+    ${lo!=null?`<div class="rv-row">🪫 Días con energía baja (1–2)<span class="p">${lo}%</span></div>`:''}
+    ${sh!=null?`<div class="rv-row">😴 Después de dormir bien<span class="p">${sh}%</span></div>`:''}
+    ${sb!=null?`<div class="rv-row">🥱 Después de dormir mal<span class="p">${sb}%</span></div>`:''}
+    <div class="sec" style="margin-top:8px">Energía media por día de la semana</div>
+    <div class="wk-hist">${byD.map(x=>`<div><i style="height:${x.v?Math.round(x.v/5*H):2}px;background:var(--acc);opacity:${x.v?.85:.25}"></i><span>${DOW_L[x.d]}</span></div>`).join('')}</div>
+    ${best&&worst&&best.d!==worst.d?`<p class="hint" style="margin:8px 0 0">Tu mejor día suele ser el ${DOW_N[best.d].toLowerCase()} y el más flojo el ${DOW_N[worst.d].toLowerCase()}.</p>`:''}</div>`;
+}
+
+/* ═════════════ CARGA DE ENTRENO (RPE × min, ACWR) ═════════════ */
+function isTrain(h){return (h.metrics||[]).some(m=>m.id==='rpe');}
+function sessLoad(h,k){if(!isDone(h,k))return null;const e=entry(h,k)||{},r=e.m&&e.m.rpe!=null?+e.m.rpe:null,mins=minsOf(h,k);return{load:(r??6)*mins,est:r==null,rpe:r,mins};}
+function dayLoad(k){let L=0,est=0;for(const h of S.habits)if(!h.archived&&isTrain(h)){const x=sessLoad(h,k);if(x){L+=x.load;if(x.est)est++;}}return{L,est};}
+function loadRange(a,b){let L=0,est=0;for(let k=a;k<=b;k=addDays(k,1)){const d=dayLoad(k);L+=d.L;est+=d.est;}return{L,est};}
+function acwr(k=todayK()){
+  const a=loadRange(addDays(k,-6),k).L,c=loadRange(addDays(k,-27),k).L/4;
+  let first=null;for(const d of Object.keys(S.logs).sort()){if(S.habits.some(h=>isTrain(h)&&isDone(h,d))){first=d;break;}}
+  return{a,c,r:c>0?a/c:null,enough:!!first&&diffDays(first,k)>=21};
+}
+function acwrZone(r){if(r==null)return['Sin datos','var(--muted)',''];if(r<0.8)return['Baja','#60A5FA','Entrenas menos de lo habitual: puedes apretar un poco.'];if(r<=1.3)return['Óptima','#22C55E','Zona segura: progresas sin riesgo.'];if(r<=1.5)return['Ojo','#FBBF24','Has subido rápido: no añadas más esta semana.'];return['Riesgo','#F87171','Pico de carga: baja intensidad o volumen unos días.'];}
+function loadBlock(){
+  if(!S.habits.some(h=>!h.archived&&isTrain(h)))return '';
+  const t=todayK(),aw=acwr(t),[zn,zc,zt]=acwrZone(aw.enough?aw.r:null),tw=weekStartK(t);
+  const weeks=[...Array(8)].map((_,i)=>{const ws=addDays(tw,-7*(7-i));return{ws,...loadRange(ws,addDays(ws,6))};});
+  const mx=Math.max(1,...weeks.map(w=>w.L)),H=56,est=loadRange(addDays(t,-27),t).est;
+  return `<div class="sec">Carga de entreno</div><div class="card">
+    <div class="acwr"><b>${aw.enough&&aw.r!=null?aw.r.toFixed(2):'—'}</b><div style="flex:1"><span class="zone" style="background:color-mix(in srgb,${zc} 20%,transparent);color:${zc}">${aw.enough?zn:'Faltan datos'}</span><p class="hint" style="margin:4px 0 0">${aw.enough?zt:'Necesito 3 semanas de entrenos para calcular el ratio con fiabilidad.'}</p></div></div>
+    <p class="hint">Ratio agudo:crónico = carga de los últimos 7 días ÷ media semanal de las últimas 4. Esta semana: ${Math.round(aw.a)} · media: ${Math.round(aw.c)} (RPE × minutos).</p>
+    <div class="wk-hist">${weeks.map(w=>`<div title="${Math.round(w.L)}"><i style="height:${Math.max(2,Math.round(w.L/mx*H))}px;background:var(--acc)"></i><span>${shortDate(w.ws).split(' ')[0]}</span></div>`).join('')}</div>
+    ${est?`<p class="hint" style="margin:8px 0 0">${est} sesión${est===1?'':'es'} sin RPE: cuento un 6. Apúntalo al acabar (botón «💪 RPE») para que sea exacto.</p>`:''}</div>`;
+}
+function rpeSheet(id,k){
+  const h=getH(id);if(!h)return;k=k||sel;const e=entry(h,k)||{},cur=e.m&&e.m.rpe;
+  const L=['','Muy suave','Suave','Fácil','Moderado','Algo duro','Duro','Muy duro','Muy muy duro','Casi máximo','Máximo'];
+  openSheet(`<div class="sheet-title">💪 ¿Cómo de dura ha sido?</div><div class="sub">${esc(h.emoji)} ${esc(h.name)} · ${longDate(k)} · ${fmtDur(minsOf(h,k))}</div>
+    <div class="rpe">${[1,2,3,4,5,6,7,8,9,10].map(v=>`<button class="${cur===v?'on':''}" style="${cur===v?'background:var(--acc);color:#000':''}" onclick="saveRPE('${id}','${k}',${v})">${v}<br><small style="font-weight:500;font-size:.58rem">${L[v]}</small></button>`).join('')}</div>
+    <p class="hint">RPE: esfuerzo percibido de toda la sesión, del 1 al 10. Con esto y los minutos calculo tu carga.</p>`);
+}
+function saveRPE(id,k,v){const h=getH(id);pushUndo();const e=ens(h,k);e.m={...(e.m||{}),rpe:v};save();closeSheet();render();toast(`RPE ${v} · carga ${Math.round(v*minsOf(h,k))}`,[undoAct()]);}
+
+/* ═════════════ SIMULACROS B2 FIRST ═════════════
+   Tablas oficiales de Cambridge (practice test score → Cambridge English Scale), interpolación lineal entre puntos. */
+const B2T={r:{n:'Reading',max:42,a:[[10,122],[16,140],[24,160],[37,180],[42,190]]},u:{n:'Use of English',max:28,a:[[7,122],[11,140],[18,160],[24,180],[28,190]]},
+  w:{n:'Writing',max:40,a:[[10,122],[16,140],[24,160],[34,180],[40,190]]},l:{n:'Listening',max:30,a:[[8,122],[12,140],[18,160],[27,180],[30,190]]},s:{n:'Speaking',max:60,a:[[14,122],[24,140],[36,160],[54,180],[60,190]]}};
+function toScale(p,raw){if(raw==null||raw==='')return null;raw=+raw;const a=B2T[p].a;if(raw<a[0][0])return null;for(let i=1;i<a.length;i++)if(raw<=a[i][0]){const[x0,y0]=a[i-1],[x1,y1]=a[i];return Math.round(y0+(raw-x0)*(y1-y0)/(x1-x0));}return 190;}
+function mockScore(m){const sc={};let sum=0,n=0;for(const p in B2T){if(m[p]==null||m[p]==='')continue;const v=toScale(p,m[p]);sc[p]=v;sum+=v==null?120:v;n++;}return{sc,n,overall:n?Math.round(sum/n):null};}
+function grade(o){if(o==null)return['—','var(--muted)'];if(o>=180)return['A · nivel C1','#22C55E'];if(o>=173)return['B · aprobado','#22C55E'];if(o>=160)return['C · aprobado','#84CC16'];if(o>=140)return['B1 · no aprueba el B2','#FBBF24'];return['Por debajo de B1','#F87171'];}
+function mockSheet(k){
+  k=k||todayK();
+  openSheet(`<div class="sheet-title">🎯 Simulacro B2 First</div><div class="sub mb12">Pon los puntos brutos de cada parte (las que hayas hecho)</div>
+    <label class="lbl" style="margin-top:0">Fecha</label><input type="date" id="mkD" value="${k}">
+    <div class="mock-grid" style="margin-top:12px"><b>Parte</b><b style="text-align:center">Puntos</b><b style="text-align:right">Escala</b>
+    ${Object.entries(B2T).map(([p,x])=>`<span>${x.n} <small class="hint">/ ${x.max}</small></span><input type="number" inputmode="numeric" min="0" max="${x.max}" id="mk-${p}" oninput="mockLive()"><span class="sc" id="mks-${p}">—</span>`).join('')}</div>
+    <div class="fp-goal" style="--hc:var(--acc)" id="mkTot"><b>Nota global: —</b><small>Aprobado B2: 160 · B: 173 · A (C1): 180</small></div>
+    <p class="hint">Reading: partes 1, 5, 6, 7 (1, 2, 2, 1 punto por pregunta) · Use of English: partes 2, 3, 4 (la 4 vale 2) · Writing: 2 tareas de 0–20 · Speaking: 0–60 (si practicas con Claude, pídele que te puntúe).</p>
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveMock()">Guardar</button></div>`);
+}
+function mockRead(){const m={date:$('#mkD').value};for(const p in B2T){const v=$('#mk-'+p).value;if(v!==''){m[p]=Math.max(0,Math.min(B2T[p].max,+v));}}return m;}
+function mockLive(){const m=mockRead(),r=mockScore(m);for(const p in B2T)$('#mks-'+p).textContent=m[p]==null?'—':(r.sc[p]==null?'<122':r.sc[p]);const[g,c]=grade(r.overall);$('#mkTot').innerHTML=`<b style="color:${c}">Nota global: ${r.overall??'—'} · ${g}</b><small>${r.n<5&&r.n?`Estimada con ${r.n} de 5 partes · `:''}Aprobado B2: 160 · B: 173 · A (C1): 180</small>`;}
+function saveMock(){const m=mockRead();if(Object.keys(m).length<2)return toast('Pon al menos una parte');pushUndo();m.id=uid();S.mocks=S.mocks||[];S.mocks.push(m);S.mocks.sort((a,b)=>a.date<b.date?-1:1);save();closeSheet();render();const r=mockScore(m);toast(`🎯 ${r.overall} · ${grade(r.overall)[0]}`,[undoAct()]);}
+async function delMock(id){if(!await ask('Se borrará este simulacro.','Borrar',true))return;pushUndo();S.mocks=S.mocks.filter(m=>m.id!==id);save();render();}
+function mocksBlock(inDetail){
+  const ms=(S.mocks||[]).slice(),en=getH('en');if(!ms.length&&!en)return '';
+  const head=`<div class="sec">Simulacros B2 First${en&&en.goal?` · examen ${shortDate(en.goal.date)}`:''}</div>`;
+  if(!ms.length)return head+`<div class="card"><p class="hint" style="margin:0 0 10px">Cuando hagas un test completo o una parte, apunta los puntos: te digo tu nota en la escala oficial y cuál es tu parte más floja.</p><button class="btn pri" onclick="mockSheet()">🎯 Registrar simulacro</button></div>`;
+  const last=ms[ms.length-1],r=mockScore(last),[g,c]=grade(r.overall);
+  const avgP={};for(const p in B2T){const v=ms.slice(-3).map(m=>m[p]!=null?(toScale(p,m[p])??120):null).filter(v=>v!=null);if(v.length)avgP[p]=v.reduce((a,b)=>a+b,0)/v.length;}
+  const weak=Object.entries(avgP).sort((a,b)=>a[1]-b[1])[0];
+  const series=ms.map(m=>mockScore(m).overall).filter(v=>v!=null);
+  return head+`<div class="card">
+    <div class="acwr"><b style="color:${c}">${r.overall??'—'}</b><div style="flex:1"><span class="zone" style="background:color-mix(in srgb,${c} 20%,transparent);color:${c}">${g}</span><p class="hint" style="margin:4px 0 0">Último: ${shortDate(last.date)}${r.n<5?` · ${r.n} de 5 partes`:''}</p></div>${spark(series.slice(-12),S.settings.accent||'#22C55E')}</div>
+    ${weak?`<div class="rv-row">🎯 Parte más floja (últimos 3): <b>&nbsp;${B2T[weak[0]].n} (${Math.round(weak[1])})</b></div>`:''}
+    ${Object.entries(B2T).map(([p,x])=>r.sc[p]!==undefined?`<div class="rv-row">${x.n}<span class="p" style="color:${(r.sc[p]??0)>=160?'#22C55E':'#FBBF24'}">${last[p]}/${x.max} → ${r.sc[p]??'<122'}</span></div>`:'').join('')}
+    ${inDetail&&ms.length>1?`<div class="sec" style="margin-top:10px">Historial</div>${ms.slice().reverse().map(m=>{const q=mockScore(m);return `<div class="rv-row">${shortDate(m.date)} · ${q.n}/5 partes<span class="p">${q.overall}</span><button onclick="delMock('${m.id}')" style="margin-left:10px;color:var(--muted)">✕</button></div>`;}).join('')}`:''}
+    <button class="btn ghost mt8" onclick="mockSheet()">🎯 Registrar simulacro</button></div>`;
+}
+
+/* ═════════════ NUBE: copia automática y sincronización (gist secreto de GitHub) ═════════════
+   El código de acceso solo tiene permiso de gists y se guarda únicamente en este dispositivo (no va en las copias). */
+const CLOUD_KEY='rutina_cloud',DATA_FILE='rutina-datos.json',ICS_FILE='rutina-agenda.ics';
+function cloudCfg(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY)||'null');}catch(e){return null;}}
+function cloudSave(c){try{if(c)localStorage.setItem(CLOUD_KEY,JSON.stringify(c));else localStorage.removeItem(CLOUD_KEY);}catch(e){}}
+function cloudICS(){const c=cloudCfg();return c&&c.gistId?`https://gist.githubusercontent.com/${c.login}/${c.gistId}/raw/${ICS_FILE}`:null;}
+async function gh(path,opt={}){
+  const c=cloudCfg()||{};const r=await fetch('https://api.github.com'+path,{method:opt.method||'GET',body:opt.body,cache:'no-store',
+    headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+(opt.token||c.token),...(opt.body?{'Content-Type':'application/json'}:{})}});
+  if(!r.ok){const e=new Error('GitHub '+r.status);e.status=r.status;throw e;}return r.status===204?null:r.json();
+}
+function lightState(){return JSON.parse(JSON.stringify(S,(k,v)=>HEAVY.has(k)||k==='_needPlanSave'?undefined:v));}
+function devName(){const u=navigator.userAgent;return /iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':'Ordenador';}
+function agendaHash(){const s=JSON.stringify([S.agenda,S.habits.map(h=>[h.id,h.archived,h.plan&&h.plan.dates]),S.agendaUntil]);let x=0;for(let i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return x;}
+let _cloudT=null,_cloudBusy=false,_cloudApplying=false;
+function cloudDirty(){const c=cloudCfg();if(!c||!c.gistId||_cloudApplying)return;c.dirtyAt=Date.now();cloudSave(c);clearTimeout(_cloudT);_cloudT=setTimeout(cloudPush,6000);}
+async function cloudPush(force){
+  const c=cloudCfg();if(!c||!c.gistId||_cloudBusy)return;if(!force&&c.lastSync&&c.dirtyAt&&c.dirtyAt<=c.lastPushAt)return;
+  _cloudBusy=true;
+  try{
+    const savedAt=new Date().toISOString(),files={[DATA_FILE]:{content:JSON.stringify({kind:'rutina-sync',savedAt,device:devName(),state:lightState()})}};
+    const hsh=agendaHash();if(force||hsh!==c.icsHash||!c.icsAt||Date.now()-c.icsAt>6*3600e3){const t=todayK();files[ICS_FILE]={content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text};}
+    await gh('/gists/'+c.gistId,{method:'PATCH',body:JSON.stringify({files})});
+    const c2=cloudCfg()||c;c2.lastSync=savedAt;c2.lastPushAt=Date.now();c2.err=null;if(files[ICS_FILE]){c2.icsHash=hsh;c2.icsAt=Date.now();}cloudSave(c2);
+  }catch(e){const c2=cloudCfg();if(c2){c2.err=e.status===401?'auth':'net';cloudSave(c2);}}
+  finally{_cloudBusy=false;if(view==='set')renderSet();}
+}
+async function cloudRemote(c){const g=await gh('/gists/'+c.gistId);const f=g.files&&g.files[DATA_FILE];if(!f)return null;let txt=f.content;if(f.truncated){const r=await fetch(f.raw_url,{cache:'no-store'});txt=await r.text();}return JSON.parse(txt);}
+async function cloudApply(remote){
+  _cloudApplying=true;
+  try{localStorage.setItem(KEY,JSON.stringify(remote.state));S=load();if(!S.habits.some(h=>h.plan&&h.plan.program)){S.packs={};}save();applyAccent();await autoPlan();render();}
+  finally{_cloudApplying=false;}
+  const c=cloudCfg();if(c){c.lastSync=remote.savedAt;c.dirtyAt=0;c.lastPushAt=Date.now();cloudSave(c);}
+}
+async function cloudPull(){
+  const c=cloudCfg();if(!c||!c.gistId)return;
+  try{const rm=await cloudRemote(c);if(!rm||!rm.savedAt)return;
+    if(c.lastSync&&rm.savedAt<=c.lastSync)return;
+    const localChanges=c.dirtyAt&&c.dirtyAt>(c.lastPushAt||0);
+    if(localChanges){if(!await ask(`Hay cambios en la nube desde ${rm.device||'otro dispositivo'} (${new Date(rm.savedAt).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})}) y también cambios en este. ¿Cargar los de la nube? Si dices que no, se quedan los de este dispositivo.`,'Cargar los de la nube'))return cloudPush(true);}
+    await cloudApply(rm);toast(`☁️ Datos actualizados desde ${rm.device||'la nube'}`);
+  }catch(e){const c2=cloudCfg();if(c2){c2.err=e.status===401?'auth':'net';cloudSave(c2);}}
+}
+function cloudRow(){
+  const c=cloudCfg();
+  if(!c||!c.gistId)return `<button class="row-btn" onclick="cloudSheet()">☁️<div>Copia automática en la nube<small>Se guarda sola en tu GitHub (privado), la recuperas en cualquier móvil u ordenador y el calendario suscrito incluye tus cambios</small></div></button>`;
+  const when=c.lastSync?new Date(c.lastSync).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'}):'nunca';
+  const st=c.err==='auth'?'<span class="cloud-bad">El código ha caducado: vuelve a conectar</span>':c.err==='net'?'<span class="cloud-bad">Sin conexión: lo reintentaré</span>':`<span class="cloud-ok">Conectada</span> · última copia ${when}`;
+  return `<button class="row-btn" onclick="cloudSheet()">☁️<div>Nube (${esc(c.login)})<small>${st}</small></div></button>`;
+}
+function cloudSheet(){
+  const c=cloudCfg();
+  if(c&&c.gistId){
+    openSheet(`<div class="sheet-title">☁️ Nube</div><p class="hint">Conectada como <b>${esc(c.login)}</b>. Cada cambio se guarda solo en un gist secreto de tu GitHub (unos segundos después). Al abrir la app en otro dispositivo, carga lo último.</p>
+      <button class="row-btn" onclick="closeSheet();cloudPush(true).then(()=>toast('☁️ Copia hecha'))">⬆️<div>Guardar ahora</div></button>
+      <button class="row-btn" onclick="closeSheet();cloudForcePull()">⬇️<div>Cargar lo que hay en la nube<small>Sustituye lo de este dispositivo</small></div></button>
+      <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario con tus cambios</div></button>
+      ${c.err==='auth'?`<button class="row-btn" onclick="cloudDisconnect(true)">🔑<div>Volver a conectar</div></button>`:''}
+      <button class="row-btn" onclick="cloudDisconnect()">⏏️<div>Desconectar este dispositivo<small>Tus datos siguen en la nube y en este móvil</small></div></button>`);
+    return;
+  }
+  openSheet(`<div class="sheet-title">☁️ Copia automática en la nube</div>
+    <p class="hint">Usa tu cuenta de GitHub: tus datos se guardan en un <b>gist secreto</b> (una nota privada que solo ves tú). Una vez conectado no tienes que hacer nada más.</p>
+    <div class="sec">1 · Crea un código de acceso</div>
+    <a class="btn pri" style="display:block;text-align:center;text-decoration:none" href="https://github.com/settings/tokens/new?scopes=gist&description=Rutina%20app" target="_blank" rel="noopener">Abrir GitHub</a>
+    <p class="hint">Se abre con todo marcado. Solo cambia <b>Expiration</b> a <b>No expiration</b>, baja y pulsa <b>Generate token</b>. Copia el código que empieza por <b>ghp_</b>.</p>
+    <div class="sec">2 · Pégalo aquí</div>
+    <input id="tokIn" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <p class="hint">Este código solo permite crear y editar tus gists. Se guarda solo en este dispositivo y no va en las copias.</p>
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" id="tokBtn" onclick="cloudConnect()">Conectar</button></div>`);
+}
+async function cloudConnect(tokArg){
+  const tok=(tokArg||($('#tokIn')||{}).value||'').trim();if(!/^(ghp_|github_pat_|gho_)/.test(tok))return toast('Ese código no parece válido (empieza por ghp_)');
+  const b=$('#tokBtn');if(b){b.disabled=true;b.textContent='Conectando…';}
+  try{
+    const u=await gh('/user',{token:tok});
+    const list=await gh('/gists?per_page=100',{token:tok});
+    const found=(list||[]).find(g=>g.files&&g.files[DATA_FILE]);
+    let c={token:tok,login:u.login,gistId:found?found.id:null};
+    if(found){
+      cloudSave(c);const rm=await cloudRemote(c);
+      const localN=Object.keys(S.logs).length,remoteN=Object.keys((rm&&rm.state&&rm.state.logs)||{}).length;
+      let useRemote=remoteN>0&&localN===0;
+      if(remoteN>0&&localN>0)useRemote=await ask(`Ya tienes datos en la nube (${remoteN} días con registros, de ${rm.device||'otro dispositivo'}). En este dispositivo hay ${localN}. ¿Cargar los de la nube?`,'Cargar los de la nube');
+      if(useRemote){await cloudApply(rm);toast('☁️ Conectado · datos cargados');}
+      else{await cloudPush(true);toast('☁️ Conectado · copia hecha');}
+    }else{
+      const t=todayK();
+      const g=await gh('/gists',{token:tok,method:'POST',body:JSON.stringify({description:'Rutina · datos y agenda (no borrar)',public:false,files:{
+        [DATA_FILE]:{content:JSON.stringify({kind:'rutina-sync',savedAt:new Date().toISOString(),device:devName(),state:lightState()})},
+        [ICS_FILE]:{content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text}}})});
+      c.gistId=g.id;c.lastSync=new Date().toISOString();c.lastPushAt=Date.now();c.icsHash=agendaHash();c.icsAt=Date.now();cloudSave(c);
+      toast('☁️ Conectado · primera copia hecha');
+    }
+    closeSheet();renderSet();
+  }catch(e){if(b){b.disabled=false;b.textContent='Conectar';}toast(e.status===401?'❌ Código no válido o caducado':'❌ No se pudo conectar. Revisa la conexión');}
+}
+async function cloudForcePull(){const c=cloudCfg();if(!c)return;try{const rm=await cloudRemote(c);if(!rm)return toast('No hay datos en la nube');if(!await ask('Se sustituirá lo de este dispositivo por lo de la nube.','Cargar'))return;await cloudApply(rm);toast('☁️ Datos cargados');}catch(e){toast('❌ No se pudo cargar');}}
+async function cloudDisconnect(reconnect){if(!reconnect&&!await ask('Este dispositivo dejará de guardar en la nube. Tus datos no se borran.','Desconectar'))return;cloudSave(null);renderSet();if(reconnect)cloudSheet();else toast('Desconectado');}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){clearTimeout(_cloudT);cloudPush();}else cloudPull();});
+addEventListener('online',()=>cloudPush());
 
 /* ═════════════ PLAN COMPLETO ═════════════ */
 function planEnd(h){const pr=h.plan&&h.plan.program?Object.keys(h.plan.program).sort():[];return (h.goal&&h.goal.date)||pr[pr.length-1]||S.agendaUntil||addDays(todayK(),90);}
@@ -1878,7 +2153,7 @@ function removeExtra(k,hid){
 
 function icsURL(){const u=new URL('rutina.ics',location.href);return u.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(u.host)?u.href:null;}
 function subscribeSheet(){
-  const u=icsURL();
+  const c=cloudCfg(),u=c&&c.gistId?cloudICS():icsURL();
   if(!u)return openSheet(`<div class="sheet-title">📅 Suscribir el calendario</div><p class="hint">Disponible cuando la app esté publicada en tu dirección propia (GitHub Pages). Mientras tanto usa «Exportar unas semanas al calendario».</p>`);
   const w=u.replace(/^https:/,'webcal:');
   openSheet(`<div class="sheet-title">📅 Suscribir el calendario</div>
@@ -1889,7 +2164,7 @@ function subscribeSheet(){
     <div class="sec">Google Calendar</div>
     <button class="btn ghost" onclick="navigator.clipboard.writeText('${u}').then(()=>toast('Enlace copiado'))">Copiar enlace</button>
     <p class="hint">En el ordenador: calendar.google.com › «Otros calendarios» › «+» › «Desde URL» y pega el enlace.</p>
-    <p class="hint">Ojo: refleja tu plan, no los cambios que hagas a mano en la app (anular, mover). Para esos días usa «Exportar unas semanas».</p>`);
+    <p class="hint">${c&&c.gistId?'✅ Con la nube conectada este calendario incluye tus cambios (anular, mover, cambiar hora). Si ya estabas suscrito al de antes, quítalo para no ver todo repetido.':'Ojo: refleja tu plan, no los cambios que hagas a mano. Conecta la nube (Ajustes › Nube) para que también los incluya.'}</p>`);
 }
 
 /* ═════════════ SHEET ═════════════ */
@@ -1926,7 +2201,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();
-autoPlan();
+autoPlan().then(()=>cloudPull());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
