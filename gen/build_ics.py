@@ -1,4 +1,4 @@
-"""Genera rutina.ics: calendario de suscripción (iPhone / Google Calendar) con hábitos y compromisos fijos.
+"""Genera ironhabits.ics: calendario de suscripción (iPhone / Google Calendar) con hábitos y compromisos fijos.
 Cada evento lleva un aviso 5 min antes y, si es un hábito, lo que toca ese día. Se regenera en cada publicación."""
 import json, datetime, pathlib, re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -28,8 +28,8 @@ def plan_text(hid, day):
     return re.sub(r"\n{2,}", "\n", txt)[:900]
 
 stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Rutina//ES", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-     "X-WR-CALNAME:Rutina", "X-WR-TIMEZONE:Europe/Madrid", "REFRESH-INTERVAL;VALUE=DURATION:PT6H", "X-PUBLISHED-TTL:PT6H",
+L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//IronHabits//ES", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+     "X-WR-CALNAME:IronHabits", "X-WR-TIMEZONE:Europe/Madrid", "REFRESH-INTERVAL;VALUE=DURATION:PT6H", "X-PUBLISHED-TTL:PT6H",
      "BEGIN:VTIMEZONE", "TZID:Europe/Madrid",
      "BEGIN:DAYLIGHT", "TZOFFSETFROM:+0100", "TZOFFSETTO:+0200", "TZNAME:CEST", "DTSTART:19700329T020000", "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU", "END:DAYLIGHT",
      "BEGIN:STANDARD", "TZOFFSETFROM:+0200", "TZOFFSETTO:+0100", "TZNAME:CET", "DTSTART:19701025T030000", "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU", "END:STANDARD",
@@ -40,11 +40,11 @@ for day in sorted(pack["agenda"]):
         if e["kind"] not in ("habito", "fijo"): continue
         hid = e.get("habit"); emoji = H[hid]["emoji"] + " " if hid in H else ""
         desc = plan_text(hid, day) if hid else e.get("detail", "")
-        L += ["BEGIN:VEVENT", f"UID:{day}-{e['id'].replace(':', '-')}@rutina", f"DTSTAMP:{stamp}",
+        L += ["BEGIN:VEVENT", f"UID:{day}-{e['id'].replace(':', '-')}@ironhabits", f"DTSTAMP:{stamp}",
               f"DTSTART;TZID=Europe/Madrid:{dt(day, e['start'])}", f"DTEND;TZID=Europe/Madrid:{dt(day, e['end'])}",
               f"SUMMARY:{esc(emoji + e['title'])}", f"DESCRIPTION:{esc(desc)}",
               "BEGIN:VALARM", "ACTION:DISPLAY", f"DESCRIPTION:{esc(e['title'])}", "TRIGGER:-PT5M", "END:VALARM", "END:VEVENT"]
         n += 1
 L.append("END:VCALENDAR")
-(ROOT / "rutina.ics").write_text("\r\n".join(fold(x) for x in L) + "\r\n", encoding="utf-8")
-print(f"rutina.ics: {n} eventos, {(ROOT / 'rutina.ics').stat().st_size // 1024} KB")
+(ROOT / "ironhabits.ics").write_text("\r\n".join(fold(x) for x in L) + "\r\n", encoding="utf-8")
+print(f"ironhabits.ics: {n} eventos, {(ROOT / 'ironhabits.ics').stat().st_size // 1024} KB")

@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Rutina">
-<title>Rutina</title>
+<meta name="apple-mobile-web-app-title" content="IronHabits">
+<title>IronHabits</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
@@ -670,8 +670,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.14';
+const APP_VERSION='1.15';
 const CHANGELOG=[
+  ['1.15','19 nov 2026',['💪 La app ahora se llama IronHabits (antes Rutina). Tus datos, copias y nube se conservan','Si usas la nube, vuelve a suscribir el calendario una vez: el enlace tiene el nombre nuevo']],
   ['1.14','19 nov 2026',['🕗 Hora en tus hábitos: los que crees tú salen en la agenda, en «Ahora / Después» y en el calendario','⏳ Cuenta atrás en Hoy: tus próximos exámenes y metas (B2, B1…)','🎉 Celebración al completar el día','📝 Tus notas: todas juntas y con buscador','👋 Guía rápida de la app (también en Ajustes)']],
   ['1.13.1','19 nov 2026',['Arreglado: «Añadir hábitos de ejemplo» ya no duplica los hábitos de tu plan, y se pueden quitar de una vez','«Borrar datos» ahora deja elegir: solo tus registros (el plan y la agenda se quedan) o todo y volver al plan inicial']],
   ['1.13','19 nov 2026',['🧭 4 pestañas: Hoy, Agenda, Progreso (hábitos + estadísticas) y Ajustes','Hoy más limpio: una sola tarjeta con lo importante y el resto en la campana 🔔; tus hábitos se ven sin hacer scroll','Toca el nombre de un hábito para ver u ocultar su plan; el botón ⋯ abre 5 opciones claras','✍️ «Apuntar»: tiempo, cantidad, progreso y nota en una sola ventana','👈 Desliza un hábito a la izquierda para pasarlo a mañana o saltarlo','Franjas «Por la mañana / tarde / noche» (ya no se confunde con «Mañana»)','Ajustes ordenados: una forma de calendario y una de copia','Tus cambios en un hábito ya no se pierden al actualizar el plan']],
@@ -692,7 +693,11 @@ const CHANGELOG=[
   ['1.2','18 nov 2026',['Plan completo: entreno, francés (HyperLingua), inglés (B2 First), estudio y diagnóstico diferencial','El plan se carga solo desde plan.json']],
   ['1.0','18 nov 2026',['Primera versión: hábitos, rachas, mapas de calor, estadísticas y copias']],
 ];
-const KEY='rutina_v1';
+const KEY='ironhabits_v1';
+// La app se llamaba «Rutina»: las claves antiguas se pasan a las nuevas la primera vez (y se borran después)
+const OLD_KEYS={rutina_v1:'ironhabits_v1',rutina_plan_v1:'ironhabits_plan_v1',rutina_cloud:'ironhabits_cloud'};
+// Si existe una clave antigua es que la escribió una versión anterior después de la última migración: es lo más reciente.
+(function(){try{for(const o in OLD_KEYS){const v=localStorage.getItem(o);if(v!==null){localStorage.setItem(OLD_KEYS[o],v);localStorage.removeItem(o);}}}catch(e){}})();
 // Paleta afinada para fondo oscuro (mismo brillo percibido, sin colores chillones). Los hábitos ya creados conservan su color.
 const COLORS=['#22C55E','#4ADE80','#60A5FA','#2DD4BF','#A3E635','#FBBF24','#FB923C','#F87171','#F472B6','#C084FC','#818CF8','#94A3B8'];
 const EMOJIS=['💪','🥊','🏋️','🏃','🚴','🏊','🧘','🤸','📚','🧠','✍️','🎓','🇫🇷','🇬🇧','🗣️','💧','🥗','🍎','💊','😴','🦷','🚿','🧴','🧹','📵','📈','💰','🎯','❤️','🩺','🎸','☀️','🌙','📝','🙏','🐾'];
@@ -742,7 +747,7 @@ function ri(n){return `<span class="ri" style="--ic:${ICON_HUE[n]||'var(--acc)'}
 
 /* ═════════════ ESTADO ═════════════ */
 const SCHEMA=3;
-const PLAN_KEY='rutina_plan_v1'; // lo pesado (agenda y planes) va aparte y solo se guarda al cargar un plan
+const PLAN_KEY='ironhabits_plan_v1'; // lo pesado (agenda y planes) va aparte y solo se guarda al cargar un plan
 const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[]};
 // Migraciones: cada versión del esquema añade lo que falta sin tocar los registros.
 function migrate(s){
@@ -815,6 +820,7 @@ function ask(msg,ok='Aceptar',danger=false){return new Promise(res=>{_dlg=res;op
 function dlgDone(v){const r=_dlg;_dlg=null;closeSheet();if(r)r(v);}
 function getH(id){return S.habits.find(h=>h.id===id);}
 function hexA(hex,a){return hex+a;}
+function isPlanKind(k){return k==='ironhabits-plan'||k==='rutina-plan';} // «rutina-plan»: planes de cuando la app se llamaba Rutina
 
 function ring(p,size,sw,color){
   const r=(size-sw)/2,c=2*Math.PI*r,o=c*(1-Math.max(0,Math.min(1,p||0))),h=size/2;
@@ -1386,7 +1392,7 @@ function saveDayPlan(id){
 function resetDayPlan(id){const h=getH(id);pushUndo();if(h.plan&&h.plan.dates)delete h.plan.dates[sel];save();closeSheet();render();toast('Vuelve el plan normal',[undoAct()]);}
 
 /* ═════════════ AGENDA ═════════════ */
-const KIND={fijo:['Obligatorio','#F97316'],habito:['Hábito',null],comida:['Comida','#84CC16'],trayecto:['Trayecto','#64748B'],libre:['Tiempo libre','#55555F'],sueno:['Sueño','#6366F1'],rutina:['Rutina','#94A3B8']};
+const KIND={fijo:['Obligatorio','#F97316'],habito:['Hábito',null],comida:['Comida','#84CC16'],trayecto:['Trayecto','#64748B'],libre:['Tiempo libre','#55555F'],sueno:['Sueño','#6366F1'],rutina:['Día a día','#94A3B8']};
 const KIND_COLOR={clase:'#60A5FA',futbol:'#F97316',partido:'#F97316',mimi:'#E879F9'};
 let agView='day';
 const AG0=6*60,AG1=24*60+40;
@@ -1853,7 +1859,7 @@ function renderSet(){
     ${S.habits.some(h=>h.example)?`<button class="row-btn" onclick="removeExamples()">${ri('flask')}<div>Quitar los hábitos de ejemplo<small>${S.habits.filter(h=>h.example).length} ejemplos</small></div></button>`:hasPlan()?'':`<button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>`}
     <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar datos<small>Solo tus registros, o todo y volver al plan inicial</small></div></button>
     ${isStandalone()?'':`<div class="card"><p class="hint" style="margin:0">Instálala: en iPhone, ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación».</p></div>`}
-    <p class="hint" style="text-align:center;margin-top:16px">Rutina v${APP_VERSION} · datos v${S.schema} · ${S.habits.length} hábitos · ${Object.keys(S.logs).length} días con registros</p>`;
+    <p class="hint" style="text-align:center;margin-top:16px">IronHabits v${APP_VERSION} · datos v${S.schema} · ${S.habits.length} hábitos · ${Object.keys(S.logs).length} días con registros</p>`;
 }
 function historySheet(){openSheet(`<div class="sheet-title">Novedades</div>${CHANGELOG.map(([v,d,items],i)=>`<div style="${i?'margin-top:14px':''}"><b>v${v}</b> <span class="hint">· ${d}</span><ul class="chlog">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}`);}
 function calMoreSheet(){openSheet(`<div class="sheet-title">Calendario y avisos</div><p class="hint">Lo recomendado es «Suscribir el calendario». Esto es para casos concretos.</p>
@@ -1868,14 +1874,14 @@ async function shareFile(name,text,type,title){
   try{const f=new File([text],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title});return true;}}catch(e){if(e&&e.name==='AbortError')return false;}
   downloadFile(name,text,type);return true;
 }
-function exportData(){downloadFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json');markExport();toast('Copia descargada 📤');}
+function exportData(){downloadFile(`ironhabits-backup-${todayK()}.json`,backupJSON(),'application/json');markExport();toast('Copia descargada 📤');}
 function backupSheet(){
   openSheet(`<div class="sheet-title">💾 Exportar o importar</div><p class="hint">Guarda una copia fuera del móvil (Drive, iCloud, correo…) o tráela desde otro. ${cloudCfg()&&cloudCfg().gistId?'Con la nube conectada ya se guarda sola; esto es por si quieres un archivo.':'Si conectas la nube, se guarda sola.'}</p>
     <button class="row-btn" onclick="shareBackup()">${ri('upload')}<div>Guardar una copia<small>Elige Drive, Archivos, WhatsApp a ti mismo… (o se descarga)</small></div></button>
     <button class="row-btn" onclick="closeSheet();$('#importIn').click()">${ri('download')}<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade hábitos y conserva tus registros</small></div></button>
     <button class="row-btn" onclick="copyBackup()">${ri('copy')}<div>Copiar como texto<small>Por si no puedes guardar archivos</small></div></button>`);
 }
-async function shareBackup(){const ok=await shareFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json','Copia de Rutina');if(ok){markExport();closeSheet();toast('Copia guardada 💾');}}
+async function shareBackup(){const ok=await shareFile(`ironhabits-backup-${todayK()}.json`,backupJSON(),'application/json','Copia de IronHabits');if(ok){markExport();closeSheet();toast('Copia guardada 💾');}}
 async function copyBackup(){try{await navigator.clipboard.writeText(backupJSON());markExport();toast('Copia copiada al portapapeles');}catch(e){openSheet(`<div class="sheet-title">Copia en texto</div><p class="hint">Selecciona todo y cópialo.</p><textarea rows="10" onclick="this.select()">${esc(backupJSON())}</textarea>`);markExport();}}
 function importData(input){
   const f=input.files[0];if(!f)return;
@@ -1883,7 +1889,7 @@ function importData(input){
   rd.onload=e=>{
     try{
       const d=JSON.parse(e.target.result);
-      if(d&&d.kind==='rutina-plan'){
+      if(d&&isPlanKind(d.kind)){
         ask(`¿Cargar el plan (${d.habits.length} hábito${d.habits.length===1?'':'s'})? Tus registros se conservan.`,'Cargar plan').then(async ok=>{if(!ok)return;await safetySnap('Antes de cargar un plan');mergePack(d);go('hoy');toast('📥 Plan cargado');});return;
       }
       if(!d||!Array.isArray(d.habits)||typeof d.logs!=='object')return toast('❌ Archivo no válido');
@@ -1919,7 +1925,7 @@ async function wipeAll(){
 
 /* Planes (plan.json) */
 function mergePack(pack){
-  if(!pack||pack.kind!=='rutina-plan'||!Array.isArray(pack.habits))return false;
+  if(!pack||!isPlanKind(pack.kind)||!Array.isArray(pack.habits))return false;
   const base=blankHabit();
   for(const ph of pack.habits){
     const ex=getH(ph.id);
@@ -1944,7 +1950,7 @@ async function autoPlan(){
   try{
     const ac=new AbortController(),to=setTimeout(()=>ac.abort(),10000);
     const r=await fetch('plan.json',{cache:'no-store',signal:ac.signal});clearTimeout(to);if(!r.ok)return;
-    const p=await r.json();if(!p||p.kind!=='rutina-plan')return;
+    const p=await r.json();if(!p||!isPlanKind(p.kind))return;
     const cur=((S.packs||{})[p.id||'plan'])||0;
     if((p.version||1)>cur){if(cur)await safetySnap('Antes de actualizar el plan');mergePack(p);render();toast(cur?'📥 Plan actualizado':'📥 Plan cargado');}
   }catch(e){}
@@ -2043,7 +2049,7 @@ function notesSheet(){
 
 /* ═════════════ BIENVENIDA ═════════════ */
 const WELCOME=[
-  ['👋','Esto es Rutina','Cada día te dice qué hacer exactamente. Empieza en <b>Hoy</b>: arriba ves lo más importante del momento y, debajo, tus hábitos por franjas.'],
+  ['👋','Esto es IronHabits','Cada día te dice qué hacer exactamente. Empieza en <b>Hoy</b>: arriba ves lo más importante del momento y, debajo, tus hábitos por franjas.'],
   ['✅','Marcar y ver el plan','Toca el <b>círculo</b> de la derecha para marcar un hábito. Toca su <b>nombre</b> para ver u ocultar el plan del día. El botón <b>⋯</b> tiene todo lo demás: apuntar tiempo, mover, cambiar el plan o editar.'],
   ['👈','Moverlo o saltarlo','<b>Desliza un hábito a la izquierda</b> para pasarlo a mañana o saltarlo. En <b>Agenda</b>, mantén pulsado un bloque y arrástralo para cambiarle la hora. Todo se puede deshacer.'],
   ['📊','Tu progreso y tus datos','En <b>Progreso</b> ves rachas, mapas de calor y la revisión semanal. En <b>Ajustes</b> conecta la nube y suscribe el calendario para tener avisos con el móvil bloqueado.'],
@@ -2128,7 +2134,7 @@ function weekSummary(ws){
 }
 function reviewText(r){
   const pct=r.N?Math.round(r.D/r.N*100):0;
-  return [`Revisión semanal Rutina · semana del ${shortDate(r.ws)}`,`Cumplimiento: ${r.D}/${r.N} (${pct}%)${r.mins?` · ${r.mins} en versión mínima`:''}`,
+  return [`Revisión semanal IronHabits · semana del ${shortDate(r.ws)}`,`Cumplimiento: ${r.D}/${r.N} (${pct}%)${r.mins?` · ${r.mins} en versión mínima`:''}`,
     ...r.per.map(p=>`- ${p.h.emoji} ${p.h.name}: ${p.d}/${p.n} sesiones · ${fmtDur(p.wm)} de ${fmtDur(p.g)}${p.g&&p.wm>=p.g?' ✓':''}${p.mn?` (${p.mn} mínimas)`:''}`),
     r.miss.length?`Fallados: ${r.miss.join('; ')}`:'Fallados: ninguno',
     r.canc.length?`Anulados/movidos: ${r.canc.join('; ')}`:'',
@@ -2190,26 +2196,26 @@ function icsSheet(){
     <div class="btns"><button class="btn pri" onclick="exportICS()">Crear y abrir</button></div>`);
 }
 function buildICS(f,to,meals,descLen=600){
-  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rutina//ES','CALSCALE:GREGORIAN','X-WR-CALNAME:Rutina'];let n=0;
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//IronHabits//ES','CALSCALE:GREGORIAN','X-WR-CALNAME:IronHabits'];let n=0;
   const dt=(k,hm)=>{let m=tm(hm),kk=k;if(m>=1440){m-=1440;kk=addDays(k,1);}return kk.replace(/-/g,'')+'T'+pad(Math.floor(m/60))+pad(m%60)+'00';};
   for(let k=f;k<=to;k=addDays(k,1))for(const e of dayEvents(k)){
     if(e.cancelled)continue;if(!(e.kind==='habito'||e.kind==='fijo'||(meals&&(e.id==='comida'||e.id==='cena'))))continue;
     const h=e.habit?getH(e.habit):null,pl=h?planFor(h,k):null;
     const desc=pl&&pl.text?pl.text.slice(0,descLen):(e.detail||'');
-    L.push('BEGIN:VEVENT',`UID:${k}-${e.id.replace(':','-')}@rutina`,`DTSTAMP:${todayK().replace(/-/g,'')}T000000Z`,`DTSTART:${dt(k,e.start)}`,`DTEND:${dt(k,e.end)}`,
+    L.push('BEGIN:VEVENT',`UID:${k}-${e.id.replace(':','-')}@ironhabits`,`DTSTAMP:${todayK().replace(/-/g,'')}T000000Z`,`DTSTART:${dt(k,e.start)}`,`DTEND:${dt(k,e.end)}`,
       `SUMMARY:${icsEsc((h?h.emoji+' ':'')+e.title)}`,`DESCRIPTION:${icsEsc(desc)}`,'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(e.title)}`,'TRIGGER:-PT5M','END:VALARM','END:VEVENT');n++;}
   L.push('END:VCALENDAR');return{text:L.join('\r\n'),n};
 }
 async function exportICS(){
   const f=$('#icF').value,to=$('#icT').value,meals=$('#icM').checked;if(!f||!to||to<f)return toast('Revisa las fechas');
   const{text,n}=buildICS(f,to,meals);if(!n)return toast('No hay tareas en esas fechas');
-  await shareFile(`rutina-${f}_a_${to}.ics`,text,'text/calendar','Agenda de Rutina');closeSheet();toast(`${n} tareas exportadas 🔔`);
+  await shareFile(`ironhabits-${f}_a_${to}.ics`,text,'text/calendar','Agenda de IronHabits');closeSheet();toast(`${n} tareas exportadas 🔔`);
 }
 async function toggleNotif(){
   if(S.settings.notif){S.settings.notif=false;save();renderSet();return toast('Avisos desactivados');}
   if(!('Notification' in window))return toast('Este navegador no permite notificaciones');
   const p=await Notification.requestPermission();if(p!=='granted')return toast('Permiso denegado');
-  S.settings.notif=true;save();renderSet();notify('Rutina','Te avisaré al empezar cada tarea mientras la app esté abierta.');
+  S.settings.notif=true;save();renderSet();notify('IronHabits','Te avisaré al empezar cada tarea mientras la app esté abierta.');
 }
 function notify(title,body){
   if(!S.settings.notif||!('Notification' in window)||Notification.permission!=='granted')return;
@@ -2429,7 +2435,7 @@ function mocksBlock(inDetail){
 /* ═════════════ COPIAS AUTOMÁTICAS EN EL MÓVIL (IndexedDB) ═════════════
    Una copia al día (se guardan los últimos 7 días) y otra antes de cada cambio grande:
    importar, borrar todo, cargar desde la nube, actualizar el plan o restaurar. Se recuperan en Ajustes. */
-const SNAP_DB='rutina-copias',SNAP_DAYS=7,SNAP_PRE=6;
+const SNAP_DB='ironhabits-copias',OLD_SNAP_DB='rutina-copias',SNAP_DAYS=7,SNAP_PRE=6;
 function snapDB(){return new Promise((res,rej)=>{if(!window.indexedDB)return rej(new Error('sin IndexedDB'));const r=indexedDB.open(SNAP_DB,1);
   r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('snaps'))r.result.createObjectStore('snaps',{keyPath:'id'});};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 async function snapRun(mode,fn){const db=await snapDB();return new Promise((res,rej)=>{const tx=db.transaction('snaps',mode),st=tx.objectStore('snaps');let out;
@@ -2443,6 +2449,15 @@ async function writeSnap(kind,reason){
   const all=await snapList(),autos=all.filter(x=>x.kind==='auto'),pres=all.filter(x=>x.kind==='pre');
   const drop=[...autos.slice(SNAP_DAYS),...pres.slice(SNAP_PRE)];
   if(drop.length)await snapRun('readwrite',st=>{drop.forEach(x=>st.delete(x.id));});
+}
+// Copias guardadas con el nombre antiguo de la app: se pasan a la base nueva una vez
+async function migrateSnaps(){
+  if(localStorage.getItem('ironhabits_snapmig')||!window.indexedDB)return;
+  try{const old=await new Promise((res,rej)=>{const r=indexedDB.open(OLD_SNAP_DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('snaps'))r.result.createObjectStore('snaps',{keyPath:'id'});};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+    const items=await new Promise(res=>{const q=old.transaction('snaps').objectStore('snaps').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([]);});old.close();
+    if(items.length)await snapRun('readwrite',st=>{items.forEach(x=>st.put(x));});
+    indexedDB.deleteDatabase(OLD_SNAP_DB);localStorage.setItem('ironhabits_snapmig','1');
+  }catch(e){}
 }
 let _snapT=null;
 function snapSoon(){clearTimeout(_snapT);_snapT=setTimeout(()=>writeSnap('auto').catch(()=>{}),4000);}
@@ -2476,12 +2491,12 @@ function isStandalone(){return navigator.standalone===true||(window.matchMedia&&
    Dos gists separados: uno con tus datos y otro solo con el calendario (el que se comparte con
    el Calendario del iPhone o Google). Así el enlace del calendario no lleva a tus datos.
    El código de acceso solo tiene permiso de gists y se guarda únicamente en este dispositivo (no va en las copias). */
-const CLOUD_KEY='rutina_cloud',DATA_FILE='rutina-datos.json',ICS_FILE='rutina-agenda.ics';
+const CLOUD_KEY='ironhabits_cloud',DATA_FILE='ironhabits-datos.json',ICS_FILE='ironhabits-agenda.ics',OLD_DATA='rutina-datos.json',OLD_ICS='rutina-agenda.ics';
 function cloudCfg(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY)||'null');}catch(e){return null;}}
 function cloudSave(c){try{if(c)localStorage.setItem(CLOUD_KEY,JSON.stringify(c));else localStorage.removeItem(CLOUD_KEY);}catch(e){}}
 function cloudLegacy(c){return !!(c&&c.gistId&&!c.icsGist);} // formato antiguo: datos y calendario en el mismo gist
 function cloudPending(c){return !!(c&&c.dirtyAt&&c.dirtyAt>(c.lastPushAt||0));}
-function cloudICS(){const c=cloudCfg();return c&&c.gistId?`https://gist.githubusercontent.com/${c.login}/${c.icsGist||c.gistId}/raw/${ICS_FILE}`:null;}
+function cloudICS(){const c=cloudCfg();return c&&c.gistId?`https://gist.githubusercontent.com/${c.login}/${c.icsGist||c.gistId}/raw/${c.names2?ICS_FILE:OLD_ICS}`:null;}
 async function gh(path,opt={}){
   const c=cloudCfg()||{};const r=await fetch('https://api.github.com'+path,{method:opt.method||'GET',body:opt.body,cache:'no-store',keepalive:!!opt.keepalive,
     headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+(opt.token||c.token),...(opt.body?{'Content-Type':'application/json'}:{})}});
@@ -2490,12 +2505,12 @@ async function gh(path,opt={}){
 function lightState(){return JSON.parse(JSON.stringify(S,(k,v)=>HEAVY.has(k)||k==='_needPlanSave'?undefined:v));}
 function devName(){const u=navigator.userAgent;return /iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':'Ordenador';}
 function agendaHash(){const s=JSON.stringify([S.agenda,S.habits.map(h=>[h.id,h.archived,h.plan&&h.plan.dates,h.time]),S.agendaUntil]);let x=0;for(let i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return x;}
-function dataFile(savedAt){return {content:JSON.stringify({kind:'rutina-sync',savedAt,device:devName(),state:lightState()})};}
+function dataFile(savedAt){return {content:JSON.stringify({kind:'ironhabits-sync',savedAt,device:devName(),state:lightState()})};}
 function icsFile(){const t=todayK();return {content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text};}
 // Si hubiera varios (p. ej. de pruebas), el más reciente
 function pickGist(list,fn){return (list||[]).filter(g=>g.files&&fn(g.files)).sort((a,b)=>(b.updated_at||'')>(a.updated_at||'')?1:-1)[0];}
 async function newGist(tok,desc,files){return gh('/gists',{token:tok,method:'POST',body:JSON.stringify({description:desc,public:false,files})});}
-const DATA_DESC='Rutina · tus datos (privado: no compartas este enlace)',ICS_DESC='Rutina · calendario';
+const DATA_DESC='IronHabits · tus datos (privado: no compartas este enlace)',ICS_DESC='IronHabits · calendario';
 let _cloudT=null,_cloudBusy=false,_cloudApplying=false;
 function cloudDirty(){const c=cloudCfg();if(!c||!c.gistId||_cloudApplying)return;c.dirtyAt=Date.now();cloudSave(c);clearTimeout(_cloudT);_cloudT=setTimeout(cloudPush,6000);}
 function cloudErr(e){const c2=cloudCfg();if(!c2)return;c2.err=e.status===401?'auth':'net';cloudSave(c2);if(e.status===404)cloudRediscover();}
@@ -2503,6 +2518,7 @@ async function cloudPush(force,opt={}){
   const c=cloudCfg();if(!c||!c.gistId||_cloudBusy)return;if(!force&&c.lastSync&&!cloudPending(c))return;
   _cloudBusy=true;const startedAt=Date.now();
   try{
+    if(!c.names2){await cloudRename(c);Object.assign(c,cloudCfg());}
     const savedAt=new Date().toISOString(),files={[DATA_FILE]:dataFile(savedAt)};
     // Al salir de la app solo se suben los datos, con keepalive para que iOS no corte el envío
     const hsh=agendaHash(),ics=!opt.hidden&&(force||hsh!==c.icsHash||!c.icsAt||Date.now()-c.icsAt>6*3600e3)?icsFile():null;
@@ -2514,7 +2530,20 @@ async function cloudPush(force,opt={}){
   }catch(e){cloudErr(e);}
   finally{_cloudBusy=false;if(view==='set')renderSet();}
 }
-async function cloudRemote(c){const g=await gh('/gists/'+c.gistId);const f=g.files&&g.files[DATA_FILE];if(!f)return null;let txt=f.content;if(f.truncated){const r=await fetch(f.raw_url,{cache:'no-store'});txt=await r.text();}return JSON.parse(txt);}
+function isDataG(f){return !!(f[DATA_FILE]||f[OLD_DATA]);}
+function isIcsG(f){return !!((f[ICS_FILE]||f[OLD_ICS])&&!isDataG(f));}
+// La app se llamaba «Rutina»: renombra los archivos de la nube (rutina-datos.json → ironhabits-datos.json…).
+// El enlace del calendario cambia, así que después pide volver a suscribirlo.
+async function cloudRename(c){
+  const ren=async(id,pairs,desc)=>{const g=await gh('/gists/'+id),files={};let n=0;
+    for(const[o,nw]of pairs)if(g.files&&g.files[o]&&!g.files[nw]){files[o]={filename:nw};n++;}
+    if(n)await gh('/gists/'+id,{method:'PATCH',body:JSON.stringify({description:desc,files})});return n;};
+  let icsRen=0;
+  if(c.icsGist){await ren(c.gistId,[[OLD_DATA,DATA_FILE]],DATA_DESC);icsRen=await ren(c.icsGist,[[OLD_ICS,ICS_FILE]],ICS_DESC);}
+  else icsRen=await ren(c.gistId,[[OLD_DATA,DATA_FILE],[OLD_ICS,ICS_FILE]],DATA_DESC);
+  const c2=cloudCfg()||c;c2.names2=true;if(icsRen)c2.resub=true;cloudSave(c2);
+}
+async function cloudRemote(c){const g=await gh('/gists/'+c.gistId);const f=g.files&&(g.files[DATA_FILE]||g.files[OLD_DATA]);if(!f)return null;let txt=f.content;if(f.truncated){const r=await fetch(f.raw_url,{cache:'no-store'});txt=await r.text();}return JSON.parse(txt);}
 async function cloudApply(remote){
   await safetySnap('Antes de cargar desde la nube');
   _cloudApplying=true;
@@ -2537,9 +2566,9 @@ let _rediscovering=false;
 async function cloudRediscover(){
   const c=cloudCfg();if(!c||!c.token||_rediscovering)return;_rediscovering=true;
   try{const list=await gh('/gists?per_page=100');
-    const d=pickGist(list,f=>f[DATA_FILE]),i=pickGist(list,f=>f[ICS_FILE]&&!f[DATA_FILE]);
+    const d=pickGist(list,isDataG),i=pickGist(list,isIcsG);
     if(!d){const c2=cloudCfg();if(c2){c2.err='gone';cloudSave(c2);}return;}
-    const c2=cloudCfg()||c;c2.gistId=d.id;c2.icsGist=i?i.id:null;c2.err=null;c2.lastSync=null;cloudSave(c2);
+    const c2=cloudCfg()||c;c2.gistId=d.id;c2.icsGist=i?i.id:null;c2.names2=!!d.files[DATA_FILE]&&(!i||!!i.files[ICS_FILE]);c2.err=null;c2.lastSync=null;cloudSave(c2);
     await cloudPull();
   }catch(e){}finally{_rediscovering=false;if(view==='set')renderSet();}
 }
@@ -2551,7 +2580,7 @@ async function cloudMigrate(){
     const savedAt=new Date().toISOString();
     const d=await newGist(c.token,DATA_DESC,{[DATA_FILE]:dataFile(savedAt)});
     const i=await newGist(c.token,ICS_DESC,{[ICS_FILE]:icsFile()});
-    const old=c.gistId,c2={...cloudCfg(),gistId:d.id,icsGist:i.id,lastSync:savedAt,lastPushAt:Date.now(),icsHash:agendaHash(),icsAt:Date.now(),err:null,resub:true};
+    const old=c.gistId,c2={...cloudCfg(),names2:true,gistId:d.id,icsGist:i.id,lastSync:savedAt,lastPushAt:Date.now(),icsHash:agendaHash(),icsAt:Date.now(),err:null,resub:true};
     cloudSave(c2);
     let gone=true;try{await gh('/gists/'+old,{method:'DELETE'});}catch(e){gone=false;}
     render();toast(gone?'🔒 Nube separada y protegida':'🔒 Separada · no pude borrar la nota antigua: bórrala en gist.github.com');
@@ -2580,7 +2609,7 @@ function cloudSheet(){
   openSheet(`<div class="sheet-title">☁️ Copia automática en la nube</div>
     <p class="hint">Usa tu cuenta de GitHub: tus datos se guardan en un <b>gist secreto</b> (una nota privada que solo ves tú) y el calendario en otro aparte. Una vez conectado no tienes que hacer nada más.</p>
     <div class="sec">1 · Crea un código de acceso</div>
-    <a class="btn pri" style="display:block;text-align:center;text-decoration:none" href="https://github.com/settings/tokens/new?scopes=gist&description=Rutina%20app" target="_blank" rel="noopener">Abrir GitHub</a>
+    <a class="btn pri" style="display:block;text-align:center;text-decoration:none" href="https://github.com/settings/tokens/new?scopes=gist&description=IronHabits%20app" target="_blank" rel="noopener">Abrir GitHub</a>
     <p class="hint">Se abre con todo marcado. En <b>Expiration</b> elige <b>Custom</b> y pon una fecha dentro de un año (cuando caduque, la app te avisa). Baja, pulsa <b>Generate token</b> y copia el código que empieza por <b>ghp_</b>.</p>
     <div class="sec">2 · Pégalo aquí</div>
     <input id="tokIn" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false">
@@ -2593,10 +2622,10 @@ async function cloudConnect(tokArg){
   try{
     const u=await gh('/user',{token:tok});
     const list=await gh('/gists?per_page=100',{token:tok});
-    const found=pickGist(list,f=>f[DATA_FILE]),foundI=pickGist(list,f=>f[ICS_FILE]&&!f[DATA_FILE]);
-    let c={token:tok,login:u.login,gistId:found?found.id:null,icsGist:foundI?foundI.id:null};
+    const found=pickGist(list,isDataG),foundI=pickGist(list,isIcsG);
+    let c={token:tok,login:u.login,gistId:found?found.id:null,icsGist:foundI?foundI.id:null,names2:!found||!!found.files[DATA_FILE]};
     if(found){
-      if(!c.icsGist&&!found.files[ICS_FILE]){const i=await newGist(tok,ICS_DESC,{[ICS_FILE]:icsFile()});c.icsGist=i.id;c.icsHash=agendaHash();c.icsAt=Date.now();}
+      if(!c.icsGist&&!found.files[ICS_FILE]&&!found.files[OLD_ICS]){const i=await newGist(tok,ICS_DESC,{[ICS_FILE]:icsFile()});c.icsGist=i.id;c.icsHash=agendaHash();c.icsAt=Date.now();}
       cloudSave(c);const rm=await cloudRemote(c);
       const localN=Object.keys(S.logs).length,remoteN=Object.keys((rm&&rm.state&&rm.state.logs)||{}).length;
       let useRemote=remoteN>0&&localN===0;
@@ -2738,7 +2767,7 @@ function removeExtra(k,hid){
   afterAg('Sesión extra quitada');
 }
 
-function icsURL(){const u=new URL('rutina.ics',location.href);return u.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(u.host)?u.href:null;}
+function icsURL(){const u=new URL('ironhabits.ics',location.href);return u.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(u.host)?u.href:null;}
 function subscribeSheet(){
   {const cc=cloudCfg();if(cc&&cc.resub){cc.resub=false;cloudSave(cc);}}
   const c=cloudCfg(),u=c&&c.gistId?cloudICS():icsURL();
@@ -2752,7 +2781,7 @@ function subscribeSheet(){
     <div class="sec">Google Calendar</div>
     <button class="btn ghost" onclick="navigator.clipboard.writeText('${u}').then(()=>toast('Enlace copiado'))">Copiar enlace</button>
     <p class="hint">En el ordenador: calendar.google.com › «Otros calendarios» › «+» › «Desde URL» y pega el enlace.</p>
-    <p class="hint">${c&&c.gistId?'✅ Con la nube conectada este calendario incluye tus cambios (anular, mover, cambiar hora). Si ya estabas suscrito a un calendario de Rutina, quítalo (Ajustes › Calendario › Cuentas › Calendarios suscritos) para no ver todo repetido.':'Ojo: refleja tu plan, no los cambios que hagas a mano. Conecta la nube (Ajustes › Nube) para que también los incluya.'}</p>`);
+    <p class="hint">${c&&c.gistId?'✅ Con la nube conectada este calendario incluye tus cambios (anular, mover, cambiar hora). Si ya estabas suscrito a un calendario de Rutina o IronHabits, quítalo (Ajustes › Calendario › Cuentas › Calendarios suscritos) para no ver todo repetido.':'Ojo: refleja tu plan, no los cambios que hagas a mano. Conecta la nube (Ajustes › Nube) para que también los incluya.'}</p>`);
 }
 
 /* ═════════════ iPHONE: SCROLL Y TECLADO ═════════════ */
@@ -2809,7 +2838,7 @@ if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();
 askPersist();
 if(!S.settings.welcomed&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on'))welcomeSheet(0);},900);
-autoPlan().then(()=>cloudPull()).then(()=>snapSoon());
+migrateSnaps().then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>

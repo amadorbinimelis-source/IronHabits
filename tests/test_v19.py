@@ -30,6 +30,7 @@ class FakeGitHub:
             body = json.loads(req.post_data)
             for n, f in body["files"].items():
                 if f is None: self.gists[gid].pop(n, None)
+                elif "filename" in f and "content" not in f: self.gists[gid][f["filename"]] = self.gists[gid].pop(n)
                 else: self.gists[gid][n] = f["content"]
             return await route.fulfill(json={"id": gid}, headers=H)
         if m == "GET" and gid in self.gists:
@@ -107,17 +108,17 @@ async def main():
         check("no válido" in await pg.inner_text("#toast") and not await pg.evaluate("cloudCfg()"), "nube: código incorrecto no conecta")
         await pg.fill("#tokIn", "ghp_valido123"); await pg.evaluate("cloudConnect()"); await pg.wait_for_timeout(800)
         c = await pg.evaluate("cloudCfg()")
-        check(c and c["gistId"] == "g1" and c["icsGist"] == "g2" and set(gh.gists["g1"]) == {"rutina-datos.json"} and set(gh.gists["g2"]) == {"rutina-agenda.ics"}, f"nube: crea dos gists secretos, datos y calendario por separado ({c and c.get('gistId')}, {c and c.get('icsGist')})")
-        ics = gh.gists["g2"]["rutina-agenda.ics"]
+        check(c and c["gistId"] == "g1" and c["icsGist"] == "g2" and set(gh.gists["g1"]) == {"ironhabits-datos.json"} and set(gh.gists["g2"]) == {"ironhabits-agenda.ics"}, f"nube: crea dos gists secretos, datos y calendario por separado ({c and c.get('gistId')}, {c and c.get('icsGist')})")
+        ics = gh.gists["g2"]["ironhabits-agenda.ics"]
         check(ics.startswith("BEGIN:VCALENDAR") and ics.count("BEGIN:VEVENT") > 300, f"nube: calendario con {ics.count('BEGIN:VEVENT')} eventos")
-        check(await pg.evaluate("cloudICS()") == "https://gist.githubusercontent.com/amador/g2/raw/rutina-agenda.ics", "nube: enlace de suscripción con tus cambios")
+        check(await pg.evaluate("cloudICS()") == "https://gist.githubusercontent.com/amador/g2/raw/ironhabits-agenda.ics", "nube: enlace de suscripción con tus cambios")
         # un cambio se sube solo
         await pg.evaluate("sel='2026-11-21';(S.logs['2026-11-21']={}).fr={v:1,mins:30};save();agSet('2026-11-25','h:fr',{cancel:true,reason:'test'});save()")
         await pg.wait_for_timeout(7000)
-        data = json.loads(gh.gists["g1"]["rutina-datos.json"])
+        data = json.loads(gh.gists["g1"]["ironhabits-datos.json"])
         check("2026-11-21" in data["state"]["logs"] and "agendaBase" not in data["state"], "nube: los cambios se suben solos (y sin la parte pesada)")
-        check("2026-11-25" not in "".join(l for l in gh.gists["g2"]["rutina-agenda.ics"].splitlines() if l.startswith("UID:2026-11-25-h-fr")), "nube: el calendario refleja la tarea anulada")
-        check(await pg.evaluate("Object.keys(localStorage).every(k=>!localStorage.getItem(k).includes('ghp_valido')||k==='rutina_cloud')") and "ghp_" not in await pg.evaluate("backupJSON()"), "nube: el código no sale en las copias")
+        check("2026-11-25" not in "".join(l for l in gh.gists["g2"]["ironhabits-agenda.ics"].splitlines() if l.startswith("UID:2026-11-25-h-fr")), "nube: el calendario refleja la tarea anulada")
+        check(await pg.evaluate("Object.keys(localStorage).every(k=>!localStorage.getItem(k).includes('ghp_valido')||k==='ironhabits_cloud')") and "ghp_" not in await pg.evaluate("backupJSON()"), "nube: el código no sale en las copias")
         # otro dispositivo
         ctx2 = await b.new_context(viewport={"width": 1200, "height": 900}); await ctx2.route("https://api.github.com/**", gh.handle)
         pg2 = await ctx2.new_page(); await pg2.goto(URL); await pg2.wait_for_timeout(1500)

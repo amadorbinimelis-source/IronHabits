@@ -75,7 +75,7 @@ async def main():
         r = await pg.evaluate("planFor(getH('fuerza'),'2026-11-25').tag")
         check("completa" in (r or ""), f"clase anulada: fuerza usa la sesión completa ({r})")
         # 12. Guardado ligero: la clave principal es pequeña y el plan va aparte
-        sz = await pg.evaluate("({main:localStorage.getItem('rutina_v1').length, plan:(localStorage.getItem('rutina_plan_v1')||'').length})")
+        sz = await pg.evaluate("({main:localStorage.getItem('ironhabits_v1').length, plan:(localStorage.getItem('ironhabits_plan_v1')||'').length})")
         check(sz["main"] < 60000 and sz["plan"] > 200000, f"guardado ligero: principal {sz['main']} B, plan {sz['plan']} B")
         await pg.reload(); await pg.wait_for_timeout(1200)
         check(await pg.evaluate("!!S.agendaBase['2026-11-23'] && !!getH('en').plan.program && !!getH('en').guide"), "guardado ligero: al recargar se recupera agenda, plan y guías")
@@ -102,7 +102,7 @@ async def main():
         # 17. Calendario .ics
         r = await pg.evaluate("buildICS('2026-11-23','2026-11-24',false)")
         t = r["text"]
-        check(r["n"] > 4 and t.count("BEGIN:VEVENT") == r["n"] and "TRIGGER:-PT5M" in t and "UID:2026-11-23-h-fr@rutina" in t, f"ics: {r['n']} eventos con aviso")
+        check(r["n"] > 4 and t.count("BEGIN:VEVENT") == r["n"] and "TRIGGER:-PT5M" in t and "UID:2026-11-23-h-fr@ironhabits" in t, f"ics: {r['n']} eventos con aviso")
         # 18. Vista 3 días
         await pg.evaluate("agView='3';sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(300)
         r = await pg.evaluate("({cols:document.querySelectorAll('.agw-hd').length, sw:document.querySelector('#agwWrap').scrollWidth<=document.querySelector('#agwWrap').clientWidth+2})")

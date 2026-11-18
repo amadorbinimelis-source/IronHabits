@@ -1,8 +1,8 @@
-// Rutina · service worker
+// IronHabits · service worker
 // - La app (index.html) y el plan: red primero, pero si en 3 s no responde se abre lo guardado (mala cobertura = app al instante).
 // - Iconos y manifest: lo guardado al momento y se actualiza por detrás.
 // - Solo se guardan respuestas correctas de esta web; las llamadas a GitHub (nube) no pasan por aquí.
-const CACHE = 'rutina-v13';
+const CACHE = 'ironhabits-v14';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './plan.json'];
 const TIMEOUT = 3000;
 

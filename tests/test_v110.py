@@ -29,6 +29,7 @@ class FakeGitHub:
         if m == "PATCH":
             for n, f in body["files"].items():
                 if f is None: self.gists[gid].pop(n, None)
+                elif "filename" in f and "content" not in f: self.gists[gid][f["filename"]] = self.gists[gid].pop(n)
                 else: self.gists[gid][n] = f["content"]
             return await route.fulfill(json={"id": gid}, headers=H)
         return await route.fulfill(json={"id": gid, "files": {n: {"content": c, "truncated": False} for n, c in self.gists[gid].items()}}, headers=H)
@@ -83,27 +84,27 @@ async def main():
         # ── B5 · Nube: dos gists ──
         await pg.evaluate("cloudSheet()"); await pg.fill("#tokIn", "ghp_valido1"); await pg.evaluate("(()=>{cloudConnect();})()"); await pg.wait_for_timeout(1000)
         c = await pg.evaluate("cloudCfg()")
-        check(c["gistId"] != c["icsGist"] and set(gh.gists[c["gistId"]]) == {"rutina-datos.json"} and set(gh.gists[c["icsGist"]]) == {"rutina-agenda.ics"},
+        check(c["gistId"] != c["icsGist"] and set(gh.gists[c["gistId"]]) == {"ironhabits-datos.json"} and set(gh.gists[c["icsGist"]]) == {"ironhabits-agenda.ics"},
               "nube nueva: datos y calendario en gists separados")
         check(c["icsGist"] in await pg.evaluate("cloudICS()") and c["gistId"] not in await pg.evaluate("cloudICS()"), "el enlace del calendario no lleva al gist de datos")
 
         # ── B4 · Cambios que no se llegaron a subir ──
         await pg.evaluate("(()=>{const c=cloudCfg();(S.logs[todayK()]={}).fr={v:1,steps:[]};localStorage.setItem(KEY,JSON.stringify(S));c.dirtyAt=Date.now()+5;cloudSave(c);clearTimeout(_cloudT);})()")
         await pg.evaluate("cloudPull()"); await pg.wait_for_timeout(800)
-        data = json.loads(gh.gists[c["gistId"]]["rutina-datos.json"])
+        data = json.loads(gh.gists[c["gistId"]]["ironhabits-datos.json"])
         check(await pg.evaluate("todayK()") in data["state"]["logs"], "al abrir la app sube lo que quedó pendiente")
         gh.calls.clear()
         await pg.evaluate("(()=>{(S.logs[addDays(todayK(),-3)]={}).fr={v:1,steps:[]};save();flushOnHide();})()"); await pg.wait_for_timeout(800)
         patches = [x for x in gh.calls if x[0] == "PATCH"]
-        check(len(patches) == 1 and set(patches[0][2]["files"]) == {"rutina-datos.json"}, "al salir de la app sube los datos (solo los datos, rápido)")
+        check(len(patches) == 1 and set(patches[0][2]["files"]) == {"ironhabits-datos.json"}, "al salir de la app sube los datos (solo los datos, rápido)")
 
         # ── B5 · Mejora de privacidad para nubes antiguas (un solo gist) ──
-        gh.gists["g90"] = {"rutina-datos.json": gh.gists[c["gistId"]]["rutina-datos.json"], "rutina-agenda.ics": "BEGIN:VCALENDAR"}
+        gh.gists["g90"] = {"ironhabits-datos.json": gh.gists[c["gistId"]]["ironhabits-datos.json"], "ironhabits-agenda.ics": "BEGIN:VCALENDAR"}
         await pg.evaluate("(()=>{const c=cloudCfg();cloudSave({token:c.token,login:'amador',gistId:'g90',lastSync:c.lastSync,lastPushAt:Date.now()});go('hoy')})()")
         check("Protege tus datos" in await pg.inner_text("#hoyBody"), "aviso en Hoy para proteger la nube antigua")
         await pg.evaluate("(()=>{cloudMigrate();})()"); await confirm(pg); await pg.wait_for_timeout(1200)
         c2 = await pg.evaluate("cloudCfg()")
-        check("g90" not in gh.gists and c2["icsGist"] and set(gh.gists[c2["gistId"]]) == {"rutina-datos.json"} and set(gh.gists[c2["icsGist"]]) == {"rutina-agenda.ics"},
+        check("g90" not in gh.gists and c2["icsGist"] and set(gh.gists[c2["gistId"]]) == {"ironhabits-datos.json"} and set(gh.gists[c2["icsGist"]]) == {"ironhabits-agenda.ics"},
               f"separa datos y calendario y borra el gist antiguo ({c2.get('gistId')}, {c2.get('icsGist')})")
         check("Suscribir" in await pg.inner_text("#sheetBody"), "después abre «Suscribir el calendario»")
         await pg.evaluate("closeSheet();render()")

@@ -1,4 +1,4 @@
-"""Genera plan.json (paquete de plan para la app Rutina)."""
+"""Genera plan.json (paquete de plan para la app IronHabits)."""
 import json, datetime, urllib.parse, sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from frances_data import WEEKS
@@ -155,7 +155,7 @@ for h in HABITS:
     h["minimal"] = guias.MINIMAL.get(h["id"], "")
     h["metrics"] = guias.METRICS.get(h["id"], [])
     h["goal"] = GOALS.get(h["id"])
-pack = {"kind": "rutina-plan", "id": "amador", "version": 11, "generated": datetime.date.today().isoformat(), "habits": HABITS, "agenda": agenda_plan.build(HABITS), "agendaUntil": agenda_plan.END.isoformat(), "classesKnownUntil": entreno_plan.CLASSES_KNOWN_UNTIL.isoformat()}
+pack = {"kind": "ironhabits-plan", "id": "amador", "version": 11, "generated": datetime.date.today().isoformat(), "habits": HABITS, "agenda": agenda_plan.build(HABITS), "agendaUntil": agenda_plan.END.isoformat(), "classesKnownUntil": entreno_plan.CLASSES_KNOWN_UNTIL.isoformat()}
 out = os.path.join(os.path.dirname(__file__), "..", "plan.json")
 with open(out, "w", encoding="utf-8") as f:
     json.dump(pack, f, ensure_ascii=False, separators=(",", ":"))
