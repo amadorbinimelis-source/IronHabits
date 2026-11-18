@@ -120,7 +120,7 @@ async def main():
         await pg.goto(URL); await pg.evaluate("navigator.serviceWorker.ready"); await pg.reload(); await pg.wait_for_timeout(1500)
         ctrl = await pg.evaluate("!!navigator.serviceWorker.controller")
         await ctx.set_offline(True); await pg.reload(); await pg.wait_for_timeout(1500)
-        ok = await pg.evaluate("typeof render==='function'&&document.querySelectorAll('nav button').length===5")
+        ok = await pg.evaluate("typeof render==='function'&&document.querySelectorAll('nav button').length===4")
         check(ctrl and ok, "sin conexión la app abre desde lo guardado")
         await ctx.set_offline(False)
         r = await pg.evaluate("caches.keys().then(ks=>Promise.all(ks.map(k=>caches.open(k).then(c=>c.keys())))).then(a=>a.flat().map(r=>r.url))")

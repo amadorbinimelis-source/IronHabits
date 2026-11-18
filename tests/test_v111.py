@@ -22,7 +22,7 @@ async def main():
         errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
         await pg.goto(URL); await pg.wait_for_timeout(1500)
         await pg.evaluate("S.habits.forEach(h=>h.start=addDays(todayK(),-30));(S.logs[todayK()]={}).fr={v:0,steps:[]};save();render()")
-        for v in ("hoy", "hab", "stats", "set"):
+        for v in ("hoy", "agenda", "prog", "set"):
             await pg.evaluate(f"go('{v}')"); await pg.wait_for_timeout(250)
             sm = await pg.evaluate(SMALL, "#v-" + v); fs = await pg.evaluate(FONTS, "#v-" + v)
             check(not sm, f"{v}: todos los botones miden 44 px o más {sm[:4]}")
@@ -44,8 +44,9 @@ async def main():
           const v=getComputedStyle(document.documentElement).getPropertyValue('--dim').trim();return (L(v)+.05)/(L('#15151B')+.05);})()""")
         check(r >= 4.5, f"texto tenue con contraste suficiente ({r:.2f}:1)")
         # check-in centrado
-        await pg.evaluate("go('hoy')"); await pg.wait_for_timeout(200)
-        r = await pg.evaluate("getComputedStyle(document.querySelector('.ci button')).textAlign")
+        await pg.evaluate("S.checkins={};openSheet(checkinCard(todayK()))"); await pg.wait_for_timeout(300)
+        r = await pg.evaluate("getComputedStyle(document.querySelector('#sheet .ci button')).textAlign")
+        await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(300)
         check(r == "center", f"números del check-in centrados ({r})")
         # toast largo dentro de la pantalla
         await pg.evaluate("toast('💪 Fuerza / calistenia → miércoles 25 nov a las 18:30 · se solapa con Fútbol · entreno (fisio)',[undoAct()])"); await pg.wait_for_timeout(400)

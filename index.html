@@ -212,7 +212,7 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 
 /* Nav */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:100;background:rgba(12,12,16,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
-nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav)}
+nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav)}
 nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.7rem;font-weight:700;color:var(--dim)}
 nav button svg{width:23px;height:23px}
 nav button.on{color:var(--acc)}
@@ -551,6 +551,38 @@ nav button svg{width:24px;height:24px}
 .fp-goal{border-radius:var(--r-md)}
 .dp-item{border-radius:var(--r-md);font-size:var(--fs-sm)}
 .colors button.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg) inset}
+
+/* ═════════════ v1.13 · Navegación y Hoy ═════════════ */
+.wk-nav{grid-template-columns:44px 1fr 44px;margin-bottom:var(--s2)}
+.wk-btn{width:44px;height:44px;padding:0;display:grid;place-items:center;border-radius:var(--r-md);color:var(--muted)}
+.icon-btn.bell{position:relative;color:var(--text)}
+.icon-btn.bell i{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--danger);color:#fff;font-size:12px;font-weight:700;font-style:normal;display:grid;place-items:center;border:2px solid var(--bg)}
+.icon-btn[hidden]{display:none}
+.dayhead{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s1) var(--s1)}
+.dh-ring{position:relative;width:40px;height:40px;flex:none}
+.dh-ring svg{position:absolute;inset:0}
+.dh-t{flex:1;min-width:0}
+.dh-t b{display:block;font-size:var(--fs-h3);font-weight:600}
+.dh-t small{font-size:var(--fs-sm);color:var(--muted)}
+.dayhead .min-btn,.dayhead .back-today{margin-left:auto}
+/* Tarjeta de hábito: capa deslizable + acciones detrás */
+.hc{padding:0;position:relative;overflow:hidden;background:var(--card3)}
+.hc-in{position:relative;z-index:1;padding:var(--s3);background:var(--card);border-radius:inherit;transition:transform var(--t) var(--ease);touch-action:pan-y}
+.hc.done .hc-in{background:color-mix(in srgb,var(--hc) 5%,var(--card))}
+.hc.done{background:var(--card)}
+.hc-acts{position:absolute;right:0;top:0;bottom:0;display:flex;width:168px}
+.hc-act{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:18px;color:#fff}
+.hc-act span{font-size:var(--fs-xs);font-weight:700}
+.hc-act.move{background:color-mix(in srgb,var(--info) 70%,#000)}
+.hc-act.skip{background:color-mix(in srgb,var(--danger) 70%,#000)}
+.hc-menu{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:var(--r-md);color:var(--dim)}
+.hc-menu:active{background:var(--card2)}
+.hc-info[aria-expanded="true"] .hc-name::after{content:' ▴';color:var(--dim);font-size:var(--fs-sm)}
+.hc-info[aria-expanded="false"] .hc-name::after{content:''}
+.chip.qt{min-height:44px;padding:0 var(--s4);font-weight:600}
+.ci-row{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s2)}
+.ci-row .ci-lb{width:86px;flex:none;margin:0;font-size:var(--fs-sm);font-weight:600}
+.ci-row .ci{flex:1;margin:0;gap:var(--s1)}
 </style>
 </head>
 <body>
@@ -560,9 +592,9 @@ nav button svg{width:24px;height:24px}
   <section class="view on" id="v-hoy">
     <div class="top">
       <div><div class="h1" id="hoyTitle">Hoy</div><div class="sub" id="hoySub"></div></div>
-      <div class="top-actions"><button class="icon-btn acc" onclick="openEditor()" aria-label="Nuevo hábito">+</button></div>
+      <div class="top-actions"><button class="icon-btn bell" id="hoyBell" onclick="noticesSheet()" aria-label="Avisos" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9M10 20.5a2 2 0 0 0 4 0"/></svg><i id="hoyBellN"></i></button><button class="icon-btn acc" onclick="openEditor()" aria-label="Nuevo hábito">+</button></div>
     </div>
-<div class="wk-nav"><button class="wk-btn" onclick="wkShift(-1)" aria-label="Semana anterior">‹ Anterior</button><button class="wk-lbl" id="wkLbl" onclick="pick(todayK())"></button><button class="wk-btn" onclick="wkShift(1)" aria-label="Semana siguiente">Siguiente ›</button></div>
+<div class="wk-nav"><button class="wk-btn" onclick="wkShift(-1)" aria-label="Semana anterior"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><button class="wk-lbl" id="wkLbl" onclick="pick(todayK())"></button><button class="wk-btn" onclick="wkShift(1)" aria-label="Semana siguiente"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
     <div class="week">
       <div class="wk-days" id="wkDays"></div>
     </div>
@@ -573,28 +605,21 @@ nav button svg{width:24px;height:24px}
   <section class="view" id="v-agenda">
     <div class="top">
       <div><div class="h1" id="agTitle">Agenda</div><div class="sub" id="agSub"></div></div>
-      <div class="top-actions"><button class="icon-btn" onclick="pick(todayK())" aria-label="Ir a hoy" style="font-size:.72rem;font-weight:800;width:auto;padding:0 12px">Hoy</button></div>
     </div>
-<div class="wk-nav"><button class="wk-btn" onclick="wkShift(-1)" aria-label="Semana anterior">‹ Anterior</button><button class="wk-lbl" id="agLbl" onclick="pick(todayK())"></button><button class="wk-btn" onclick="wkShift(1)" aria-label="Semana siguiente">Siguiente ›</button></div>
+<div class="wk-nav"><button class="wk-btn" onclick="wkShift(-1)" aria-label="Semana anterior"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><button class="wk-lbl" id="agLbl" onclick="pick(todayK())"></button><button class="wk-btn" onclick="wkShift(1)" aria-label="Semana siguiente"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
     <div class="week">
       <div class="wk-days" id="agWeek"></div>
     </div>
     <div id="agBody"></div>
   </section>
 
-  <!-- HÁBITOS -->
-  <section class="view" id="v-hab">
+  <!-- PROGRESO (hábitos + estadísticas) -->
+  <section class="view" id="v-prog">
     <div class="top">
-      <div><div class="h1">Hábitos</div><div class="sub" id="habSub"></div></div>
+      <div><div class="h1">Progreso</div><div class="sub" id="progSub"></div></div>
       <div class="top-actions"><button class="icon-btn acc" onclick="openEditor()" aria-label="Nuevo hábito">+</button></div>
     </div>
-    <div id="habBody"></div>
-  </section>
-
-  <!-- ESTADÍSTICAS -->
-  <section class="view" id="v-stats">
-    <div class="top"><div><div class="h1">Estadísticas</div><div class="sub">Cómo vas de constancia</div></div></div>
-    <div id="statsBody"></div>
+    <div id="progBody"></div>
   </section>
 
   <!-- AJUSTES -->
@@ -608,8 +633,7 @@ nav button svg{width:24px;height:24px}
 <nav><div class="in">
   <button class="on" data-v="hoy" onclick="go('hoy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="m8.5 15 2.3 2.3 4.7-4.6"/></svg>Hoy</button>
   <button data-v="agenda" onclick="go('agenda')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M7 13h4M7 17h7"/></svg>Agenda</button>
-  <button data-v="hab" onclick="go('hab')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Hábitos</button>
-  <button data-v="stats" onclick="go('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+  <button data-v="prog" onclick="go('prog')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progreso</button>
   <button data-v="set" onclick="go('set')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Ajustes</button>
 </div></nav>
 
@@ -621,8 +645,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.12';
+const APP_VERSION='1.13';
 const CHANGELOG=[
+  ['1.13','19 nov 2026',['🧭 4 pestañas: Hoy, Agenda, Progreso (hábitos + estadísticas) y Ajustes','Hoy más limpio: una sola tarjeta con lo importante y el resto en la campana 🔔; tus hábitos se ven sin hacer scroll','Toca el nombre de un hábito para ver u ocultar su plan; el botón ⋯ abre 5 opciones claras','✍️ «Apuntar»: tiempo, cantidad, progreso y nota en una sola ventana','👈 Desliza un hábito a la izquierda para pasarlo a mañana o saltarlo','Franjas «Por la mañana / tarde / noche» (ya no se confunde con «Mañana»)','Ajustes ordenados: una forma de calendario y una de copia','Tus cambios en un hábito ya no se pierden al actualizar el plan']],
   ['1.12','19 nov 2026',['🎨 Nuevo sistema visual: colores más cuidados, cinco tamaños de letra, espacios y esquinas coherentes','Sombras suaves y tarjetas con tres niveles de profundidad','Iconos propios en Ajustes, la nube y las copias; el ✓ de completar ahora es un icono','Los botones se hunden al pulsarlos y los campos se iluminan al escribir','Colores nuevos, menos chillones, para tus próximos hábitos']],
   ['1.11','18 nov 2026',['📱 Hecha para el iPhone: todos los botones son fáciles de tocar (44 px) y no hay letra diminuta','⌨️ El teclado ya no tapa lo que escribes: la ventana sube con él','Los selectores de fecha y hora salen en modo oscuro','Al abrir una ventana, lo de detrás ya no se mueve y al cerrarla vuelves al mismo sitio','Los avisos largos se leen enteros y no tapan lo que hay debajo','A medianoche, «Hoy» pasa solo al día nuevo','Vibración al completar en iPhone (iOS 18 o posterior)','Respeta «Reducir movimiento» del iPhone']],
   ['1.10','18 nov 2026',['🛟 Copias automáticas en el móvil: una al día y otra antes de cada cambio grande; se restauran desde Ajustes','🔒 Nube más privada: tus datos y el calendario van en notas separadas (si ya la usabas, te pide 1 toque)','☁️ Si cierras la app justo después de marcar algo, se sube al volver a abrirla','Arreglado: «Deshacer» ya no puede devolver los datos a un momento antiguo','Arreglado: «Marcar hecho» desde la agenda marca el día del bloque, no el que tenías seleccionado','⚡ Abre al momento aunque haya mala cobertura']],
@@ -644,7 +669,7 @@ const KEY='rutina_v1';
 // Paleta afinada para fondo oscuro (mismo brillo percibido, sin colores chillones). Los hábitos ya creados conservan su color.
 const COLORS=['#22C55E','#4ADE80','#60A5FA','#2DD4BF','#A3E635','#FBBF24','#FB923C','#F87171','#F472B6','#C084FC','#818CF8','#94A3B8'];
 const EMOJIS=['💪','🥊','🏋️','🏃','🚴','🏊','🧘','🤸','📚','🧠','✍️','🎓','🇫🇷','🇬🇧','🗣️','💧','🥗','🍎','💊','😴','🦷','🚿','🧴','🧹','📵','📈','💰','🎯','❤️','🩺','🎸','☀️','🌙','📝','🙏','🐾'];
-const MOMENTS=[['manana','☀️ Mañana'],['tarde','🌤️ Tarde'],['noche','🌙 Noche'],['any','Cualquier momento']];
+const MOMENTS=[['manana','☀️ Por la mañana'],['tarde','🌤️ Por la tarde'],['noche','🌙 Por la noche'],['any','En cualquier momento']];
 const DOW_L=['D','L','M','X','J','V','S'];
 const DOW_N=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const WEEK_ORDER=[1,2,3,4,5,6,0];
@@ -677,9 +702,15 @@ const ICONS={
   key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-3 3 3 3m-5-1 2 2"/>',
   eject:'<path d="M5 15 12 6l7 9zM5 19h14"/>',
   check:'<path d="M5 12.5 9.5 17 19 7.5"/>',
+  pen:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+  move:'<path d="M3 12h13m0 0-4-4m4 4-4 4"/><rect x="18" y="5" width="3" height="14" rx="1.5"/>',
+  note:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  edit:'<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+  dots:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
 };
 function ic(n,sw=2){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;}
-const ICON_HUE={calendar:'var(--info)',calplus:'var(--info)',bell:'var(--info)',message:'var(--info)',cloud:'var(--info)',pause:'var(--warn)',lock:'var(--warn)',key:'var(--warn)',flask:'#C084FC',trash:'var(--danger)'};
+const ICON_HUE={move:'var(--info)',note:'var(--warn)',chart:'#C084FC',edit:'var(--muted)',calendar:'var(--info)',calplus:'var(--info)',bell:'var(--info)',message:'var(--info)',cloud:'var(--info)',pause:'var(--warn)',lock:'var(--warn)',key:'var(--warn)',flask:'#C084FC',trash:'var(--danger)'};
 function ri(n){return `<span class="ri" style="--ic:${ICON_HUE[n]||'var(--acc)'}">${ic(n)}</span>`;}
 
 /* ═════════════ ESTADO ═════════════ */
@@ -768,7 +799,7 @@ function entry(h,k){return (S.logs[k]||{})[h.id];}
 function progress(h,k){
   const e=entry(h,k);if(!e)return 0;
   if(e.min)return 1;
-  if(h.type!=='time'&&e.mins>0)return 1;
+  if(h.type==='check'&&e.mins>0)return 1; // en cantidad o checklist, apuntar tiempo suma al total semanal pero no completa
   if(h.type==='check')return e.v?1:0;
   if(h.type==='checklist'){const n=h.steps.length;if(!n)return 0;return h.steps.filter(s=>(e.steps||[]).includes(s.id)).length/n;}
   return Math.min(1,(e.v||0)/(h.target||1));
@@ -965,6 +996,7 @@ function targetText(h){
 
 /* ═════════════ NAVEGACIÓN ═════════════ */
 function go(v){
+  if(v==='hab'||v==='stats')v='prog'; // las antiguas pestañas Hábitos y Estadísticas viven ahora en Progreso
   view=v;
   document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
@@ -974,9 +1006,13 @@ function go(v){
 function render(){
   if(view==='hoy')renderHoy();
   else if(view==='agenda')renderAgenda();
-  else if(view==='hab')renderHab();
-  else if(view==='stats')renderStats();
+  else if(view==='prog')renderProg();
   else renderSet();
+}
+// Progreso = resumen (KPIs y revisión) + tus hábitos + gráficas
+function renderProg(){
+  if(!$('#habBody'))$('#progBody').innerHTML=`<div id="statsBody"></div><div class="sec">Tus hábitos</div><div id="habBody"></div><div id="statsMore"></div>`;
+  renderHab();renderStats();
 }
 
 /* ═════════════ HOY ═════════════ */
@@ -1010,8 +1046,8 @@ function renderHoy(){
   $('#hoySub').textContent=longDate(k)+(pk(k).getFullYear()!==new Date().getFullYear()?' '+pk(k).getFullYear():'');
   renderWeek();
   const body=$('#hoyBody');
-
   if(!S.habits.length){
+    setBell([]);
     body.innerHTML=`<div class="card empty"><div class="big">🗓️</div><h3>Empieza a montar tu rutina</h3>
       <p>Añade tus hábitos uno a uno, dile qué días tocan y qué hay que hacer exactamente cada día.</p>
       <button class="btn pri" onclick="openEditor()">+ Nuevo hábito</button>
@@ -1020,16 +1056,16 @@ function renderHoy(){
   }
   const hs=dayHabits(k);
   const done=hs.filter(h=>isDone(h,k)).length,fut=k>t,minOn=!!(S.minDays||{})[k];
-  let html=(k===t?nowCard(k):'')+banners(k)+(k===t?tomorrowCard()+checkinCard(k):'');
-  html+=`<div class="card sum">
-    <div class="sum-ring">${ring(hs.length?done/hs.length:0,64,7,'var(--acc)')}<b>${hs.length?Math.round(done/hs.length*100):0}%</b></div>
-    <div><div class="sum-t">${fut?`${hs.length} hábito${hs.length===1?'':'s'} programado${hs.length===1?'':'s'}`:hs.length?`${done} de ${hs.length} completados`:'Día libre'}</div>
-    <div class="sum-s">${fut?'Así se presenta el día':hs.length&&done===hs.length?'Día completo 🔥':hs.length?`Te falta${hs.length-done===1?'':'n'} ${hs.length-done}`:'No hay nada programado'}</div></div>
-    ${k!==t?`<button class="back-today" onclick="pick('${t}')">Hoy</button>`:hs.length?`<button class="min-btn ${minOn?'on':''}" onclick="toggleMinDay('${k}')">${minOn?'🪫 Día mínimo':'🪫 Día flojo'}</button>`:''}
-  </div>`;
-  html+=weekCard(k);
-  if(minOn)html+=`<div class="banner warn">🪫<div><b>Día mínimo activado</b><small>Cada hábito muestra su versión corta. Hazla y cuenta para la racha.</small></div></div>`;
-
+  // 1 · Una sola tarjeta destacada (lo más importante ahora); el resto, en la campana
+  let html='';
+  if(k===t){const sp=spotlight(k);html+=sp.main;setBell(sp.rest);}else setBell([]);
+  // 2 · Cabecera compacta del día
+  const pct=hs.length?done/hs.length:0;
+  html+=`<div class="dayhead"><span class="dh-ring">${ring(pct,40,5,'var(--acc)')}</span>
+    <div class="dh-t"><b>${fut?`${hs.length} programado${hs.length===1?'':'s'}`:hs.length?(done===hs.length?'Día completo 🔥':`${done} de ${hs.length} hechos`):'Día libre'}</b><small>${fut?'Así se presenta el día':hs.length&&done<hs.length?`Te falta${hs.length-done===1?'':'n'} ${hs.length-done}`:hs.length?'¡Bien hecho!':'No hay nada programado'}</small></div>
+    ${k!==t?`<button class="back-today" onclick="pick('${t}')">Volver a hoy</button>`:hs.length?`<button class="min-btn ${minOn?'on':''}" onclick="toggleMinDay('${k}')" aria-pressed="${minOn}">🪫 ${minOn?'Día flojo activado':'Día flojo'}</button>`:''}</div>`;
+  if(minOn)html+=`<p class="hint" style="margin:0 4px 8px">Cada hábito muestra su versión corta. Hazla y cuenta para la racha.</p>`;
+  // 3 · Hábitos por franjas
   if(!hs.length){
     html+=`<div class="card empty"><div class="big">🌙</div><h3>Nada programado</h3><p>Descansa o adelanta algo de otro día.</p></div>`;
   } else {
@@ -1043,11 +1079,43 @@ function renderHoy(){
   if(k<=addDays(t,7))html+=`<button class="btn ghost mt8" onclick="extraSheet('${k}')">➕ Añadir sesión extra</button>`;
   const cx=S.habits.filter(h=>!h.archived&&isCancelledH(h,k)&&!hasLog(h,k));
   if(cx.length){
-    html+=`<div class="sec">Anulados o movidos</div>`+cx.map(h=>{const o=agOv(k,'h:'+h.id);return `<div class="cx">${esc(h.emoji)} <span>${esc(h.name)} · ${o.moveTo?`movido al ${shortDate(o.moveTo)}`:'anulado'}${o.reason?` (${esc(o.reason)})`:''}</span><button onclick="evRestore('${k}','h:${h.id}')">Restaurar</button></div>`;}).join('');
+    html+=`<div class="sec">Saltados o movidos</div>`+cx.map(h=>{const o=agOv(k,'h:'+h.id);return `<div class="cx">${esc(h.emoji)} <span>${esc(h.name)} · ${o.moveTo?`movido al ${shortDate(o.moveTo)}`:'saltado'}${o.reason&&o.reason!=='Saltado'?` (${esc(o.reason)})`:''}</span><button onclick="evRestore('${k}','h:${h.id}')">Restaurar</button></div>`;}).join('');
   }
+  // 4 · Total semanal (plegado) y nota
+  html+=weekCard(k);
   html+=`<div class="sec">Nota del día</div><div class="card note"><textarea id="noteIn" placeholder="Cómo ha ido, sensaciones, qué ajustar…" oninput="setNote(this.value)">${esc(S.notes[k]||'')}</textarea></div>`;
   body.innerHTML=html;
 }
+/* Avisos: una lista con prioridad. Hoy enseña solo el primero; el resto queda en la campana. */
+function noticeList(k){
+  const t=todayK();if(k!==t)return [];const out=[];const add=(prio,html)=>out.push({prio,html});
+  const cc=cloudCfg();
+  if(cloudLegacy(cc))add(1,`<button class="banner warn" onclick="cloudMigrate()">🔒<div><b>Protege tus datos de la nube</b><small>Ahora el enlace del calendario podría llevar a tus datos. Se arregla en 1 toque.</small></div><span class="go">Arreglar ›</span></button>`);
+  else if(cc&&cc.resub)add(2,`<button class="banner warn" onclick="subscribeSheet()">📅<div><b>Vuelve a suscribir el calendario</b><small>Tu calendario tiene un enlace nuevo. Quita el antiguo para no verlo repetido.</small></div><span class="go">Abrir ›</span></button>`);
+  if(isIOS()&&!isStandalone())add(1,`<div class="banner warn">📲<div><b>Instálala en la pantalla de inicio</b><small>Abierta en Safari, iOS puede borrar tus datos si pasan 7 días sin usarla. Compartir › «Añadir a pantalla de inicio».</small></div></div>`);
+  const aw=acwr(t);if(aw.enough&&aw.r>1.5)add(1,`<button class="banner warn" onclick="closeSheet();go('prog')">⚠️<div><b>Pico de carga de entreno (${aw.r.toFixed(2)})</b><small>Has subido mucho respecto a tus últimas 4 semanas. Baja intensidad o volumen unos días.</small></div></button>`);
+  const wd=dow(t),ws=weekStartK(t),rk=wd===0?ws:addDays(ws,-7);
+  if((wd===0||wd===1)&&!(S.reviews||{})[rk])add(2,`<button class="banner" onclick="reviewSheet('${rk}')">🗓️<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`);
+  const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)add(2,`<div class="banner warn">📅<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`);
+  const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
+  if(!(cc&&cc.gistId)&&hasData&&(!le||diffDays(le,t)>=7))add(3,`<button class="banner warn" onclick="backupSheet()">💾<div><b>Guarda una copia fuera del móvil</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'} · o conecta la nube y se hace sola</small></div><span class="go">Hacer ›</span></button>`);
+  return out.sort((a,b)=>a.prio-b.prio);
+}
+function banners(k){return noticeList(k).map(x=>x.html).join('');}
+// La tarjeta destacada: un aviso importante; si no hay, lo que toca según la hora (check-in, ahora/después o mañana)
+function spotlight(k){
+  const ns=noticeList(k),h=new Date().getHours();
+  const ci=checkinCard(k),nc=nowCard(k),tc=h>=20?tomorrowCard():'';
+  const moment=[h<13&&ci,h>=20&&tc,nc,ci].filter(Boolean);
+  const cards=[];if(ns.length&&ns[0].prio===1)cards.push(ns.shift().html);
+  if(moment.length)cards.push(moment.shift());
+  if(!cards.length&&ns.length)cards.push(ns.shift().html);
+  const main=cards.shift()||'';
+  return {main,rest:[...cards,...ns.map(x=>x.html),...moment.filter(x=>x!==main&&!cards.includes(x))]};
+}
+let _bell=[];
+function setBell(items){_bell=items;const b=$('#hoyBell');if(!b)return;b.hidden=!items.length;$('#hoyBellN').textContent=items.length||'';b.setAttribute('aria-label',`Avisos (${items.length})`);}
+function noticesSheet(){openSheet(`<div class="sheet-title">Más para hoy</div><div class="sub mb12">Lo que no cabe arriba en Hoy</div>${_bell.join('')||'<p class="hint">No hay nada más.</p>'}`);}
 
 function metaText(h,k){
   const e=entry(h,k)||{},parts=[];
@@ -1086,12 +1154,16 @@ function hcHTML(h,k){
   const open=cardOpen(h,k,done);
   const plan=pl&&open?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`:'';
   const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
-  const more=pl?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',${open?0:1})">${open?'Ocultar plan ▴':'Ver plan del día ▾'}</button>`:'';
+  const more=pl&&!open?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">Ver plan del día ▾</button>`:'';
   const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
-  return `<div class="hc ${done?'done':''}" id="hc-${h.id}" style="--hc:${h.color}">
+  // Deslizar a la izquierda (solo si está pendiente y el día no ha pasado): Mañana / Saltar
+  const swipe=!done&&k>=todayK()&&!isExtra(h,k)&&!movedFrom(h,k);
+  const acts=swipe?`<div class="hc-acts"><button class="hc-act move" onclick="swipeAct('${k}','${h.id}','move')">⏭️<span>Mañana</span></button><button class="hc-act skip" onclick="swipeAct('${k}','${h.id}','skip')">⊘<span>Saltar</span></button></div>`:'';
+  return `<div class="hc ${done?'done':''}" id="hc-${h.id}" style="--hc:${h.color}">${acts}<div class="hc-in" ${swipe?'data-swipe="1"':''}>
     <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div>
-      <button class="hc-info" onclick="cardMenu('${h.id}')"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
-      <div class="hc-ctl">${ctl}</div></div>${plan}${minBtns}${steps}${more}</div>`;
+      <button class="hc-info" onclick="${pl?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(pl&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
+      <button class="hc-menu" onclick="cardMenu('${h.id}')" aria-label="Opciones de ${esc(h.name)}"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+      <div class="hc-ctl">${ctl}</div></div>${plan}${minBtns}${steps}${more}</div></div>`;
 }
 function linkLabel(u){
   if(/youtube\.com|youtu\.be/.test(u))return '▶ Buscar en YouTube';
@@ -1181,21 +1253,65 @@ setInterval(()=>{
 
 /* Menú de la tarjeta */
 function cardMenu(id){
-  const h=getH(id);if(!h)return;const k=sel,e=entry(h,k);
+  const h=getH(id);if(!h)return;const k=sel,past=k<=todayK();
   openSheet(`<div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">${longDate(k)}</div>
-    ${(h.type==='count'||h.type==='time')&&k<=todayK()?`<button class="row-btn" onclick="valueSheet('${id}')">✍️<div>Introducir ${h.type==='time'?'minutos':'cantidad'}<small>Escribir el valor a mano</small></div></button>`:''}
-    <button class="row-btn" onclick="fullPlan('${id}','${k}')">🗓️<div>Ver todo el plan<small>Todas las sesiones, día a día${h.goal?' hasta: '+esc(h.goal.label):''}</small></div></button>
-    ${k<=todayK()?`<button class="row-btn" onclick="minsSheet('${id}','${k}')">⏱<div>Tiempo que has hecho${h.type==='time'?'':`: ${fmtDur(minsOf(h,k))}`}<small>Si haces más (o menos) de lo previsto, cuenta para tu total semanal</small></div></button>`:''}
-    ${h.guide?`<button class="row-btn" onclick="guideSheet('${id}')">📘<div>Guía: qué necesitas y cómo usarlo<small>Material, apps y libros de este hábito</small></div></button>`:''}
-    ${(h.metrics&&h.metrics.length)||true?`<button class="row-btn" onclick="metricSheet('${id}','${k}')">📈<div>Registrar progreso<small>${(h.metrics||[]).length?esc(h.metrics.map(m=>m.label).slice(0,2).join(' · ')):'Nota de la sesión'}</small></div></button>`:''}
-    ${h.minimal&&k<=todayK()&&!isDone(h,k)?`<button class="row-btn" onclick="closeSheet();sel='${k}';doMin('${id}')">🪫<div>Hoy solo la versión mínima<small>${esc(h.minimal.split('\n')[0].replace('🪫 ',''))}</small></div></button>`:''}
-    <button class="row-btn" onclick="quickMove('${k}','${id}')">⏭️<div>Pasarlo a mañana</div></button>
-    <button class="row-btn" onclick="evSheet('${k}','h:${id}')">🗓️<div>Anular, cambiar la hora o mover<small>Se refleja en la agenda, en Hoy y en las estadísticas</small></div></button>
-    <button class="row-btn" onclick="dayPlanSheet('${id}')">📝<div>Plan de este día<small>Qué hacer exactamente solo este día</small></div></button>
-    <button class="row-btn" onclick="openDetail('${id}')">📊<div>Estadísticas y mapa de calor</div></button>
-    <button class="row-btn" onclick="openEditor('${id}')">✏️<div>Editar hábito</div></button>
-    ${e?`<button class="row-btn danger" onclick="clearDay('${id}')">↺<div>Borrar el registro de este día</div></button>`:''}`);
+    ${past?`<button class="row-btn" onclick="logSheet('${id}','${k}')">${ri('pen')}<div>Apuntar lo que has hecho<small>Tiempo${h.type==='count'?', cantidad':''}, progreso y cómo ha ido</small></div></button>`:''}
+    <button class="row-btn" onclick="evSheet('${k}','h:${id}')">${ri('move')}<div>Mover, cambiar la hora o saltar<small>Se refleja en la agenda, en Hoy y en tus estadísticas</small></div></button>
+    <button class="row-btn" onclick="dayPlanSheet('${id}')">${ri('note')}<div>Cambiar el plan de este día<small>Qué hacer exactamente solo este día</small></div></button>
+    <button class="row-btn" onclick="openDetail('${id}')">${ri('chart')}<div>Progreso, guía y plan completo<small>Rachas, mapa de calor y todas las sesiones</small></div></button>
+    <button class="row-btn" onclick="openEditor('${id}')">${ri('edit')}<div>Editar hábito</div></button>`);
 }
+/* Apuntar: tiempo o cantidad, progreso (métricas) y nota en una sola hoja */
+function logSheet(id,k){
+  const h=getH(id);if(!h)return;k=k||sel;const e=entry(h,k)||{},m=e.m||{};
+  const cur=Math.round(minsOf(h,k));
+  const qty=h.type==='count'?`<label class="lbl">Cantidad${h.unit?' ('+esc(h.unit)+')':''} · objetivo ${h.target}</label><input id="lgV" type="number" inputmode="decimal" step="any" min="0" value="${fmtNum(e.v||0)}">`:'';
+  const time=`<label class="lbl">Tiempo que has hecho${h.type==='time'?` · objetivo ${h.target} min`:` · previsto ${fmtDur(evDur(h,k))}`}</label>
+    <div class="two"><input type="number" inputmode="numeric" min="0" id="mnH" value="${Math.floor(cur/60)}" aria-label="Horas"><input type="number" inputmode="numeric" min="0" max="59" id="mnM" value="${cur%60}" aria-label="Minutos"></div>
+    <div class="two" style="margin-top:4px"><span class="hint" style="margin:0">horas</span><span class="hint" style="margin:0">minutos</span></div>
+    <div class="chips">${[30,45,60,90].map(v=>`<button class="chip qt" onclick="$('#mnH').value=${Math.floor(v/60)};$('#mnM').value=${v%60}">${fmtDur(v)}</button>`).join('')}</div>`;
+  const metr=(h.metrics||[]).map(x=>`<div class="mrow"><label>${esc(x.label)}${x.unit?` <span class="hint">(${esc(x.unit)})</span>`:''}</label><input type="number" inputmode="decimal" step="any" id="mt-${x.id}" value="${m[x.id]??''}"></div>`).join('');
+  openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">✍️ ${esc(h.emoji)} ${esc(h.name)}</div><div class="sub">${longDate(k)}</div>
+    ${qty}${time}<p class="hint">Suma a tu total de la semana: si un día haces más, compensa el que no pudiste.</p>
+    ${metr?`<div class="sec">Progreso</div>${metr}`:''}
+    ${id==='en'?`<button class="btn ghost" style="margin-top:6px" onclick="mockSheet('${k}')">🎯 Registrar un simulacro</button>`:''}
+    <label class="lbl">Cómo ha ido</label><textarea id="mtNote" rows="3" placeholder="Sensaciones, cargas, lo que te ha costado…">${esc(e.note||'')}</textarea>
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveLog('${id}','${k}',${cur})">Guardar</button></div>
+    ${entry(h,k)?`<div class="btns" style="margin-top:8px"><button class="btn danger" onclick="sel='${k}';closeSheet();clearDay('${id}')">Borrar lo apuntado este día</button></div>`:''}</div>`);
+}
+function saveLog(id,k,cur0){
+  const h=getH(id);if(!h)return;
+  const mins=(parseInt($('#mnH').value)||0)*60+(parseInt($('#mnM').value)||0);
+  if(mins<0||mins>16*60)return toast('Revisa el tiempo');
+  pushUndo();const was=isDone(h,k),e=ens(h,k);
+  if(h.type==='count'){const v=parseFloat(String($('#lgV').value).replace(',','.'))||0;e.v=Math.max(0,r2(v));}
+  if(h.type==='time')e.v=mins;
+  else if(mins!==cur0){if(mins>0)e.mins=mins;else delete e.mins;} // solo si lo has cambiado tú
+  e.m={};for(const x of h.metrics||[]){const v=$('#mt-'+x.id).value;if(v!=='')e.m[x.id]=parseFloat(String(v).replace(',','.'));}
+  if(!Object.keys(e.m).length)delete e.m;
+  const n=$('#mtNote').value.trim();if(n)e.note=n;else delete e.note;
+  closeSheet();commit(h,k,was);
+}
+/* Deslizar la tarjeta: «Mañana» o «Saltar» */
+function swipeAct(k,id,a){
+  if(a==='move')return quickMove(k,id);
+  const h=getH(id);if(!h)return;pushUndo();agSet(k,'h:'+id,{cancel:true,reason:'Saltado'});
+  if(S.timer&&S.timer.hid===id&&S.timer.k===k)S.timer=null;
+  afterAg(`${h.name}: saltado este día (no cuenta como fallo si llegas al total de la semana)`);
+}
+(function(){ // gesto: deslizar a la izquierda abre las acciones; a la derecha o tocar fuera, las cierra
+  let el=null,x0=0,y0=0,dx=0,horiz=null,base=0;const W=168;
+  const close=(except)=>document.querySelectorAll('.hc-in.open').forEach(x=>{if(x!==except){x.classList.remove('open');x.style.transform='';}});
+  document.addEventListener('touchstart',e=>{const t=e.target.closest('.hc-in[data-swipe]');if(!t){if(!e.target.closest('.hc-acts'))close();return;}
+    close(t);el=t;x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;horiz=null;base=t.classList.contains('open')?-W:0;},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!el)return;const x=e.touches[0].clientX-x0,y=e.touches[0].clientY-y0;
+    if(horiz===null&&Math.hypot(x,y)>8)horiz=Math.abs(x)>Math.abs(y)*1.3;
+    if(!horiz)return;dx=x;el.style.transition='none';el.style.transform=`translateX(${Math.max(-W-20,Math.min(0,base+dx))}px)`;},{passive:true});
+  document.addEventListener('touchend',()=>{if(!el)return;const t=el;el=null;t.style.transition='';if(!horiz){return;}
+    const open=base+dx<-W/2;t.classList.toggle('open',open);t.style.transform=open?`translateX(-${W}px)`:'';
+    if(open)buzz();t.dataset.eat='1';setTimeout(()=>delete t.dataset.eat,350);},{passive:true});
+  document.addEventListener('click',e=>{const t=e.target.closest('.hc-in');if(t&&t.dataset.eat){e.stopPropagation();e.preventDefault();}},true);
+})();
 function guideSheet(id){
   const h=getH(id);if(!h||!h.guide)return;
   openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">Antes de empezar</div><div class="hc-plan">${fmtPlan(h.guide)}</div><div class="btns"><button class="btn ghost" onclick="closeSheet()">Cerrar</button></div></div>`);
@@ -1272,14 +1388,13 @@ function renderAgenda(){
   renderWeek('#agWeek');
   const body=$('#agBody');
   const seg=`<div class="ag-bar"><div class="seg">${[['day','Día'],['3','3 días'],['week','Semana']].map(([v,l])=>`<button class="${agView===v?'on':''}" onclick="agView='${v}';renderAgenda()">${l}</button>`).join('')}</div></div>`;
-  const legend=`<div class="ag-legend"><span><i style="background:#F97316"></i>Obligatorio</span><span><i style="background:#60A5FA"></i>Clase</span><span><i style="background:#22C55E"></i>Hábitos (su color)</span><span><i style="background:#84CC16"></i>Comidas</span><span><i style="background:#64748B"></i>Trayectos</span><span><i style="border:1px dashed var(--dim)"></i>Libre</span></div>`;
   const evs=dayEvents(k);
   if(!evs.length&&agView==='day'){
     const until=S.agendaUntil;
     body.innerHTML=seg+`<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda para este día</h3><p>${until&&k>until?`La agenda está hecha hasta el ${shortDate(until)}. Pásame el horario del 2.º cuatrimestre y la alargo.`:'Todavía no hay agenda cargada. Se carga sola con el plan.'}</p></div>`;
     return;
   }
-  if(agView==='week'||agView==='3'){body.innerHTML=seg+legend+classesNote(k)+weekGrid(agView==='3'?3:7);return;}
+  if(agView==='week'||agView==='3'){body.innerHTML=seg+classesNote(k)+weekGrid(agView==='3'?3:7);return;}
   const PX=1.1,H=(AG1-AG0)*PX;
   let html=`<div class="ag-day" style="height:${H+10}px">`;
   for(let m=AG0,i=0;m<AG1;m+=60,i++)html+=`<div class="ag-hour ${i%2?'alt':''}" style="top:${(m-AG0)*PX}px;height:${Math.min(60,AG1-m)*PX}px"><span>${pad((m/60)%24)}:00</span></div>`;
@@ -1294,7 +1409,7 @@ function renderAgenda(){
   }
   if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();if(m>=AG0&&m<=AG1)html+=`<div class="ag-now" style="top:${(m-AG0)*PX}px"></div>`;}
   html+=`</div>`;
-  body.innerHTML=seg+legend+classesNote(k)+html;
+  body.innerHTML=seg+classesNote(k)+html;
   if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();setTimeout(()=>{const y=$('#agBody').getBoundingClientRect().top+window.scrollY+(m-AG0)*PX-160;if(m>AG0)window.scrollTo({top:Math.max(0,y),behavior:'smooth'});},60);}
 }
 const WEEK_SHORT={'h:fr':'Francés','h:en':'Inglés','h:estudio':'Estudio','h:dx':'Dx diferencial','h:fuerza':'Fuerza','h:boxeo':'Boxeo',futbol:'Fútbol (fisio)',partido:'Partido (fisio)',mimi:'Tirada con Mimi',comida:'Comida',cena:'Cena'};
@@ -1357,11 +1472,11 @@ function evSheet(k,id){
       ${h&&!ev.moved&&!ev.extra?`<label class="lbl">Mover a otro día</label>
       <div class="btns" style="margin-top:0"><button class="btn ghost" onclick="quickMove('${k}','${h.id}')">⏭️ A mañana</button></div>
       <div class="ev-row" style="margin-top:8px"><input type="date" id="evD" value="${tomorrow}"><button class="btn ghost" style="width:auto;padding:12px 16px" onclick="evMove('${k}','${id}')">Mover</button></div>`:''}
-      ${!ev.moved&&!ev.extra?`<label class="lbl">Anular solo este día</label>
+      ${!ev.moved&&!ev.extra?`<label class="lbl">Saltar solo este día</label>
       <input id="evR" placeholder="Motivo (opcional): no hay clase, lesión, viaje…">
-      <div class="btns" style="margin-top:8px"><button class="btn danger" onclick="evCancel('${k}','${id}')">Anular este día</button></div>`:''}
+      <div class="btns" style="margin-top:8px"><button class="btn danger" onclick="evCancel('${k}','${id}')">Saltar este día</button></div>`:''}
       ${(ev.edited||ev.moved)?`<div class="btns"><button class="btn ghost" onclick="evRestore('${k}','${id}')">↺ Dejarlo como estaba</button></div>`:''}`}
-    ${h?`<p class="hint">Los cambios en un hábito se reflejan en Hoy, en las rachas y en las estadísticas: un día anulado no cuenta como fallo.</p>`:ev.kind==='fijo'?`<p class="hint">Si se anula o cambia algo obligatorio (por ejemplo, no hay clase), puedes mover aquí mismo el entreno u otro hábito de ese día.</p>`:''}
+    ${h?`<p class="hint">Los cambios en un hábito se reflejan en Hoy, en las rachas y en las estadísticas: un día saltado no cuenta como fallo si llegas al total de la semana.</p>`:ev.kind==='fijo'?`<p class="hint">Si se anula o cambia algo obligatorio (por ejemplo, no hay clase), puedes mover aquí mismo el entreno u otro hábito de ese día.</p>`:''}
   </div>`);
 }
 function afterAg(msg){save();closeSheet();render();toast(msg,[undoAct()]);}
@@ -1385,7 +1500,7 @@ function evCancel(k,id){
   agSet(k,id,{cancel:true,reason:r.trim()});
   if(S.timer&&id==='h:'+S.timer.hid&&S.timer.k===k)S.timer=null;
   const h=getH('fuerza'),pe=h&&h.plan&&h.plan.program&&h.plan.program[k];
-  afterAg(id==='clase'&&pe&&pe.alt?'Clase anulada · el entreno pasa a sesión completa':'Anulado este día');
+  afterAg(id==='clase'&&pe&&pe.alt?'Clase anulada · el entreno pasa a sesión completa':id.startsWith('h:')?'Saltado este día':'Anulado este día');
 }
 function evMove(k,id,toArg){
   const to=toArg||$('#evD').value,hid=id.slice(2),h=getH(hid);
@@ -1439,14 +1554,14 @@ function cellColor(h,k,t){
 }
 function renderHab(){
   const act=S.habits.filter(h=>!h.archived),arch=S.habits.filter(h=>h.archived);
-  $('#habSub').textContent=`${act.length} activo${act.length===1?'':'s'}${arch.length?` · ${arch.length} archivado${arch.length===1?'':'s'}`:''}`;
+  $('#progSub').textContent=`${act.length} activo${act.length===1?'':'s'}${arch.length?` · ${arch.length} archivado${arch.length===1?'':'s'}`:''}`;
   if(!S.habits.length){
     $('#habBody').innerHTML=`<div class="card empty"><div class="big">✨</div><h3>Aún no hay hábitos</h3><p>Crea el primero o carga unos ejemplos para ver cómo funciona.</p>
       <button class="btn pri" onclick="openEditor()">+ Nuevo hábito</button><button class="btn ghost mt8" onclick="loadExamples()">Cargar hábitos de ejemplo</button></div>`;
     return;
   }
   const card=h=>{
-    const W=weeksSince(h.start,26,10);
+    const W=weeksSince(h.start,26,24); // mínimo 24 semanas: casillas pequeñas y tarjetas compactas
     const st=streaks(h),r=habitRate(h,30),hm=heatCells(h,W,false);
     return `<button class="hl" style="--hc:${h.color}" onclick="openDetail('${h.id}')">
       <div class="hl-top"><span class="hc-ico sm">${esc(h.emoji)}</span>
@@ -1563,7 +1678,7 @@ function edR(){
     ${typeExtra}
 
     <label class="lbl">Momento del día</label>
-    ${seg(MOMENTS.map(([v,l])=>[v,l.replace('Cualquier momento','Cualquiera')]),D.moment,'edMoment')}
+    ${seg(MOMENTS.map(([v,l])=>[v,l.replace('En cualquier momento','Cualquiera').replace('Por la ','')]),D.moment,'edMoment')}
 
     <label class="lbl">Frecuencia</label>
     ${seg([['daily','Cada día'],['weekdays','Días concretos'],['xweek','X por semana'],['everyN','Cada N días'],['dates','Fechas sueltas']],s.mode,'edSched')}
@@ -1617,7 +1732,7 @@ function edSave(){
 /* ═════════════ ESTADÍSTICAS ═════════════ */
 function renderStats(){
   const t=todayK(),hs=S.habits.filter(h=>!h.archived);
-  if(!hs.length){$('#statsBody').innerHTML=`<div class="card empty"><div class="big">📊</div><h3>Sin datos todavía</h3><p>Cuando tengas hábitos y empieces a marcarlos, aquí verás tu evolución.</p></div>`;return;}
+  if(!hs.length){$('#statsMore').innerHTML='';$('#statsBody').innerHTML=`<div class="card empty"><div class="big">📊</div><h3>Sin datos todavía</h3><p>Cuando tengas hábitos y empieces a marcarlos, aquí verás tu evolución.</p></div>`;return;}
   const agg=(from,to)=>{let d=0,n=0;for(let k=from;k<=to;k=addDays(k,1)){const s=dayStats(k);d+=s.done;n+=s.total;}return n?d/n:null;};
   const today=dayStats(t);
   const r7=agg(addDays(t,-7),addDays(t,-1)),r30=agg(addDays(t,-30),addDays(t,-1));
@@ -1644,9 +1759,8 @@ function renderStats(){
     cells+=`<i style="background:${bg}"></i>`;
   }
 
-  const rows=hs.map(h=>({h,r:habitRate(h,30),st:streaks(h)})).sort((a,b)=>(b.r??-1)-(a.r??-1));
 
-  $('#statsBody').innerHTML=`
+  const statsHTML=`
     <div class="kpis">
       <div class="kpi"><b>${today.done}/${today.total}</b><span>Hoy</span></div>
       <div class="kpi"><b>${pct(r7)}</b><span>Últimos 7 días</span></div>
@@ -1654,47 +1768,45 @@ function renderStats(){
       <div class="kpi"><b>${bestS&&bestS.cur?`🔥 ${bestS.cur}`:'—'}</b><span>${bestS&&bestS.cur?esc(bestS.h.emoji+' '+bestS.h.name):'Mejor racha actual'}</span></div>
     </div>
     <button class="banner" onclick="reviewSheet()">🗓️<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
+    <!--MAS-->
     <div class="sec">Cumplimiento por semana</div>
     <div class="card"><div class="bars">${bars}</div></div>
     ${loadBlock()}
-    ${mocksBlock()}
     ${energyBlock()}
     <div class="sec">Todos los hábitos · desde el inicio</div>
     <div class="card"><div class="hm" style="grid-template-columns:repeat(${W},1fr)">${cells}</div></div>
-    <div class="sec">Ranking · 30 días</div>
-    <div class="card">${rows.map(({h,r,st})=>`<div class="rk" style="--hc:${h.color}"><span class="hc-ico sm">${esc(h.emoji)}</span>
-      <div class="rk-n"><div>${esc(h.name)}${st.cur?` <span style="color:var(--muted);font-weight:500">· 🔥 ${st.cur}${st.unit==='sem'?' sem':''}</span>`:''}</div><div class="rk-bar"><i style="width:${r===null?0:r*100}%"></i></div></div>
-      <span class="rk-p">${pct(r)}</span></div>`).join('')}</div>`;
+`;
+  const [top,more]=statsHTML.split('<!--MAS-->');$('#statsBody').innerHTML=top;$('#statsMore').innerHTML=more;
 }
 
 /* ═════════════ AJUSTES ═════════════ */
 function renderSet(){
-  const acc=S.settings.accent||'#22C55E';
+  const acc=S.settings.accent||'#22C55E',c=cloudCfg(),[v0,d0,it0]=CHANGELOG[0];
   $('#setBody').innerHTML=`
-    <div class="sec">Color de acento</div>
-    <div class="card"><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="${c}"></button>`).join('')}</div></div>
-    <div class="sec">Copia de seguridad</div>
-    <button class="row-btn" onclick="backupSheet()">${ri('upload')}<div>Hacer copia de seguridad<small>${S.settings.lastExport?`Última: ${shortDate(S.settings.lastExport)}`:'Aún no has hecho ninguna'} · guárdala en Drive, Archivos o donde quieras</small></div></button>
-    <button class="row-btn" onclick="snapSheet()">${ri('archive')}<div>Copias automáticas en este móvil<small>Una al día (últimos 7 días) y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
-    <button class="row-btn" onclick="$('#importIn').click()">${ri('download')}<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade/actualiza hábitos y conserva tus registros</small></div></button>
-    <div class="sec">Recordatorios</div>
-    <button class="row-btn" onclick="subscribeSheet()">${ri('calplus')}<div>Suscribir el calendario (recomendado)<small>Tu agenda en el Calendario del iPhone o Google Calendar, con aviso 5 min antes. Se actualiza sola cuando cambia el plan</small></div></button>
-    <button class="row-btn" onclick="icsSheet()">${ri('bell')}<div>Exportar unas semanas al calendario<small>Exporta la agenda (.ics) a Google Calendar o Calendario de Apple: te avisa 5 min antes de cada tarea, aunque la app esté cerrada</small></div></button>
-    <button class="row-btn" onclick="toggleNotif()">${ri('message')}<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Solo con la app abierta en pantalla (el iPhone para la app al salir). Para avisos con el móvil bloqueado, usa «Suscribir el calendario»</small></div></button>
+    <div class="sec">Tus datos</div>
+    ${cloudRow()}
+    <button class="row-btn" onclick="snapSheet()">${ri('archive')}<div>Copias automáticas en este móvil<small>Una al día y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
+    <button class="row-btn" onclick="backupSheet()">${ri('share')}<div>Exportar o importar una copia<small>${S.settings.lastExport?`Última exportada: ${shortDate(S.settings.lastExport)}`:'Para guardarla en Drive, Archivos o pasarla a otro móvil'}</small></div></button>
+    <div class="sec">Calendario y avisos</div>
+    <button class="row-btn" onclick="subscribeSheet()">${ri('calplus')}<div>Suscribir el calendario<small>Tu agenda en el Calendario del iPhone o Google, con aviso 5 min antes. Funciona con el móvil bloqueado y se actualiza sola</small></div></button>
+    <button class="row-btn" onclick="calMoreSheet()">${ri('bell')}<div>Más opciones<small>Archivo .ics para importar a mano · avisos con la app abierta</small></div></button>
     <div class="sec">Pausas</div>
     <button class="row-btn" onclick="pauseSheet()">${ri('pause')}<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
-    <div class="sec">Nube</div>
-    ${cloudRow()}
+    <div class="sec">Apariencia</div>
+    <div class="card"><div class="hint" style="margin:0 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
+    <div class="sec">Novedades</div>
+    <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
     <div class="sec">Otros</div>
     <button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>
-    <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar todos los datos</div></button>
-    <div class="sec">Novedades</div>
-    <div class="card">${CHANGELOG.map(([v,d,items],i)=>`<div style="${i?'margin-top:10px':''}"><b>v${v}</b> <span class="hint">· ${d}</span><ul class="chlog">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
-    <div class="sec">Instalar</div>
-    <div class="card"><p class="hint" style="margin:0">En iPhone: ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación». Los datos se guardan en este dispositivo (con copias automáticas) y, si la conectas, en tu nube.</p></div>
+    <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar todos los datos<small>Antes se guarda una copia automática</small></div></button>
+    ${isStandalone()?'':`<div class="card"><p class="hint" style="margin:0">Instálala: en iPhone, ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación».</p></div>`}
     <p class="hint" style="text-align:center;margin-top:16px">Rutina v${APP_VERSION} · datos v${S.schema} · ${S.habits.length} hábitos · ${Object.keys(S.logs).length} días con registros</p>`;
 }
+function historySheet(){openSheet(`<div class="sheet-title">Novedades</div>${CHANGELOG.map(([v,d,items],i)=>`<div style="${i?'margin-top:14px':''}"><b>v${v}</b> <span class="hint">· ${d}</span><ul class="chlog">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}`);}
+function calMoreSheet(){openSheet(`<div class="sheet-title">Calendario y avisos</div><p class="hint">Lo recomendado es «Suscribir el calendario». Esto es para casos concretos.</p>
+    <button class="row-btn" onclick="icsSheet()">${ri('calendar')}<div>Exportar unas semanas a mano<small>Un archivo .ics para importarlo una vez (no se actualiza solo)</small></div></button>
+    <button class="row-btn" onclick="toggleNotif().then(()=>calMoreSheet())">${ri('message')}<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Solo funcionan con la app en pantalla: el iPhone la para al salir</small></div></button>`);}
 function setAccent(c){S.settings.accent=c;applyAccent();save();renderSet();}
 function applyAccent(){document.documentElement.style.setProperty('--acc',S.settings.accent||'#22C55E');}
 function backupJSON(){if(S.timer)stopTimer(true);const o={...S,exportedAt:new Date().toISOString()};delete o._needPlanSave;return JSON.stringify(o);}
@@ -1706,10 +1818,10 @@ async function shareFile(name,text,type,title){
 }
 function exportData(){downloadFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json');markExport();toast('Copia descargada 📤');}
 function backupSheet(){
-  openSheet(`<div class="sheet-title">💾 Copia de seguridad</div><p class="hint">Guarda la copia fuera del móvil (Google Drive, iCloud, correo…). Si pierdes el móvil, la importas y lo recuperas todo.</p>
-    <button class="row-btn" onclick="shareBackup()">${ri('share')}<div>Compartir o guardar<small>Elige Drive, Archivos, WhatsApp a ti mismo…</small></div></button>
-    <button class="row-btn" onclick="exportData()">${ri('download')}<div>Descargar el archivo</div></button>
-    <button class="row-btn" onclick="copyBackup()">${ri('copy')}<div>Copiar como texto<small>Por si no puedes descargar archivos</small></div></button>`);
+  openSheet(`<div class="sheet-title">💾 Exportar o importar</div><p class="hint">Guarda una copia fuera del móvil (Drive, iCloud, correo…) o tráela desde otro. ${cloudCfg()&&cloudCfg().gistId?'Con la nube conectada ya se guarda sola; esto es por si quieres un archivo.':'Si conectas la nube, se guarda sola.'}</p>
+    <button class="row-btn" onclick="shareBackup()">${ri('upload')}<div>Guardar una copia<small>Elige Drive, Archivos, WhatsApp a ti mismo… (o se descarga)</small></div></button>
+    <button class="row-btn" onclick="closeSheet();$('#importIn').click()">${ri('download')}<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade hábitos y conserva tus registros</small></div></button>
+    <button class="row-btn" onclick="copyBackup()">${ri('copy')}<div>Copiar como texto<small>Por si no puedes guardar archivos</small></div></button>`);
 }
 async function shareBackup(){const ok=await shareFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json','Copia de Rutina');if(ok){markExport();closeSheet();toast('Copia guardada 💾');}}
 async function copyBackup(){try{await navigator.clipboard.writeText(backupJSON());markExport();toast('Copia copiada al portapapeles');}catch(e){openSheet(`<div class="sheet-title">Copia en texto</div><p class="hint">Selecciona todo y cópialo.</p><textarea rows="10" onclick="this.select()">${esc(backupJSON())}</textarea>`);markExport();}}
@@ -1745,7 +1857,7 @@ function mergePack(pack){
     const ex=getH(ph.id);
     if(ex){
       const keepDates=(ex.plan&&ex.plan.dates)||{},keepArch=ex.archived;
-      const mine=ex.userEdited?{name:ex.name,emoji:ex.emoji,color:ex.color,desc:ex.desc,moment:ex.moment,target:ex.target,unit:ex.unit,steps:ex.steps,userEdited:true}:{};
+      const mine=ex.userEdited?{name:ex.name,emoji:ex.emoji,color:ex.color,desc:ex.desc,moment:ex.moment,target:ex.target,unit:ex.unit,steps:ex.steps,step:ex.step,type:ex.type,schedule:ex.schedule,start:ex.start,userEdited:true}:{};
       Object.assign(ex,ph,mine);
       ex.plan=Object.assign({},base.plan,ph.plan||{});ex.plan.dates=keepDates;ex.archived=keepArch;
     } else {
@@ -1811,20 +1923,6 @@ setInterval(()=>{const n=new Date(),m=n.getHours()*60+n.getMinutes();if(m===_las
   checkNotify(m);},20000);
 
 /* ═════════════ BANNERS (revisión, copia, plan) ═════════════ */
-function banners(k){
-  const t=todayK();if(k!==t)return '';let out='';
-  const wd=dow(t),ws=weekStartK(t),rk=wd===0?ws:addDays(ws,-7);
-  if((wd===0||wd===1)&&!(S.reviews||{})[rk])out+=`<button class="banner" onclick="reviewSheet('${rk}')">🗓️<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`;
-  const cc=cloudCfg();
-  if(cloudLegacy(cc))out+=`<button class="banner warn" onclick="cloudMigrate()">🔒<div><b>Protege tus datos de la nube</b><small>Ahora el enlace del calendario podría llevar a tus datos. Se arregla en 1 toque.</small></div><span class="go">Arreglar ›</span></button>`;
-  else if(cc&&cc.resub)out+=`<button class="banner warn" onclick="subscribeSheet()">📅<div><b>Vuelve a suscribir el calendario</b><small>Tu calendario tiene un enlace nuevo. Quita el antiguo para no verlo repetido.</small></div><span class="go">Abrir ›</span></button>`;
-  if(isIOS()&&!isStandalone())out+=`<div class="banner warn">📲<div><b>Instálala en la pantalla de inicio</b><small>Abierta en Safari, iOS puede borrar tus datos si pasan 7 días sin usarla. Compartir › «Añadir a pantalla de inicio».</small></div></div>`;
-  const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
-  if(hasData&&(!le||diffDays(le,t)>=7))out+=`<button class="banner warn" onclick="backupSheet()">💾<div><b>Haz una copia de seguridad</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'}</small></div><span class="go">Hacer ›</span></button>`;
-  const aw=acwr(t);if(aw.enough&&aw.r>1.5)out+=`<button class="banner warn" onclick="go('stats')">⚠️<div><b>Pico de carga de entreno (${aw.r.toFixed(2)})</b><small>Has subido mucho respecto a tus últimas 4 semanas. Baja intensidad o volumen unos días.</small></div></button>`;
-  const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)out+=`<div class="banner warn">📅<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`;
-  return out;
-}
 
 /* ═════════════ VERSIÓN MÍNIMA ═════════════ */
 function toggleMinDay(k){pushUndo();S.minDays=S.minDays||{};if(S.minDays[k])delete S.minDays[k];else S.minDays[k]=true;save();render();toast(S.minDays[k]?'🪫 Día mínimo: cada hábito en su versión corta':'Vuelves al plan completo',[undoAct()]);}
@@ -2081,8 +2179,8 @@ function tomorrowCard(){
 /* ═════════════ CHECK-IN DE SUEÑO Y ENERGÍA ═════════════ */
 function checkinCard(k){
   const c=(S.checkins||{})[k]||{};if(c.sleep&&c.energy)return '';
-  const row=(f,lb)=>`<div class="ci-lb">${lb}</div><div class="ci">${[1,2,3,4,5].map(v=>`<button class="${c[f]===v?'on':''}" onclick="setCI('${k}','${f}',${v})">${v}</button>`).join('')}</div>`;
-  return `<div class="card"><div class="wk-hd"><b>☀️ ¿Cómo estás hoy?</b><small>1 = fatal · 5 = genial</small></div>${row('sleep','😴 Cómo has dormido')}${row('energy','⚡ Energía')}</div>`;
+  const row=(f,lb)=>`<div class="ci-row"><span class="ci-lb">${lb}</span><div class="ci">${[1,2,3,4,5].map(v=>`<button class="${c[f]===v?'on':''}" onclick="setCI('${k}','${f}',${v})" aria-label="${lb} ${v} de 5">${v}</button>`).join('')}</div></div>`;
+  return `<div class="card"><div class="wk-hd"><b>☀️ ¿Cómo estás hoy?</b><small>1 = fatal · 5 = genial</small></div>${row('sleep','😴 Sueño')}${row('energy','⚡ Energía')}</div>`;
 }
 function setCI(k,f,v){pushUndo();S.checkins=S.checkins||{};S.checkins[k]={...(S.checkins[k]||{}),[f]:v};save();render();if(S.checkins[k].sleep&&S.checkins[k].energy)toast('Apuntado ☀️',[undoAct()]);}
 function energyBlock(){
@@ -2436,7 +2534,7 @@ function weekCard(k){
   const ws=weekStartK(k);let G=0,M=0;
   const rows=hs.map(h=>{const g=weekGoal(h,k),m=weekMins(h,k);G+=g;M+=Math.min(m,g);const p=Math.min(1,m/g);
     return `<button class="wk-row" onclick="openDetail('${h.id}')"><span>${esc(h.emoji)}</span><div><div class="nm">${esc(h.name)}</div><div class="wk-bar"><i style="width:${Math.round(p*100)}%;background:${h.color}"></i></div></div><span class="vl"><b>${fmtDur(m)}</b> / ${fmtDur(g)}${m>=g?' ✓':''}</span></button>`;}).join('');
-  const open=OPEN['wk']!==false;
+  const open=OPEN['wk']===true;
   return `<div class="card wk-card"><button class="wk-hd" style="width:100%" onclick="OPEN['wk']=${open?'false':'true'};render()"><b>📊 ${ws===weekStartK(todayK())?'Esta semana':'Total semanal'} · ${Math.round(M/G*100)}%</b><small>${shortDate(ws)}–${shortDate(addDays(ws,6))} ${open?'▴':'▾'}</small></button>${open?rows+'<p class="hint" style="margin:6px 0 0">Si un día no puedes, compénsalo otro día de la semana: si llegas al total, no cuenta como fallo.</p>':''}</div>`;
 }
 function weekHistBlock(h){

@@ -1,5 +1,13 @@
 # Rutina · Changelog
 
+## v1.13 · 19 nov 2026 · Auditoría, trozo 4: navegación y Hoy
+- 4 pestañas: Hábitos y Estadísticas se fusionan en Progreso (`renderProg`; `go('hab'|'stats')` redirige). Sin ranking (repetía los %), simulacros solo en el detalle de Inglés, mapas de calor de la lista con mínimo 24 semanas.
+- Hoy: `noticeList` con prioridades y `spotlight` (una tarjeta destacada; el resto en la campana `#hoyBell` / `noticesSheet`), cabecera compacta del día con Día flojo, franjas «Por la mañana/tarde/noche», total semanal plegado y al final, flechas de semana de 44 px, check-in en dos filas compactas.
+- Tarjeta de hábito: tocar el nombre despliega/pliega el plan; botón ⋯ con 5 opciones; `logSheet`/`saveLog` (tiempo, cantidad, métricas y nota); deslizar a la izquierda para «Mañana» o «Saltar» (`swipeAct`, con deshacer).
+- Ajustes reorganizado (Tus datos, Calendario y avisos, Pausas, Apariencia, Novedades); `calMoreSheet`, `historySheet`; copia en una hoja con exportar/importar/copiar. Agenda sin leyenda. «Anular» un hábito pasa a «Saltar».
+- B15: con `userEdited`, actualizar el plan respeta también frecuencia, tipo, inicio y paso. B16: apuntar tiempo solo completa los hábitos de sí/no.
+- Tests: `tests/test_v113.py`; ajustados `test_app`, `test_sheet_movil`, `test_v110` y `test_v111`.
+
 ## v1.12 · 19 nov 2026 · Auditoría, trozo 3: sistema visual
 - Tokens en `:root`: color (fondo `#0B0B0F`, superficies `#141419`/`#1C1C23`/`#26262F`, bordes `#2A2A33`, texto `#F4F4F6`/`#A3A3AE`/`#82828E`, estados), tipografía (32/22/17/15/13/12 px; el rem sigue a 16), espaciado 4–32, radios 8/12/16/24, sombras `--e1`/`--e2` y movimiento (`--ease`, 150/250 ms). Los nombres antiguos de variables se mantienen.
 - Componentes revisados: tarjetas, hábitos, botones, filas, campos con foco, semana, KPIs, Ahora/Después, hojas, toasts, barra inferior y píldora.

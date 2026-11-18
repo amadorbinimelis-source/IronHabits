@@ -17,7 +17,7 @@ async def main():
         is_open = lambda: pg.evaluate("document.querySelector('#sheet').classList.contains('on')")
         async def open_task():
             await pg.evaluate("sel='2026-11-23';go('hoy')"); await pg.wait_for_timeout(300)
-            await pg.locator(".hc-info").first.tap(); await pg.wait_for_timeout(450)
+            await pg.locator(".hc-menu").first.tap(); await pg.wait_for_timeout(450)
         # 1. ✕
         await open_task(); check(await is_open(), "al tocar una tarea se abre la hoja")
         await pg.screenshot(path="/tmp/t/sheet_movil.png")
@@ -37,8 +37,8 @@ async def main():
         check(not await is_open(), "se cierra deslizando hacia abajo")
         # 4. Hoja encadenada (menú → agenda) sigue abierta
         await open_task()
-        await pg.locator(".row-btn", has_text="Anular, cambiar la hora").tap(); await pg.wait_for_timeout(700)
-        check(await is_open() and "anular solo este día" in (await pg.inner_text("#sheetBody")).lower(), "abrir una hoja desde otra no la cierra")
+        await pg.locator(".row-btn", has_text="Mover, cambiar la hora").tap(); await pg.wait_for_timeout(700)
+        check(await is_open() and "saltar solo este día" in (await pg.inner_text("#sheetBody")).lower(), "abrir una hoja desde otra no la cierra")
         await pg.locator(".sheet-x").tap(); await pg.wait_for_timeout(450)
         check(not await is_open(), "y luego se cierra con ✕")
         # 5. Botón atrás del navegador

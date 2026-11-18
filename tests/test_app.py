@@ -163,7 +163,7 @@ async def main():
           const g=weekGoal(h,'2026-12-14'),m=weekMins(h,'2026-12-14'),met=weekMet(h,'2026-12-14');
           const notMet=weekMet(h,'2026-12-07');
           const st=streaks(h),rate=habitRate(h,7);
-          const card=weekCard('2026-12-20').includes('Francés');
+          OPEN['wk']=true;const card=weekCard('2026-12-20').includes('Francés');
           const rev=weekSummary('2026-12-14');const miss14=rev.miss.some(x=>x.includes('Francés'));
           const rev7=weekSummary('2026-12-07');const miss7=rev7.miss.some(x=>x.includes('Francés'));
           // pausa baja el objetivo; anular no
