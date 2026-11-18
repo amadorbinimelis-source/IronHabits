@@ -1,5 +1,15 @@
 # Rutina · Changelog
 
+## v1.10 · 18 nov 2026 · Auditoría, trozo 1: datos seguros
+- Deshacer: la foto incluye registros, agenda, pausas, día mínimo, check-in, simulacros, notas y planes de un día; cada aviso deshace solo su acción (un «Deshacer» antiguo ya no devuelve los datos atrás). Arreglado el check-in, que ofrecía deshacer sin foto.
+- «Marcar hecho» desde la agenda o el plan completo marca el día del bloque (`act(id,k)`), no el seleccionado.
+- Copias automáticas en IndexedDB (`rutina-copias`): una al día (7 días) y otra antes de importar, borrar todo, cargar de la nube, actualizar el plan o restaurar (máx. 6). Ajustes › Copias automáticas para restaurar. `navigator.storage.persist()` y aviso en Safari para instalarla.
+- Nube: datos y calendario en gists separados; para las nubes antiguas, «Proteger tus datos» crea los dos nuevos y borra el antiguo (con confirmación) y pide volver a suscribir el calendario. Los otros dispositivos encuentran los gists nuevos solos.
+- Nube: al abrir sube lo pendiente; al salir sube solo los datos con `keepalive`; la nota a medio escribir y la copia del día se guardan al salir.
+- Service worker v13: red primero con 3 s de espera máxima para la app y el plan, el resto desde caché; solo guarda respuestas correctas de la propia web (nada de GitHub). `plan.json` con 10 s de espera máxima.
+- Arreglado: abrir una hoja justo al cerrar otra (dos confirmaciones seguidas) podía hacer que «atrás» sacara de la app.
+- Tests: `tests/test_v110.py`.
+
 ## v1.9 · 18 nov 2026 (plan v11)
 - Nube: sincronización con un gist secreto de GitHub (token solo con permiso `gist`, guardado solo en el dispositivo y excluido de las copias). Sube los cambios a los 6 s y al salir de la app; al abrirla trae lo último; pregunta si hay cambios en los dos lados. Publica `rutina-agenda.ics` con los cambios manuales para la suscripción del calendario.
 - Carga de entreno (método de Foster: RPE × min) para hábitos con métrica `rpe` (boxeo y ahora fuerza), ACWR 7/28 días con zonas y aviso en Hoy si > 1,5; botón «💪 RPE» al completar.

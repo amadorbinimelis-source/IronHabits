@@ -424,8 +424,9 @@ body.drag-on{user-select:none;-webkit-user-select:none;-webkit-touch-callout:non
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.9';
+const APP_VERSION='1.10';
 const CHANGELOG=[
+  ['1.10','18 nov 2026',['🛟 Copias automáticas en el móvil: una al día y otra antes de cada cambio grande; se restauran desde Ajustes','🔒 Nube más privada: tus datos y el calendario van en notas separadas (si ya la usabas, te pide 1 toque)','☁️ Si cierras la app justo después de marcar algo, se sube al volver a abrirla','Arreglado: «Deshacer» ya no puede devolver los datos a un momento antiguo','Arreglado: «Marcar hecho» desde la agenda marca el día del bloque, no el que tenías seleccionado','⚡ Abre al momento aunque haya mala cobertura']],
   ['1.9','18 nov 2026',['☁️ Copia automática en la nube (tu GitHub, privado): la recuperas en cualquier dispositivo y el calendario suscrito incluye tus cambios','💪 Carga de entreno: RPE × minutos y ratio agudo:crónico con aviso si subes demasiado rápido','🎯 Simulacros B2 First con nota en la escala oficial de Cambridge y tu parte más floja','🌙 Resumen de mañana a partir de las 20:00 (y aviso a las 22:00)','☀️ Check-in de sueño y energía: qué días rindes más','Arrastra un hábito a otro día en la vista Semana o 3 días']],
   ['1.8','18 nov 2026',['Agenda: mantén pulsado un bloque y arrástralo para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva mientras lo mueves)','Funciona en Día, 3 días y Semana; con ratón en el ordenador','Sigue existiendo el cambio manual tocando el bloque, y puedes Deshacer']],
   ['1.7.1','18 nov 2026',['Arreglado: en el iPhone no se podían cerrar las ventanas de las tareas','Ahora se cierran con ✕, tocando la zona oscura, deslizando hacia abajo o con el botón atrás']],
@@ -485,7 +486,7 @@ function savePlan(){
     localStorage.setItem(PLAN_KEY,JSON.stringify(P));}catch(e){toast('⚠️ No se pudo guardar el plan');}
 }
 let S=load();
-function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}if(typeof cloudDirty==='function')cloudDirty();}
+function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}if(typeof cloudDirty==='function')cloudDirty();if(typeof snapSoon==='function')snapSoon();}
 
 let view='hoy';
 let sel=todayK();
@@ -512,11 +513,19 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function buzz(){try{navigator.vibrate&&navigator.vibrate(12);}catch(e){}}
 let _tt;function toast(m,actions){const t=$('#toast');t.innerHTML=esc(m)+(actions||[]).map((a,i)=>`<button onclick="toastAct(${i})">${esc(a[0])}</button>`).join('');toast._a=actions||[];t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),actions&&actions.length?5000:2400);}
 function toastAct(i){const a=(toast._a||[])[i];$('#toast').classList.remove('on');if(a)a[1]();}
-// Deshacer: foto de registros, agenda y pausas antes de cada cambio
-let _undo=null;
-function pushUndo(){_undo=JSON.stringify({logs:S.logs,agenda:S.agenda,timer:S.timer,pauses:S.pauses,minDays:S.minDays});}
-function doUndo(){if(!_undo)return;const o=JSON.parse(_undo);Object.assign(S,o);_undo=null;save();render();toast('Deshecho ↺');}
-function undoAct(){return ['Deshacer',doUndo];}
+// Deshacer: foto de todo lo que se puede cambiar desde la app, justo antes de cada acción.
+// Cada foto tiene un número: el botón «Deshacer» de un aviso solo deshace SU acción (nunca una foto antigua).
+let _undo=null,_undoId=0;
+const UNDO_KEYS=['logs','agenda','timer','pauses','minDays','checkins','mocks','notes'];
+function pushUndo(){const o={dates:{}};for(const k of UNDO_KEYS)o[k]=S[k];for(const h of S.habits)o.dates[h.id]=(h.plan&&h.plan.dates)||{};_undo=JSON.stringify(o);_undoId++;}
+function dropUndo(){_undo=null;_undoId++;}
+function doUndo(id){
+  if(!_undo||(id!=null&&id!==_undoId))return toast('Ya no se puede deshacer');
+  const o=JSON.parse(_undo);for(const k of UNDO_KEYS)if(k in o)S[k]=o[k];
+  for(const h of S.habits)if(o.dates[h.id]){h.plan=h.plan||{mode:'none'};h.plan.dates=o.dates[h.id];}
+  dropUndo();save();render();toast('Deshecho ↺');
+}
+function undoAct(){const id=_undoId;return ['Deshacer',()=>doUndo(id)];}
 // Diálogo propio (sustituye a confirm(), que no funciona en todos los sitios)
 let _dlg=null;
 function ask(msg,ok='Aceptar',danger=false){return new Promise(res=>{_dlg=res;openSheet(`<div class="sheet-title">¿Seguro?</div><p class="hint" style="font-size:.9rem;color:var(--text)">${esc(msg)}</p><div class="btns"><button class="btn ghost" onclick="dlgDone(false)">Cancelar</button><button class="btn ${danger?'danger':'pri'}" onclick="dlgDone(true)">${esc(ok)}</button></div>`);});}
@@ -786,7 +795,7 @@ function renderHoy(){
   }
   const hs=dayHabits(k);
   const done=hs.filter(h=>isDone(h,k)).length,fut=k>t,minOn=!!(S.minDays||{})[k];
-  let html=(k===t?nowCard(k)+tomorrowCard()+checkinCard(k):'')+banners(k);
+  let html=(k===t?nowCard(k):'')+banners(k)+(k===t?tomorrowCard()+checkinCard(k):'');
   html+=`<div class="card sum">
     <div class="sum-ring">${ring(hs.length?done/hs.length:0,64,7,'var(--acc)')}<b>${hs.length?Math.round(done/hs.length*100):0}%</b></div>
     <div><div class="sum-t">${fut?`${hs.length} hábito${hs.length===1?'':'s'} programado${hs.length===1?'':'s'}`:hs.length?`${done} de ${hs.length} completados`:'Día libre'}</div>
@@ -897,11 +906,11 @@ function commit(h,k,was){
   render();
   if(now&&!was){const el=document.getElementById('hc-'+h.id);if(el){el.classList.add('pop');}}
 }
-function act(id){
-  const h=getH(id),k=sel;if(!h)return;
+function act(id,k=sel){ // k: el día del bloque o tarjeta que se ha tocado (por defecto, el seleccionado)
+  const h=getH(id);if(!h)return;
   if(k>todayK())return toast('Ese día aún no ha llegado');
   pushUndo();
-  if(h.type==='time'){if(k!==todayK())return valueSheet(id);return toggleTimer(h,k);}
+  if(h.type==='time'){if(k!==todayK())return valueSheet(id,k);return toggleTimer(h,k);}
   const was=isDone(h,k),e=ens(h,k);
   if(h.type==='check')e.v=e.v?0:1;
   else if(h.type==='count')e.v=r2((e.v||0)+(+h.step||1));
@@ -918,7 +927,7 @@ function stepT(hid,sid){
   e.steps=e.steps.includes(sid)?e.steps.filter(x=>x!==sid):[...e.steps,sid];
   commit(h,k,was);
 }
-function setNote(v){const k=sel;if(v.trim())S.notes[k]=v;else delete S.notes[k];clearTimeout(setNote._t);setNote._t=setTimeout(save,400);}
+function setNote(v){const k=sel;if(v.trim())S.notes[k]=v;else delete S.notes[k];clearTimeout(setNote._t);setNote._t=setTimeout(()=>{setNote._t=null;save();},400);}
 
 /* Cronómetro */
 function toggleTimer(h,k){
@@ -928,7 +937,7 @@ function toggleTimer(h,k){
   S.timer={hid:h.id,k,t0:Date.now()};save();render();toast('⏱ Cronómetro en marcha');
 }
 function stopTimer(silent){
-  const T=S.timer;if(!T)return;S.timer=null;
+  const T=S.timer;if(!T)return;pushUndo();S.timer=null;
   const h=getH(T.hid);if(!h){save();return;}
   const add=(Date.now()-T.t0)/60000;
   const was=isDone(h,T.k),e=ens(h,T.k);e.v=r2((e.v||0)+add);
@@ -967,20 +976,20 @@ function guideSheet(id){
   openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">Antes de empezar</div><div class="hc-plan">${fmtPlan(h.guide)}</div><div class="btns"><button class="btn ghost" onclick="closeSheet()">Cerrar</button></div></div>`);
 }
 function clearDay(id){
-  const h=getH(id),k=sel;if(S.logs[k])delete S.logs[k][h.id];
+  const h=getH(id),k=sel;pushUndo();if(S.logs[k])delete S.logs[k][h.id];
   if(S.timer&&S.timer.hid===id&&S.timer.k===k)S.timer=null;
-  clean(h,k);save();closeSheet();render();toast('Registro borrado');
+  clean(h,k);save();closeSheet();render();toast('Registro borrado',[undoAct()]);
 }
-function valueSheet(id){
-  const h=getH(id),e=entry(h,sel)||{};
-  openSheet(`<div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub">${longDate(sel)}</div>
+function valueSheet(id,k=sel){
+  const h=getH(id),e=entry(h,k)||{};
+  openSheet(`<div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub">${longDate(k)}</div>
     <label class="lbl">${h.type==='time'?'Minutos':'Cantidad'+(h.unit?' ('+esc(h.unit)+')':'')} · objetivo ${h.target}</label>
     <input id="valIn" type="number" inputmode="decimal" step="any" min="0" value="${fmtNum(e.v||0)}">
-    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveVal('${id}')">Guardar</button></div>`);
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveVal('${id}','${k}')">Guardar</button></div>`);
   setTimeout(()=>{const i=$('#valIn');i&&i.select();},300);
 }
-function saveVal(id){
-  const h=getH(id),k=sel,v=parseFloat(String($('#valIn').value).replace(',','.'))||0;
+function saveVal(id,k=sel){
+  const h=getH(id),v=parseFloat(String($('#valIn').value).replace(',','.'))||0;
   pushUndo();const was=isDone(h,k),e=ens(h,k);e.v=Math.max(0,r2(v));closeSheet();commit(h,k,was);
 }
 function dayPlanSheet(id){
@@ -993,12 +1002,12 @@ function dayPlanSheet(id){
 }
 function saveDayPlan(id){
   const h=getH(id),k=sel,v=$('#dpIn').value.replace(/\s+$/,'');
-  h.plan=h.plan||{mode:'none'};h.plan.dates=h.plan.dates||{};
+  pushUndo();h.plan=h.plan||{mode:'none'};h.plan.dates=h.plan.dates||{};
   const base=(()=>{const d=h.plan.dates[k];delete h.plan.dates[k];const p=planFor(h,k);if(d)h.plan.dates[k]=d;return p?p.text:'';})();
   if(v.trim()&&v!==base)h.plan.dates[k]=v;else delete h.plan.dates[k];
-  save();closeSheet();render();toast('Plan del día guardado');
+  save();closeSheet();render();toast('Plan del día guardado',[undoAct()]);
 }
-function resetDayPlan(id){const h=getH(id);if(h.plan&&h.plan.dates)delete h.plan.dates[sel];save();closeSheet();render();toast('Vuelve el plan normal');}
+function resetDayPlan(id){const h=getH(id);pushUndo();if(h.plan&&h.plan.dates)delete h.plan.dates[sel];save();closeSheet();render();toast('Vuelve el plan normal',[undoAct()]);}
 
 /* ═════════════ AGENDA ═════════════ */
 const KIND={fijo:['Obligatorio','#F97316'],habito:['Hábito',null],comida:['Comida','#84CC16'],trayecto:['Trayecto','#64748B'],libre:['Tiempo libre','#55555F'],sueno:['Sueño','#6366F1'],rutina:['Rutina','#94A3B8']};
@@ -1114,7 +1123,7 @@ function evSheet(k,id){
     <div>${badges}${status}</div>
     ${ev.detail?`<p class="hint">${esc(ev.detail)}</p>`:''}
     ${plan&&plan.text?`<div class="hc-plan" style="margin-top:12px">${plan.tag?`<div class="pl-tag">${esc(plan.tag)}</div>`:''}${fmtPlan(plan.text)}</div>`:''}
-    ${h&&!ev.cancelled?`<div class="btns"><button class="btn ghost" onclick="closeSheet();go('hoy')">Ver en Hoy</button>${k<=todayK()&&h.type!=='time'?`<button class="btn pri" onclick="act('${h.id}');evSheet('${k}','${id}')">${isDone(h,k)?'Desmarcar':'Marcar hecho'}</button>`:''}</div>`:''}
+    ${h&&!ev.cancelled?`<div class="btns"><button class="btn ghost" onclick="closeSheet();go('hoy')">Ver en Hoy</button>${k<=todayK()&&h.type!=='time'?`<button class="btn pri" onclick="act('${h.id}','${k}');evSheet('${k}','${id}')">${isDone(h,k)?'Desmarcar':'Marcar hecho'}</button>`:''}</div>`:''}
     ${ev.cancelled?`<div class="btns"><button class="btn pri" onclick="evRestore('${k}','${id}')">↺ Restaurar</button></div>`:`
       ${ev.start?`<label class="lbl">Cambiar la hora</label>
       <div class="ev-row"><input type="time" id="evS" value="${fmtT(tm(ev.start))}"><span>→</span><input type="time" id="evE" value="${fmtT(tm(ev.end))}"></div>
@@ -1441,6 +1450,7 @@ function renderSet(){
     <div class="card"><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="${c}"></button>`).join('')}</div></div>
     <div class="sec">Copia de seguridad</div>
     <button class="row-btn" onclick="backupSheet()">📤<div>Hacer copia de seguridad<small>${S.settings.lastExport?`Última: ${shortDate(S.settings.lastExport)}`:'Aún no has hecho ninguna'} · guárdala en Drive, Archivos o donde quieras</small></div></button>
+    <button class="row-btn" onclick="snapSheet()">🗂️<div>Copias automáticas en este móvil<small>Una al día (últimos 7 días) y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
     <button class="row-btn" onclick="$('#importIn').click()">📥<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade/actualiza hábitos y conserva tus registros</small></div></button>
     <div class="sec">Recordatorios</div>
     <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario (recomendado)<small>Tu agenda en el Calendario del iPhone o Google Calendar, con aviso 5 min antes. Se actualiza sola cuando cambia el plan</small></div></button>
@@ -1457,7 +1467,7 @@ function renderSet(){
     <div class="sec">Novedades</div>
     <div class="card">${CHANGELOG.map(([v,d,items],i)=>`<div style="${i?'margin-top:10px':''}"><b>v${v}</b> <span class="hint">· ${d}</span><ul class="chlog">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
     <div class="sec">Instalar</div>
-    <div class="card"><p class="hint" style="margin:0">En iPhone: ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación». Los datos se guardan solo en este dispositivo: exporta una copia de vez en cuando.</p></div>
+    <div class="card"><p class="hint" style="margin:0">En iPhone: ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación». Los datos se guardan en este dispositivo (con copias automáticas) y, si la conectas, en tu nube.</p></div>
     <p class="hint" style="text-align:center;margin-top:16px">Rutina v${APP_VERSION} · datos v${S.schema} · ${S.habits.length} hábitos · ${Object.keys(S.logs).length} días con registros</p>`;
 }
 function setAccent(c){S.settings.accent=c;applyAccent();save();renderSet();}
@@ -1485,10 +1495,11 @@ function importData(input){
     try{
       const d=JSON.parse(e.target.result);
       if(d&&d.kind==='rutina-plan'){
-        ask(`¿Cargar el plan (${d.habits.length} hábito${d.habits.length===1?'':'s'})? Tus registros se conservan.`,'Cargar plan').then(ok=>{if(!ok)return;mergePack(d);go('hoy');toast('📥 Plan cargado');});return;
+        ask(`¿Cargar el plan (${d.habits.length} hábito${d.habits.length===1?'':'s'})? Tus registros se conservan.`,'Cargar plan').then(async ok=>{if(!ok)return;await safetySnap('Antes de cargar un plan');mergePack(d);go('hoy');toast('📥 Plan cargado');});return;
       }
       if(!d||!Array.isArray(d.habits)||typeof d.logs!=='object')return toast('❌ Archivo no válido');
-      ask(`Se importarán ${d.habits.length} hábitos y sustituirán los actuales.`,'Importar',true).then(ok=>{if(!ok)return;
+      ask(`Se importarán ${d.habits.length} hábitos y sustituirán los actuales. Antes guardo una copia automática de lo que tienes.`,'Importar',true).then(async ok=>{if(!ok)return;
+        await safetySnap('Antes de importar una copia');dropUndo();
         delete d.exportedAt;S=migrate(Object.assign(JSON.parse(JSON.stringify(DEF)),d,{schema:d.schema||1}));save();savePlan();applyAccent();sel=todayK();go('hoy');toast('Datos restaurados ✅');});
     }catch(err){toast('❌ No se pudo leer el archivo');}
   };
@@ -1496,7 +1507,8 @@ function importData(input){
 }
 async function wipe(){
   if(!await ask('Se borrarán TODOS los hábitos, registros y notas.','Continuar',true))return;
-  if(!await ask('¿Seguro del todo? No se puede deshacer (haz una copia antes si quieres guardar algo).','Borrar todo',true))return;
+  if(!await ask('¿Seguro del todo? Guardaré una copia automática en este móvil por si te arrepientes (Ajustes › Copias automáticas).','Borrar todo',true))return;
+  await safetySnap('Antes de borrar todo');dropUndo();
   S=JSON.parse(JSON.stringify(DEF));save();try{localStorage.removeItem(PLAN_KEY);}catch(e){}applyAccent();go('hoy');toast('Datos borrados');
 }
 
@@ -1525,10 +1537,11 @@ function mergePack(pack){
 async function autoPlan(){
   if(!location.protocol.startsWith('http'))return;
   try{
-    const r=await fetch('plan.json',{cache:'no-store'});if(!r.ok)return;
+    const ac=new AbortController(),to=setTimeout(()=>ac.abort(),10000);
+    const r=await fetch('plan.json',{cache:'no-store',signal:ac.signal});clearTimeout(to);if(!r.ok)return;
     const p=await r.json();if(!p||p.kind!=='rutina-plan')return;
     const cur=((S.packs||{})[p.id||'plan'])||0;
-    if((p.version||1)>cur){mergePack(p);render();toast(cur?'📥 Plan actualizado':'📥 Plan cargado');}
+    if((p.version||1)>cur){if(cur)await safetySnap('Antes de actualizar el plan');mergePack(p);render();toast(cur?'📥 Plan actualizado':'📥 Plan cargado');}
   }catch(e){}
 }
 
@@ -1576,6 +1589,10 @@ function banners(k){
   const t=todayK();if(k!==t)return '';let out='';
   const wd=dow(t),ws=weekStartK(t),rk=wd===0?ws:addDays(ws,-7);
   if((wd===0||wd===1)&&!(S.reviews||{})[rk])out+=`<button class="banner" onclick="reviewSheet('${rk}')">🗓️<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`;
+  const cc=cloudCfg();
+  if(cloudLegacy(cc))out+=`<button class="banner warn" onclick="cloudMigrate()">🔒<div><b>Protege tus datos de la nube</b><small>Ahora el enlace del calendario podría llevar a tus datos. Se arregla en 1 toque.</small></div><span class="go">Arreglar ›</span></button>`;
+  else if(cc&&cc.resub)out+=`<button class="banner warn" onclick="subscribeSheet()">📅<div><b>Vuelve a suscribir el calendario</b><small>Tu calendario tiene un enlace nuevo. Quita el antiguo para no verlo repetido.</small></div><span class="go">Abrir ›</span></button>`;
+  if(isIOS()&&!isStandalone())out+=`<div class="banner warn">📲<div><b>Instálala en la pantalla de inicio</b><small>Abierta en Safari, iOS puede borrar tus datos si pasan 7 días sin usarla. Compartir › «Añadir a pantalla de inicio».</small></div></div>`;
   const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
   if(hasData&&(!le||diffDays(le,t)>=7))out+=`<button class="banner warn" onclick="backupSheet()">💾<div><b>Haz una copia de seguridad</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'}</small></div><span class="go">Hacer ›</span></button>`;
   const aw=acwr(t);if(aw.enough&&aw.r>1.5)out+=`<button class="banner warn" onclick="go('stats')">⚠️<div><b>Pico de carga de entreno (${aw.r.toFixed(2)})</b><small>Has subido mucho respecto a tus últimas 4 semanas. Baja intensidad o volumen unos días.</small></div></button>`;
@@ -1840,7 +1857,7 @@ function checkinCard(k){
   const row=(f,lb)=>`<div class="ci-lb">${lb}</div><div class="ci">${[1,2,3,4,5].map(v=>`<button class="${c[f]===v?'on':''}" onclick="setCI('${k}','${f}',${v})">${v}</button>`).join('')}</div>`;
   return `<div class="card"><div class="wk-hd"><b>☀️ ¿Cómo estás hoy?</b><small>1 = fatal · 5 = genial</small></div>${row('sleep','😴 Cómo has dormido')}${row('energy','⚡ Energía')}</div>`;
 }
-function setCI(k,f,v){S.checkins=S.checkins||{};S.checkins[k]={...(S.checkins[k]||{}),[f]:v};save();render();if(S.checkins[k].sleep&&S.checkins[k].energy)toast('Apuntado ☀️',[undoAct()]);}
+function setCI(k,f,v){pushUndo();S.checkins=S.checkins||{};S.checkins[k]={...(S.checkins[k]||{}),[f]:v};save();render();if(S.checkins[k].sleep&&S.checkins[k].energy)toast('Apuntado ☀️',[undoAct()]);}
 function energyBlock(){
   const t=todayK(),ks=Object.keys(S.checkins||{}).filter(k=>k>addDays(t,-60)&&k<=t).sort();
   if(ks.length<5)return `<div class="sec">Sueño y energía</div><div class="card"><p class="hint" style="margin:0">Responde el «¿Cómo estás hoy?» de Hoy unos días (${ks.length}/5) y aquí verás qué días rindes más y qué te lo quita.</p></div>`;
@@ -1915,7 +1932,7 @@ function mockSheet(k){
 function mockRead(){const m={date:$('#mkD').value};for(const p in B2T){const v=$('#mk-'+p).value;if(v!==''){m[p]=Math.max(0,Math.min(B2T[p].max,+v));}}return m;}
 function mockLive(){const m=mockRead(),r=mockScore(m);for(const p in B2T)$('#mks-'+p).textContent=m[p]==null?'—':(r.sc[p]==null?'<122':r.sc[p]);const[g,c]=grade(r.overall);$('#mkTot').innerHTML=`<b style="color:${c}">Nota global: ${r.overall??'—'} · ${g}</b><small>${r.n<5&&r.n?`Estimada con ${r.n} de 5 partes · `:''}Aprobado B2: 160 · B: 173 · A (C1): 180</small>`;}
 function saveMock(){const m=mockRead();if(Object.keys(m).length<2)return toast('Pon al menos una parte');pushUndo();m.id=uid();S.mocks=S.mocks||[];S.mocks.push(m);S.mocks.sort((a,b)=>a.date<b.date?-1:1);save();closeSheet();render();const r=mockScore(m);toast(`🎯 ${r.overall} · ${grade(r.overall)[0]}`,[undoAct()]);}
-async function delMock(id){if(!await ask('Se borrará este simulacro.','Borrar',true))return;pushUndo();S.mocks=S.mocks.filter(m=>m.id!==id);save();render();}
+async function delMock(id){if(!await ask('Se borrará este simulacro.','Borrar',true))return;pushUndo();S.mocks=S.mocks.filter(m=>m.id!==id);save();render();toast('Simulacro borrado',[undoAct()]);}
 function mocksBlock(inDetail){
   const ms=(S.mocks||[]).slice(),en=getH('en');if(!ms.length&&!en)return '';
   const head=`<div class="sec">Simulacros B2 First${en&&en.goal?` · examen ${shortDate(en.goal.date)}`:''}</div>`;
@@ -1932,72 +1949,162 @@ function mocksBlock(inDetail){
     <button class="btn ghost mt8" onclick="mockSheet()">🎯 Registrar simulacro</button></div>`;
 }
 
-/* ═════════════ NUBE: copia automática y sincronización (gist secreto de GitHub) ═════════════
+/* ═════════════ COPIAS AUTOMÁTICAS EN EL MÓVIL (IndexedDB) ═════════════
+   Una copia al día (se guardan los últimos 7 días) y otra antes de cada cambio grande:
+   importar, borrar todo, cargar desde la nube, actualizar el plan o restaurar. Se recuperan en Ajustes. */
+const SNAP_DB='rutina-copias',SNAP_DAYS=7,SNAP_PRE=6;
+function snapDB(){return new Promise((res,rej)=>{if(!window.indexedDB)return rej(new Error('sin IndexedDB'));const r=indexedDB.open(SNAP_DB,1);
+  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('snaps'))r.result.createObjectStore('snaps',{keyPath:'id'});};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function snapRun(mode,fn){const db=await snapDB();return new Promise((res,rej)=>{const tx=db.transaction('snaps',mode),st=tx.objectStore('snaps');let out;
+  const q=fn(st);if(q)q.onsuccess=()=>{out=q.result;};tx.oncomplete=()=>{db.close();res(out);};tx.onerror=tx.onabort=()=>{db.close();rej(tx.error);};});}
+const snapList=()=>snapRun('readonly',st=>st.getAll()).then(a=>(a||[]).sort((x,y)=>x.at<y.at?1:-1));
+async function writeSnap(kind,reason){
+  if(!S.habits.length&&!Object.keys(S.logs).length)return;
+  const now=new Date(),o={id:kind==='auto'?'auto-'+todayK():'pre-'+now.getTime(),kind,reason:reason||'',at:now.toISOString(),
+    habits:S.habits.length,days:Object.keys(S.logs).length,state:lightState()};
+  await snapRun('readwrite',st=>st.put(o));
+  const all=await snapList(),autos=all.filter(x=>x.kind==='auto'),pres=all.filter(x=>x.kind==='pre');
+  const drop=[...autos.slice(SNAP_DAYS),...pres.slice(SNAP_PRE)];
+  if(drop.length)await snapRun('readwrite',st=>{drop.forEach(x=>st.delete(x.id));});
+}
+let _snapT=null;
+function snapSoon(){clearTimeout(_snapT);_snapT=setTimeout(()=>writeSnap('auto').catch(()=>{}),4000);}
+async function safetySnap(reason){try{await writeSnap('pre',reason);}catch(e){}}
+async function snapSheet(){
+  let all=[];try{all=await snapList();}catch(e){}
+  openSheet(`<div class="sheet-title">🗂️ Copias automáticas</div>
+    <p class="hint">Se guardan solas en este móvil: una al día (los últimos ${SNAP_DAYS} días) y otra antes de cada cambio grande. Sirven si algo sale mal; para no perder nada si pierdes el móvil, usa también la nube o la copia en Drive.</p>
+    ${all.length?all.map(x=>`<div class="cx" style="border-style:solid">${x.kind==='auto'?'📅':'🛟'}<span><b style="color:var(--text)">${new Date(x.at).toLocaleString('es-ES',{dateStyle:'medium',timeStyle:'short'})}</b><br>${esc(x.reason||'Copia del día')} · ${x.habits} hábitos · ${x.days} día${x.days===1?'':'s'} con registros</span><button onclick="restoreSnap('${x.id}')">Restaurar</button></div>`).join(''):'<p class="hint">Todavía no hay ninguna. La primera se guarda unos segundos después de cualquier cambio.</p>'}
+    <p class="hint">${_persist===true?'🔒 El sistema ha marcado los datos de la app como persistentes: no los borra para liberar espacio.':_persist===false?'Este navegador no garantiza conservar los datos. En iPhone, tenerla instalada en la pantalla de inicio es lo que los protege.':''}</p>`);
+}
+async function restoreSnap(id){
+  let x=null;try{x=(await snapList()).find(s=>s.id===id);}catch(e){}if(!x)return toast('No encuentro esa copia');
+  if(!await ask(`Volver a como estaba el ${new Date(x.at).toLocaleString('es-ES',{dateStyle:'medium',timeStyle:'short'})} (${x.days} días con registros). Antes guardo otra copia de lo que tienes ahora.`,'Restaurar'))return;
+  await safetySnap('Antes de restaurar una copia');await applyState(x.state);toast('Copia restaurada ✅');
+}
+// Sustituye todos los datos por otro estado (copia, nube) conservando el plan pesado de este móvil o recargándolo
+async function applyState(state){
+  dropUndo();
+  localStorage.setItem(KEY,JSON.stringify(state));S=load();
+  if(!S.habits.some(h=>h.plan&&h.plan.program))S.packs={};
+  save();applyAccent();sel=todayK();await autoPlan();render();
+}
+// Pedir al navegador que no borre los datos para liberar espacio
+let _persist=null;
+async function askPersist(){try{if(navigator.storage&&navigator.storage.persist)_persist=(await navigator.storage.persisted())||(await navigator.storage.persist());}catch(e){}}
+function isIOS(){return /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+function isStandalone(){return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);}
+
+/* ═════════════ NUBE: copia automática y sincronización (gists secretos de GitHub) ═════════════
+   Dos gists separados: uno con tus datos y otro solo con el calendario (el que se comparte con
+   el Calendario del iPhone o Google). Así el enlace del calendario no lleva a tus datos.
    El código de acceso solo tiene permiso de gists y se guarda únicamente en este dispositivo (no va en las copias). */
 const CLOUD_KEY='rutina_cloud',DATA_FILE='rutina-datos.json',ICS_FILE='rutina-agenda.ics';
 function cloudCfg(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY)||'null');}catch(e){return null;}}
 function cloudSave(c){try{if(c)localStorage.setItem(CLOUD_KEY,JSON.stringify(c));else localStorage.removeItem(CLOUD_KEY);}catch(e){}}
-function cloudICS(){const c=cloudCfg();return c&&c.gistId?`https://gist.githubusercontent.com/${c.login}/${c.gistId}/raw/${ICS_FILE}`:null;}
+function cloudLegacy(c){return !!(c&&c.gistId&&!c.icsGist);} // formato antiguo: datos y calendario en el mismo gist
+function cloudPending(c){return !!(c&&c.dirtyAt&&c.dirtyAt>(c.lastPushAt||0));}
+function cloudICS(){const c=cloudCfg();return c&&c.gistId?`https://gist.githubusercontent.com/${c.login}/${c.icsGist||c.gistId}/raw/${ICS_FILE}`:null;}
 async function gh(path,opt={}){
-  const c=cloudCfg()||{};const r=await fetch('https://api.github.com'+path,{method:opt.method||'GET',body:opt.body,cache:'no-store',
+  const c=cloudCfg()||{};const r=await fetch('https://api.github.com'+path,{method:opt.method||'GET',body:opt.body,cache:'no-store',keepalive:!!opt.keepalive,
     headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+(opt.token||c.token),...(opt.body?{'Content-Type':'application/json'}:{})}});
   if(!r.ok){const e=new Error('GitHub '+r.status);e.status=r.status;throw e;}return r.status===204?null:r.json();
 }
 function lightState(){return JSON.parse(JSON.stringify(S,(k,v)=>HEAVY.has(k)||k==='_needPlanSave'?undefined:v));}
 function devName(){const u=navigator.userAgent;return /iPhone/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':'Ordenador';}
 function agendaHash(){const s=JSON.stringify([S.agenda,S.habits.map(h=>[h.id,h.archived,h.plan&&h.plan.dates]),S.agendaUntil]);let x=0;for(let i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return x;}
+function dataFile(savedAt){return {content:JSON.stringify({kind:'rutina-sync',savedAt,device:devName(),state:lightState()})};}
+function icsFile(){const t=todayK();return {content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text};}
+// Si hubiera varios (p. ej. de pruebas), el más reciente
+function pickGist(list,fn){return (list||[]).filter(g=>g.files&&fn(g.files)).sort((a,b)=>(b.updated_at||'')>(a.updated_at||'')?1:-1)[0];}
+async function newGist(tok,desc,files){return gh('/gists',{token:tok,method:'POST',body:JSON.stringify({description:desc,public:false,files})});}
+const DATA_DESC='Rutina · tus datos (privado: no compartas este enlace)',ICS_DESC='Rutina · calendario';
 let _cloudT=null,_cloudBusy=false,_cloudApplying=false;
 function cloudDirty(){const c=cloudCfg();if(!c||!c.gistId||_cloudApplying)return;c.dirtyAt=Date.now();cloudSave(c);clearTimeout(_cloudT);_cloudT=setTimeout(cloudPush,6000);}
-async function cloudPush(force){
-  const c=cloudCfg();if(!c||!c.gistId||_cloudBusy)return;if(!force&&c.lastSync&&c.dirtyAt&&c.dirtyAt<=c.lastPushAt)return;
-  _cloudBusy=true;
+function cloudErr(e){const c2=cloudCfg();if(!c2)return;c2.err=e.status===401?'auth':'net';cloudSave(c2);if(e.status===404)cloudRediscover();}
+async function cloudPush(force,opt={}){
+  const c=cloudCfg();if(!c||!c.gistId||_cloudBusy)return;if(!force&&c.lastSync&&!cloudPending(c))return;
+  _cloudBusy=true;const startedAt=Date.now();
   try{
-    const savedAt=new Date().toISOString(),files={[DATA_FILE]:{content:JSON.stringify({kind:'rutina-sync',savedAt,device:devName(),state:lightState()})}};
-    const hsh=agendaHash();if(force||hsh!==c.icsHash||!c.icsAt||Date.now()-c.icsAt>6*3600e3){const t=todayK();files[ICS_FILE]={content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text};}
-    await gh('/gists/'+c.gistId,{method:'PATCH',body:JSON.stringify({files})});
-    const c2=cloudCfg()||c;c2.lastSync=savedAt;c2.lastPushAt=Date.now();c2.err=null;if(files[ICS_FILE]){c2.icsHash=hsh;c2.icsAt=Date.now();}cloudSave(c2);
-  }catch(e){const c2=cloudCfg();if(c2){c2.err=e.status===401?'auth':'net';cloudSave(c2);}}
+    const savedAt=new Date().toISOString(),files={[DATA_FILE]:dataFile(savedAt)};
+    // Al salir de la app solo se suben los datos, con keepalive para que iOS no corte el envío
+    const hsh=agendaHash(),ics=!opt.hidden&&(force||hsh!==c.icsHash||!c.icsAt||Date.now()-c.icsAt>6*3600e3)?icsFile():null;
+    if(ics&&!c.icsGist)files[ICS_FILE]=ics;
+    const body=JSON.stringify({files});
+    await gh('/gists/'+c.gistId,{method:'PATCH',body,keepalive:!!opt.hidden&&body.length<60000});
+    if(ics&&c.icsGist)await gh('/gists/'+c.icsGist,{method:'PATCH',body:JSON.stringify({files:{[ICS_FILE]:ics}})});
+    const c2=cloudCfg()||c;c2.lastSync=savedAt;c2.lastPushAt=startedAt;c2.err=null;if(ics){c2.icsHash=hsh;c2.icsAt=Date.now();}cloudSave(c2);
+  }catch(e){cloudErr(e);}
   finally{_cloudBusy=false;if(view==='set')renderSet();}
 }
 async function cloudRemote(c){const g=await gh('/gists/'+c.gistId);const f=g.files&&g.files[DATA_FILE];if(!f)return null;let txt=f.content;if(f.truncated){const r=await fetch(f.raw_url,{cache:'no-store'});txt=await r.text();}return JSON.parse(txt);}
 async function cloudApply(remote){
+  await safetySnap('Antes de cargar desde la nube');
   _cloudApplying=true;
-  try{localStorage.setItem(KEY,JSON.stringify(remote.state));S=load();if(!S.habits.some(h=>h.plan&&h.plan.program)){S.packs={};}save();applyAccent();await autoPlan();render();}
-  finally{_cloudApplying=false;}
+  try{await applyState(remote.state);}finally{_cloudApplying=false;}
   const c=cloudCfg();if(c){c.lastSync=remote.savedAt;c.dirtyAt=0;c.lastPushAt=Date.now();cloudSave(c);}
 }
 async function cloudPull(){
   const c=cloudCfg();if(!c||!c.gistId)return;
-  try{const rm=await cloudRemote(c);if(!rm||!rm.savedAt)return;
-    if(c.lastSync&&rm.savedAt<=c.lastSync)return;
-    const localChanges=c.dirtyAt&&c.dirtyAt>(c.lastPushAt||0);
-    if(localChanges){if(!await ask(`Hay cambios en la nube desde ${rm.device||'otro dispositivo'} (${new Date(rm.savedAt).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})}) y también cambios en este. ¿Cargar los de la nube? Si dices que no, se quedan los de este dispositivo.`,'Cargar los de la nube'))return cloudPush(true);}
-    await cloudApply(rm);toast(`☁️ Datos actualizados desde ${rm.device||'la nube'}`);
-  }catch(e){const c2=cloudCfg();if(c2){c2.err=e.status===401?'auth':'net';cloudSave(c2);}}
+  try{const rm=await cloudRemote(c);
+    if(rm&&rm.savedAt&&!(c.lastSync&&rm.savedAt<=c.lastSync)){
+      if(cloudPending(c)){if(!await ask(`Hay cambios en la nube desde ${rm.device||'otro dispositivo'} (${new Date(rm.savedAt).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})}) y también cambios en este. ¿Cargar los de la nube? Si dices que no, se quedan los de este dispositivo. Antes de cargar guardo una copia automática.`,'Cargar los de la nube'))return cloudPush(true);}
+      await cloudApply(rm);toast(`☁️ Datos actualizados desde ${rm.device||'la nube'}`);return;
+    }
+    // Nada nuevo en la nube: si quedaron cambios sin subir (p. ej. se cerró la app a medias), se suben ahora
+    if(cloudPending(cloudCfg()))await cloudPush();
+  }catch(e){cloudErr(e);}
+}
+// Si el gist ya no existe (se separó desde otro dispositivo), busca los nuevos con el mismo código
+let _rediscovering=false;
+async function cloudRediscover(){
+  const c=cloudCfg();if(!c||!c.token||_rediscovering)return;_rediscovering=true;
+  try{const list=await gh('/gists?per_page=100');
+    const d=pickGist(list,f=>f[DATA_FILE]),i=pickGist(list,f=>f[ICS_FILE]&&!f[DATA_FILE]);
+    if(!d){const c2=cloudCfg();if(c2){c2.err='gone';cloudSave(c2);}return;}
+    const c2=cloudCfg()||c;c2.gistId=d.id;c2.icsGist=i?i.id:null;c2.err=null;c2.lastSync=null;cloudSave(c2);
+    await cloudPull();
+  }catch(e){}finally{_rediscovering=false;if(view==='set')renderSet();}
+}
+// Mejora de privacidad para quien conectó la nube antes de la v1.10 (todo en un gist)
+async function cloudMigrate(){
+  const c=cloudCfg();if(!cloudLegacy(c))return;
+  if(!await ask('Ahora tus datos de la nube (registros, notas, sueño y energía) están en la misma nota de GitHub que el calendario, y con el enlace del calendario se podría llegar a ellos. Los separo en dos notas nuevas y borro la antigua de GitHub. Tus datos siguen en este móvil y en la nota nueva. Después tendrás que volver a suscribirte al calendario una vez.','Separar y proteger'))return;
+  try{
+    const savedAt=new Date().toISOString();
+    const d=await newGist(c.token,DATA_DESC,{[DATA_FILE]:dataFile(savedAt)});
+    const i=await newGist(c.token,ICS_DESC,{[ICS_FILE]:icsFile()});
+    const old=c.gistId,c2={...cloudCfg(),gistId:d.id,icsGist:i.id,lastSync:savedAt,lastPushAt:Date.now(),icsHash:agendaHash(),icsAt:Date.now(),err:null,resub:true};
+    cloudSave(c2);
+    let gone=true;try{await gh('/gists/'+old,{method:'DELETE'});}catch(e){gone=false;}
+    render();toast(gone?'🔒 Nube separada y protegida':'🔒 Separada · no pude borrar la nota antigua: bórrala en gist.github.com');
+    subscribeSheet();
+  }catch(e){toast(e.status===401?'❌ El código ha caducado: vuelve a conectar':'❌ No se pudo completar. Tus datos siguen igual; inténtalo con conexión');}
 }
 function cloudRow(){
   const c=cloudCfg();
   if(!c||!c.gistId)return `<button class="row-btn" onclick="cloudSheet()">☁️<div>Copia automática en la nube<small>Se guarda sola en tu GitHub (privado), la recuperas en cualquier móvil u ordenador y el calendario suscrito incluye tus cambios</small></div></button>`;
   const when=c.lastSync?new Date(c.lastSync).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'}):'nunca';
-  const st=c.err==='auth'?'<span class="cloud-bad">El código ha caducado: vuelve a conectar</span>':c.err==='net'?'<span class="cloud-bad">Sin conexión: lo reintentaré</span>':`<span class="cloud-ok">Conectada</span> · última copia ${when}`;
-  return `<button class="row-btn" onclick="cloudSheet()">☁️<div>Nube (${esc(c.login)})<small>${st}</small></div></button>`;
+  const st=c.err==='auth'?'<span class="cloud-bad">El código ha caducado: vuelve a conectar</span>':c.err==='gone'?'<span class="cloud-bad">No encuentro tus datos en GitHub: vuelve a conectar</span>':c.err==='net'?'<span class="cloud-bad">Sin conexión: lo reintentaré</span>':`<span class="cloud-ok">Conectada</span> · última copia ${when}${cloudPending(c)?' · cambios por subir':''}`;
+  return `${cloudLegacy(c)?`<button class="row-btn" onclick="cloudMigrate()" style="border-color:#FBBF24">🔒<div>Proteger tus datos de la nube<small>Separa tus datos del calendario compartido (1 toque)</small></div></button>`:''}<button class="row-btn" onclick="cloudSheet()">☁️<div>Nube (${esc(c.login)})<small>${st}</small></div></button>`;
 }
 function cloudSheet(){
   const c=cloudCfg();
   if(c&&c.gistId){
     openSheet(`<div class="sheet-title">☁️ Nube</div><p class="hint">Conectada como <b>${esc(c.login)}</b>. Cada cambio se guarda solo en un gist secreto de tu GitHub (unos segundos después). Al abrir la app en otro dispositivo, carga lo último.</p>
+      ${cloudLegacy(c)?`<button class="row-btn" onclick="closeSheet();cloudMigrate()">🔒<div>Proteger tus datos<small>Separa tus datos del calendario compartido</small></div></button>`:''}
       <button class="row-btn" onclick="closeSheet();cloudPush(true).then(()=>toast('☁️ Copia hecha'))">⬆️<div>Guardar ahora</div></button>
-      <button class="row-btn" onclick="closeSheet();cloudForcePull()">⬇️<div>Cargar lo que hay en la nube<small>Sustituye lo de este dispositivo</small></div></button>
+      <button class="row-btn" onclick="closeSheet();cloudForcePull()">⬇️<div>Cargar lo que hay en la nube<small>Sustituye lo de este dispositivo (antes guardo una copia automática)</small></div></button>
       <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario con tus cambios</div></button>
-      ${c.err==='auth'?`<button class="row-btn" onclick="cloudDisconnect(true)">🔑<div>Volver a conectar</div></button>`:''}
+      ${c.err==='auth'||c.err==='gone'?`<button class="row-btn" onclick="cloudDisconnect(true)">🔑<div>Volver a conectar</div></button>`:''}
       <button class="row-btn" onclick="cloudDisconnect()">⏏️<div>Desconectar este dispositivo<small>Tus datos siguen en la nube y en este móvil</small></div></button>`);
     return;
   }
   openSheet(`<div class="sheet-title">☁️ Copia automática en la nube</div>
-    <p class="hint">Usa tu cuenta de GitHub: tus datos se guardan en un <b>gist secreto</b> (una nota privada que solo ves tú). Una vez conectado no tienes que hacer nada más.</p>
+    <p class="hint">Usa tu cuenta de GitHub: tus datos se guardan en un <b>gist secreto</b> (una nota privada que solo ves tú) y el calendario en otro aparte. Una vez conectado no tienes que hacer nada más.</p>
     <div class="sec">1 · Crea un código de acceso</div>
     <a class="btn pri" style="display:block;text-align:center;text-decoration:none" href="https://github.com/settings/tokens/new?scopes=gist&description=Rutina%20app" target="_blank" rel="noopener">Abrir GitHub</a>
-    <p class="hint">Se abre con todo marcado. Solo cambia <b>Expiration</b> a <b>No expiration</b>, baja y pulsa <b>Generate token</b>. Copia el código que empieza por <b>ghp_</b>.</p>
+    <p class="hint">Se abre con todo marcado. En <b>Expiration</b> elige <b>Custom</b> y pon una fecha dentro de un año (cuando caduque, la app te avisa). Baja, pulsa <b>Generate token</b> y copia el código que empieza por <b>ghp_</b>.</p>
     <div class="sec">2 · Pégalo aquí</div>
     <input id="tokIn" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false">
     <p class="hint">Este código solo permite crear y editar tus gists. Se guarda solo en este dispositivo y no va en las copias.</p>
@@ -2009,29 +2116,32 @@ async function cloudConnect(tokArg){
   try{
     const u=await gh('/user',{token:tok});
     const list=await gh('/gists?per_page=100',{token:tok});
-    const found=(list||[]).find(g=>g.files&&g.files[DATA_FILE]);
-    let c={token:tok,login:u.login,gistId:found?found.id:null};
+    const found=pickGist(list,f=>f[DATA_FILE]),foundI=pickGist(list,f=>f[ICS_FILE]&&!f[DATA_FILE]);
+    let c={token:tok,login:u.login,gistId:found?found.id:null,icsGist:foundI?foundI.id:null};
     if(found){
+      if(!c.icsGist&&!found.files[ICS_FILE]){const i=await newGist(tok,ICS_DESC,{[ICS_FILE]:icsFile()});c.icsGist=i.id;c.icsHash=agendaHash();c.icsAt=Date.now();}
       cloudSave(c);const rm=await cloudRemote(c);
       const localN=Object.keys(S.logs).length,remoteN=Object.keys((rm&&rm.state&&rm.state.logs)||{}).length;
       let useRemote=remoteN>0&&localN===0;
-      if(remoteN>0&&localN>0)useRemote=await ask(`Ya tienes datos en la nube (${remoteN} días con registros, de ${rm.device||'otro dispositivo'}). En este dispositivo hay ${localN}. ¿Cargar los de la nube?`,'Cargar los de la nube');
+      if(remoteN>0&&localN>0)useRemote=await ask(`Ya tienes datos en la nube (${remoteN} días con registros, de ${rm.device||'otro dispositivo'}). En este dispositivo hay ${localN}. ¿Cargar los de la nube? Antes guardo una copia automática de lo de este.`,'Cargar los de la nube');
       if(useRemote){await cloudApply(rm);toast('☁️ Conectado · datos cargados');}
       else{await cloudPush(true);toast('☁️ Conectado · copia hecha');}
     }else{
-      const t=todayK();
-      const g=await gh('/gists',{token:tok,method:'POST',body:JSON.stringify({description:'Rutina · datos y agenda (no borrar)',public:false,files:{
-        [DATA_FILE]:{content:JSON.stringify({kind:'rutina-sync',savedAt:new Date().toISOString(),device:devName(),state:lightState()})},
-        [ICS_FILE]:{content:buildICS(addDays(t,-7),S.agendaUntil||addDays(t,60),false,300).text}}})});
-      c.gistId=g.id;c.lastSync=new Date().toISOString();c.lastPushAt=Date.now();c.icsHash=agendaHash();c.icsAt=Date.now();cloudSave(c);
+      const savedAt=new Date().toISOString();
+      const d=await newGist(tok,DATA_DESC,{[DATA_FILE]:dataFile(savedAt)});
+      if(!c.icsGist){const i=await newGist(tok,ICS_DESC,{[ICS_FILE]:icsFile()});c.icsGist=i.id;}
+      c.gistId=d.id;c.lastSync=savedAt;c.lastPushAt=Date.now();c.icsHash=agendaHash();c.icsAt=Date.now();cloudSave(c);
       toast('☁️ Conectado · primera copia hecha');
     }
     closeSheet();renderSet();
   }catch(e){if(b){b.disabled=false;b.textContent='Conectar';}toast(e.status===401?'❌ Código no válido o caducado':'❌ No se pudo conectar. Revisa la conexión');}
 }
-async function cloudForcePull(){const c=cloudCfg();if(!c)return;try{const rm=await cloudRemote(c);if(!rm)return toast('No hay datos en la nube');if(!await ask('Se sustituirá lo de este dispositivo por lo de la nube.','Cargar'))return;await cloudApply(rm);toast('☁️ Datos cargados');}catch(e){toast('❌ No se pudo cargar');}}
+async function cloudForcePull(){const c=cloudCfg();if(!c)return;try{const rm=await cloudRemote(c);if(!rm)return toast('No hay datos en la nube');if(!await ask('Se sustituirá lo de este dispositivo por lo de la nube. Antes guardo una copia automática.','Cargar'))return;await cloudApply(rm);toast('☁️ Datos cargados');}catch(e){toast('❌ No se pudo cargar');}}
 async function cloudDisconnect(reconnect){if(!reconnect&&!await ask('Este dispositivo dejará de guardar en la nube. Tus datos no se borran.','Desconectar'))return;cloudSave(null);renderSet();if(reconnect)cloudSheet();else toast('Desconectado');}
-addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){clearTimeout(_cloudT);cloudPush();}else cloudPull();});
+// Al salir de la app: guarda la nota a medio escribir, la copia del día y sube los cambios
+function flushOnHide(){if(setNote._t){clearTimeout(setNote._t);setNote._t=null;save();}if(_snapT){clearTimeout(_snapT);_snapT=null;writeSnap('auto').catch(()=>{});}clearTimeout(_cloudT);cloudPush(false,{hidden:true});}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushOnHide();else cloudPull();});
+addEventListener('pagehide',flushOnHide);
 addEventListener('online',()=>cloudPush());
 
 /* ═════════════ PLAN COMPLETO ═════════════ */
@@ -2153,6 +2263,7 @@ function removeExtra(k,hid){
 
 function icsURL(){const u=new URL('rutina.ics',location.href);return u.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(u.host)?u.href:null;}
 function subscribeSheet(){
+  {const cc=cloudCfg();if(cc&&cc.resub){cc.resub=false;cloudSave(cc);}}
   const c=cloudCfg(),u=c&&c.gistId?cloudICS():icsURL();
   if(!u)return openSheet(`<div class="sheet-title">📅 Suscribir el calendario</div><p class="hint">Disponible cuando la app esté publicada en tu dirección propia (GitHub Pages). Mientras tanto usa «Exportar unas semanas al calendario».</p>`);
   const w=u.replace(/^https:/,'webcal:');
@@ -2164,21 +2275,23 @@ function subscribeSheet(){
     <div class="sec">Google Calendar</div>
     <button class="btn ghost" onclick="navigator.clipboard.writeText('${u}').then(()=>toast('Enlace copiado'))">Copiar enlace</button>
     <p class="hint">En el ordenador: calendar.google.com › «Otros calendarios» › «+» › «Desde URL» y pega el enlace.</p>
-    <p class="hint">${c&&c.gistId?'✅ Con la nube conectada este calendario incluye tus cambios (anular, mover, cambiar hora). Si ya estabas suscrito al de antes, quítalo para no ver todo repetido.':'Ojo: refleja tu plan, no los cambios que hagas a mano. Conecta la nube (Ajustes › Nube) para que también los incluya.'}</p>`);
+    <p class="hint">${c&&c.gistId?'✅ Con la nube conectada este calendario incluye tus cambios (anular, mover, cambiar hora). Si ya estabas suscrito a un calendario de Rutina, quítalo (Ajustes › Calendario › Cuentas › Calendarios suscritos) para no ver todo repetido.':'Ojo: refleja tu plan, no los cambios que hagas a mano. Conecta la nube (Ajustes › Nube) para que también los incluya.'}</p>`);
 }
 
 /* ═════════════ SHEET ═════════════ */
 function openSheet(html,keep){
   if(html!==null&&html!==undefined)$('#sheetBody').innerHTML=html;
   $('#sheet').scrollTop=0;
-  if(!$('#sheet').classList.contains('on')&&!_pushed){try{history.pushState({sheet:1},'');_pushed=true;}catch(e){}}
+  // Una entrada en el historial por hoja abierta (para cerrarla con «atrás»). Si aún hay un «atrás» pendiente de la hoja
+  // anterior (abrir una hoja justo al cerrar otra, p. ej. dos confirmaciones seguidas), se vuelve a añadir cuando llegue.
+  if(!$('#sheet').classList.contains('on')&&!_pushed){if(_skipPop){_pushed=true;_deferPush=true;}else{try{history.pushState({sheet:1},'');_pushed=true;}catch(e){}}}
   $('#ov').classList.add('on');$('#sheet').classList.add('on');document.body.style.overflow='hidden';
 }
-var _skipPop=false,_pushed=false;
+var _skipPop=false,_pushed=false,_deferPush=false;
 try{if(history.state&&history.state.sheet)history.replaceState(null,'');}catch(e){}
 function closeSheet(fromPop){
   if(!$('#sheet').classList.contains('on'))return;
-  if(_pushed){_pushed=false;if(!fromPop){_skipPop=true;try{history.back();}catch(e){_skipPop=false;}}}
+  if(_pushed){_pushed=false;if(_deferPush)_deferPush=false;else if(!fromPop){_skipPop=true;try{history.back();}catch(e){_skipPop=false;}}}
   $('#sheet').style.transform='';
   $('#ov').classList.remove('on');$('#sheet').classList.remove('on');document.body.style.overflow='';D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
 
@@ -2190,7 +2303,7 @@ document.addEventListener('visibilitychange',()=>{
   render();
 });
 applyAccent();
-addEventListener('popstate',()=>{if(_skipPop){_skipPop=false;return;}if($('#sheet').classList.contains('on'))closeSheet(true);});
+addEventListener('popstate',()=>{if(_skipPop){_skipPop=false;if(_deferPush){_deferPush=false;try{history.pushState({sheet:1},'');}catch(e){}}return;}if($('#sheet').classList.contains('on'))closeSheet(true);});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 (function(){ // deslizar la hoja hacia abajo para cerrarla
   const sh=$('#sheet');let y0=null,dy=0,fromTop=false;
@@ -2201,7 +2314,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();
-autoPlan().then(()=>cloudPull());
+askPersist();
+autoPlan().then(()=>cloudPull()).then(()=>snapSoon());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
