@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rutina">
+<title>Rutina</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0A0A0D;--bg2:#111116;--card:#15151B;--card2:#1C1C24;--border:#25252E;
+  --text:#F3F3F6;--muted:#8B8B99;--dim:#55555F;--acc:#22C55E;--danger:#EF4444;
+  --r:18px;--nav:66px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Inter,"Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100dvh;overscroll-behavior-y:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:inherit}
+button:disabled{cursor:default}
+input,textarea,select{font:inherit;font-size:16px;color:var(--text);background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:11px 12px;width:100%;outline:none;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus{border-color:var(--acc)}
+input[type=date]{min-height:44px}
+textarea{resize:vertical;min-height:64px;line-height:1.45}
+::-webkit-scrollbar{width:0;height:0}
+
+#app{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(var(--nav) + env(safe-area-inset-bottom) + 28px)}
+.view{display:none}.view.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:14px}
+.h1{font-size:1.8rem;font-weight:800;letter-spacing:-.6px;line-height:1.05}
+.sub{color:var(--muted);font-size:.85rem;margin-top:3px}
+.sub::first-letter{text-transform:uppercase}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--card);border:1px solid var(--border);display:grid;place-items:center;font-size:1.25rem;font-weight:600;flex:none}
+.icon-btn.acc{background:var(--acc);border-color:var(--acc);color:#0A0A0D}
+.top-actions{display:flex;gap:8px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.lbl{display:block;font-size:.7rem;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin:16px 0 7px}
+.sec{font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:18px 2px 8px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.hint{font-size:.78rem;color:var(--muted);line-height:1.45;margin-top:8px}
+.mt8{margin-top:8px}.mb12{margin-bottom:12px}
+
+/* Semana */
+.week{display:flex;align-items:center;gap:4px;margin-bottom:12px}
+.wk-nav{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
+.wk-btn{font-size:.78rem;font-weight:800;color:var(--acc);background:var(--card);border:1px solid var(--border);border-radius:99px;padding:8px 12px}
+.wk-btn:active{transform:scale(.96)}
+.wk-lbl{font-size:.78rem;font-weight:700;text-align:center;line-height:1.2}
+.wk-lbl small{display:block;font-size:.66rem;color:var(--acc);font-weight:700}
+.wk-days{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;border-radius:14px;border:1px solid transparent}
+.wd-l{font-size:.66rem;font-weight:700;color:var(--muted)}
+.wd-r{position:relative;width:32px;height:32px;display:grid;place-items:center}
+.wd-r svg{position:absolute;inset:0}
+.wd-r b{position:relative;font-size:.78rem;font-weight:700}
+.wd.today .wd-l{color:var(--acc)}
+.wd.sel{background:var(--card);border-color:var(--border)}
+.wd.fut b{color:var(--muted)}
+
+/* Resumen */
+.sum{display:flex;align-items:center;gap:14px}
+.sum-ring{position:relative;width:64px;height:64px;display:grid;place-items:center;flex:none}
+.sum-ring svg{position:absolute;inset:0}
+.sum-ring b{position:relative;font-size:.95rem;font-weight:800}
+.sum-t{font-size:1.05rem;font-weight:700}
+.sum-s{font-size:.8rem;color:var(--muted);margin-top:3px}
+.back-today{font-size:.75rem;font-weight:700;color:var(--acc);padding:6px 10px;border:1px solid var(--border);border-radius:99px;margin-left:auto;flex:none}
+
+/* Tarjeta de hábito */
+.hc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 12px 12px 12px;margin-bottom:9px;transition:border-color .2s,opacity .2s}
+.hc.done{border-color:color-mix(in srgb,var(--hc) 45%,var(--border))}
+.hc.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+.hc-row{display:flex;align-items:center;gap:11px}
+.hc-ico{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:1.3rem;flex:none;background:color-mix(in srgb,var(--hc) 18%,transparent)}
+.hc-ico.sm{width:36px;height:36px;border-radius:11px;font-size:1.1rem}
+.hc-info{flex:1;min-width:0;padding:2px 0}
+.hc-name{font-weight:700;font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc.done .hc-name{color:var(--muted)}
+.hc-meta{font-size:.76rem;color:var(--muted);margin-top:3px}
+.hc-ctl{display:flex;align-items:center;gap:6px;flex:none}
+.ctl{position:relative;width:46px;height:46px;display:grid;place-items:center;border-radius:50%;flex:none}
+.ctl svg{position:absolute;inset:0}
+.ctl-in{position:relative;font-weight:800;font-size:.78rem;color:var(--hc)}
+.ctl.full{background:var(--hc)}
+.ctl.full .ctl-in{color:#0A0A0D;font-size:1.15rem}
+.ctl.run{animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--hc) 45%,transparent)}50%{box-shadow:0 0 0 7px transparent}}
+.ctl:disabled{opacity:.35}
+.mini{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--border);font-weight:700;color:var(--muted)}
+.hc-plan{margin-top:10px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--hc);border-radius:12px;padding:10px 12px;font-size:.86rem;line-height:1.5}
+.pl-tag{font-size:.64rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--hc);margin-bottom:4px}
+.pl-li{padding-left:14px;position:relative}
+.pl-li::before{content:'';position:absolute;left:3px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--hc)}
+.pl-gap{height:6px}
+.pl-h{font-weight:800;margin:2px 0 3px}
+.hc-plan a{color:var(--hc);font-weight:700;text-decoration:none;display:inline-block;padding:3px 0}
+.steps{margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.step{display:flex;align-items:center;gap:10px;padding:8px 4px;font-size:.88rem;border-radius:10px}
+.step .sb{width:22px;height:22px;border-radius:7px;border:2px solid var(--dim);display:grid;place-items:center;font-size:.75rem;font-weight:800;color:#0A0A0D;flex:none}
+.step.on{color:var(--muted);text-decoration:line-through}
+.step.on .sb{background:var(--hc);border-color:var(--hc)}
+.step:disabled{opacity:.5}
+
+.empty{text-align:center;padding:38px 18px}
+.empty .big{font-size:2.6rem;margin-bottom:10px}
+.empty h3{font-size:1.1rem;margin-bottom:6px}
+.empty p{color:var(--muted);font-size:.86rem;line-height:1.5;margin-bottom:18px}
+
+/* Botones */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:14px;font-weight:700;font-size:.92rem;text-align:center}
+.btn.pri{background:var(--acc);color:#0A0A0D}
+.btn.ghost{background:var(--card2);border:1px solid var(--border)}
+.btn.danger{background:color-mix(in srgb,var(--danger) 12%,transparent);color:#FF8A8A;border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+.btns{display:flex;gap:8px;margin-top:18px}
+.btns .btn{flex:1}
+.row-btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;background:var(--card2);border:1px solid var(--border);margin-bottom:8px;font-weight:600;font-size:.92rem}
+.row-btn small{display:block;font-weight:500;color:var(--muted);font-size:.75rem;margin-top:2px}
+.row-btn.danger{color:#FF8A8A}
+
+/* Nota */
+.note textarea{background:transparent;border:none;padding:0;min-height:54px}
+
+/* Lista de hábitos */
+.hl{display:block;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:9px}
+.hl-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hl-name{flex:1;min-width:0;font-weight:700;font-size:.95rem}
+.hl-name div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hl-sub{font-size:.74rem;color:var(--muted);font-weight:500;margin-top:2px}
+.hl-pct{font-size:.8rem;font-weight:800;color:var(--hc)}
+.hm{display:grid;gap:3px}
+.hm i{display:block;border-radius:3px;aspect-ratio:1}
+.hm-wrap{overflow-x:auto;padding-bottom:4px}
+.hm-big{display:grid;gap:3px;width:max-content}
+.hm-big i{display:block;width:13px;height:13px;border-radius:3px}
+.hm-months{display:grid;gap:3px;width:max-content;font-size:.6rem;color:var(--muted);margin-bottom:4px;height:12px}
+.hm-months span{white-space:nowrap;overflow:visible}
+
+/* Stats */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.kpi b{display:block;font-size:1.6rem;font-weight:800;letter-spacing:-.5px}
+.kpi span{font-size:.72rem;color:var(--muted);font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:5px;height:130px;padding-top:16px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px}
+.bar i{display:block;width:100%;border-radius:6px 6px 3px 3px;background:var(--acc);min-height:3px;position:relative}
+.bar i.cur{opacity:.55}
+.bar span{font-size:.58rem;color:var(--muted)}
+.bar em{font-style:normal;font-size:.58rem;color:var(--muted)}
+.rk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.rk:last-child{border-bottom:none}
+.rk-n{flex:1;min-width:0}
+.rk-n div{font-size:.86rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-bar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden;margin-top:6px}
+.rk-bar i{display:block;height:100%;border-radius:99px;background:var(--hc)}
+.rk-p{font-size:.82rem;font-weight:800;width:44px;text-align:right}
+
+/* Detalle */
+.det-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}
+.det-kpis div{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:10px 6px;text-align:center}
+.det-kpis b{display:block;font-size:1.2rem;font-weight:800;color:var(--hc)}
+.det-kpis span{font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+
+/* Editor */
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{padding:9px 13px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);font-size:.84rem;font-weight:600;color:var(--muted)}
+.seg button.on{background:color-mix(in srgb,var(--acc) 16%,transparent);border-color:var(--acc);color:var(--text)}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.types button{padding:11px;border-radius:13px;background:var(--bg2);border:1px solid var(--border)}
+.types button b{display:block;font-size:.88rem}
+.types button small{display:block;font-size:.72rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.types button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.emojis{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.emojis button{aspect-ratio:1;border-radius:10px;font-size:1.25rem;background:var(--bg2);border:1px solid var(--border);display:grid;place-items:center}
+.emojis button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.colors{display:flex;flex-wrap:wrap;gap:9px}
+.colors button{width:32px;height:32px;border-radius:50%;border:3px solid transparent}
+.colors button.on{border-color:var(--text)}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.days button{padding:10px 0;border-radius:11px;background:var(--bg2);border:1px solid var(--border);font-weight:700;text-align:center;color:var(--muted)}
+.days button.on{background:var(--acc);border-color:var(--acc);color:#0A0A0D}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.list-row{display:flex;gap:6px;align-items:flex-start;margin-bottom:6px}
+.list-row .x{width:40px;height:44px;border-radius:12px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);flex:none}
+.plan-day{margin-bottom:8px}
+.plan-day .pd-l{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:99px;background:var(--bg2);border:1px solid var(--border);font-size:.78rem}
+.chip button{color:var(--muted);font-weight:700}
+.dp-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:9px 11px;margin-bottom:6px;font-size:.8rem;display:flex;gap:8px;align-items:flex-start}
+.dp-item div{flex:1;min-width:0;white-space:pre-wrap;color:var(--muted)}
+.dp-item b{color:var(--text);display:block;margin-bottom:2px}
+
+/* Sheet */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;max-height:92dvh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:24px 24px 0 0;z-index:210;transform:translateY(105%);transition:transform .32s cubic-bezier(.3,1.1,.5,1);padding:8px 18px calc(env(safe-area-inset-bottom) + 22px)}
+.sheet.on{transform:none}
+.handle{width:40px;height:4px;border-radius:99px;background:var(--border);margin:6px auto 14px}
+.sheet-title{font-size:1.2rem;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+
+/* Nav */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:100;background:rgba(12,12,16,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav)}
+nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.66rem;font-weight:700;color:var(--dim)}
+nav button svg{width:23px;height:23px}
+nav button.on{color:var(--acc)}
+
+/* Agenda */
+.ag-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ag-bar .seg{flex:1}
+.ag-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.68rem;color:var(--muted);margin:2px 2px 12px}
+.ag-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.ag-day{position:relative;margin-left:0}
+.ag-hour{position:absolute;left:0;right:0;border-top:1px solid var(--border)}
+.ag-hour.alt{background:rgba(255,255,255,.018)}
+.ag-hour::after{content:'';position:absolute;left:44px;right:0;top:50%;border-top:1px dashed rgba(255,255,255,.05)}
+.ag-hour span{position:absolute;top:4px;left:0;width:40px;font-size:.72rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.ag-ev{position:absolute;border-radius:9px;padding:3px 7px;font-size:.72rem;overflow:hidden;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 22%,var(--card));cursor:pointer;line-height:1.25;text-align:left;color:var(--text)}
+.ag-ev b{font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ag-ev small{display:block;color:var(--muted);font-size:.64rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ag-ev.short{display:flex;align-items:center;gap:6px;padding-top:0;padding-bottom:0}
+.ag-ev.short b{display:inline;flex:1;min-width:0}
+.ag-ev.short small{display:inline}
+.ag-ev.libre{background:transparent;border:1px dashed var(--border);color:var(--dim)}
+.ag-ev.libre b{font-weight:500}
+.ag-ev.trayecto{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 14%,var(--card)) 0 6px,var(--card) 6px 12px)}
+.ag-ev.sueno{background:color-mix(in srgb,#475569 30%,var(--bg))}
+.ag-ev.cancel{opacity:.38}
+.ag-ev.cancel b{text-decoration:line-through}
+.ag-ev .ok{color:var(--c);font-weight:800}
+.ag-now{position:absolute;left:40px;right:0;height:2px;background:#EF4444;z-index:3}
+.ag-now::before{content:'';position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:#EF4444}
+.agw-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px 6px;-webkit-overflow-scrolling:touch}
+.agw{display:grid;grid-template-columns:40px repeat(7,minmax(78px,1fr));min-width:600px}
+.agw-hd{position:sticky;top:0;z-index:4;background:var(--bg);text-align:center;padding:6px 0 8px;cursor:pointer;border-bottom:1px solid var(--border)}
+.agw-hd b{display:block;font-size:.66rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.agw-hd span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;font-weight:800;font-size:.95rem;margin-top:2px}
+.agw-hd.today span{background:var(--acc);color:#0A0A0D}
+.agw-hd.sel b{color:var(--text)}
+.agw-hrs{position:relative}
+.agw-hrs span{position:absolute;right:6px;font-size:.66rem;font-weight:700;color:var(--muted);transform:translateY(-50%);font-variant-numeric:tabular-nums}
+.agw-day{position:relative;border-left:1px solid var(--border)}
+.agw-ev{position:absolute;left:2px;right:2px;border-radius:6px;padding:2px 4px;overflow:hidden;background:color-mix(in srgb,var(--c) 30%,var(--card));border-left:3px solid var(--c);text-align:left;color:var(--text);line-height:1.15}
+.agw-ev b{display:block;font-size:.62rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agw-ev small{display:block;font-size:.56rem;color:var(--muted);white-space:nowrap}
+.agw-ev.cancel{opacity:.35}.agw-ev.cancel b{text-decoration:line-through}
+.agw-h{font-size:.66rem;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
+.agw-h.today{color:var(--acc)}
+.agw-col{position:relative;background:var(--card);border-radius:8px;cursor:pointer;border:1px solid var(--border)}
+.agw-col.sel{border-color:var(--acc)}
+.agw-b{position:absolute;left:2px;right:2px;border-radius:3px;background:var(--c);opacity:.9}
+.agw-b.libre{background:transparent}
+.agw-b.cancel{opacity:.25}
+.agw-t{position:relative}
+.agw-t span{position:absolute;right:2px;font-size:.55rem;color:var(--dim);transform:translateY(-50%)}
+.badge{display:inline-block;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--card2);border:1px solid var(--border);margin:6px 6px 0 0}
+.badge.warn{color:#FBBF24;border-color:color-mix(in srgb,#FBBF24 40%,var(--border))}
+.badge.bad{color:#FF8A8A;border-color:color-mix(in srgb,#EF4444 40%,var(--border))}
+.ev-row{display:flex;gap:8px;align-items:center}
+.ev-row input{flex:1}
+.cx{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:14px;margin-bottom:7px;font-size:.84rem;color:var(--muted)}
+.cx button{margin-left:auto;font-size:.76rem;font-weight:700;color:var(--acc)}
+.chlog li{margin:4px 0 4px 16px;font-size:.82rem;color:var(--muted)}
+.now-card{background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 16%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--acc) 35%,var(--border));border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.now-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:4px 0}
+.now-row .lb{font-size:.62rem;font-weight:800;letter-spacing:1px;color:var(--acc);width:62px;flex:none}
+.now-row.next .lb{color:var(--muted)}
+.now-row .tx{flex:1;min-width:0}
+.now-row .tx b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now-row .tx small{font-size:.74rem;color:var(--muted)}
+.banner{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px 13px;margin-bottom:9px;font-size:.84rem}
+.banner b{display:block;font-size:.88rem}
+.banner small{color:var(--muted);font-size:.74rem}
+.banner .go{margin-left:auto;color:var(--acc);font-weight:800;font-size:.8rem;flex:none}
+.banner.warn{border-color:color-mix(in srgb,#FBBF24 45%,var(--border))}
+.min-btn{font-size:.75rem;font-weight:700;padding:7px 11px;border-radius:99px;border:1px solid var(--border);background:var(--card2);margin-left:auto;flex:none}
+.min-btn.on{background:color-mix(in srgb,#FBBF24 18%,transparent);border-color:#FBBF24;color:#FBBF24}
+.hc-more{display:block;width:100%;text-align:center;font-size:.75rem;font-weight:700;color:var(--muted);padding:8px 0 0}
+.hc-min{margin-top:10px;display:flex;gap:8px}
+.hc-min .btn{padding:11px;font-size:.84rem}
+.metric{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.metric:last-child{border-bottom:none}
+.metric div{flex:1;min-width:0}
+.metric b{font-size:.86rem}
+.metric small{display:block;color:var(--muted);font-size:.72rem}
+.metric svg{flex:none}
+.mrow{display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:center;margin-bottom:8px}
+.mrow label{font-size:.82rem}
+.rv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.86rem}
+.rv-row:last-child{border-bottom:none}
+.rv-row span.p{margin-left:auto;font-weight:800}
+.chk{display:flex;align-items:center;gap:10px;padding:8px 2px;font-size:.88rem}
+.chk input{width:20px;height:20px;accent-color:var(--acc)}
+#timerPill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 12px);z-index:90;background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:8px 14px;font-size:.82rem;font-weight:700;display:none;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+#timerPill.on{display:block}
+
+.wk-card{padding:12px 14px}
+.wk-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.wk-hd b{font-size:.92rem}.wk-hd small{color:var(--muted);font-size:.74rem}
+.wk-row{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;width:100%;text-align:left;padding:5px 0}
+.wk-bar{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;margin-top:3px}
+.wk-bar i{display:block;height:100%;border-radius:99px}
+.wk-row .nm{font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-row .vl{font-size:.74rem;color:var(--muted);text-align:right;white-space:nowrap}
+.wk-row .vl b{color:var(--text)}
+.wk-hist{display:flex;gap:5px;align-items:flex-end;height:70px;margin-top:6px}
+.wk-hist div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.wk-hist i{display:block;width:100%;border-radius:5px 5px 2px 2px;min-height:2px}
+.wk-hist span{font-size:.58rem;color:var(--muted)}
+
+.fp-goal{background:color-mix(in srgb,var(--hc) 14%,var(--card));border:1px solid color-mix(in srgb,var(--hc) 40%,var(--border));border-radius:14px;padding:12px 14px;margin:10px 0}
+.fp-goal b{display:block;font-size:.95rem}.fp-goal small{color:var(--muted);font-size:.78rem}
+.fp-tools{position:sticky;top:-1px;z-index:3;background:var(--bg2,var(--card));padding:8px 0;display:flex;flex-direction:column;gap:8px}
+.fp-tools .row{display:flex;gap:8px}
+.fp-tools input{flex:1}
+.fp-month{font-size:.7rem;font-weight:800;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:16px 0 6px}
+.fp-item{border-bottom:1px solid var(--border)}
+.fp-row{display:grid;grid-template-columns:62px 1fr 22px;gap:8px;align-items:center;width:100%;text-align:left;padding:9px 2px}
+.fp-row .d{font-size:.72rem;color:var(--muted);line-height:1.2}.fp-row .d b{display:block;color:var(--text);font-size:.86rem}
+.fp-row .t{font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.fp-row .s{font-size:.9rem;text-align:center}
+.fp-item.today .fp-row{background:color-mix(in srgb,var(--hc) 12%,transparent);border-radius:10px}
+.fp-item.past .t{color:var(--muted)}
+.fp-body{padding:0 2px 12px}
+#toast{position:fixed;left:50%;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 14px);transform:translate(-50%,10px);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 18px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{margin-left:12px;color:var(--acc);font-weight:800}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOY -->
+  <section class="view on" id="v-hoy">
+    <div class="top">
+      <div><div class="h1" id="hoyTitle">Hoy</div><div class="sub" id="hoySub"></div></div>
+      <div class="top-actions"><button class="icon-btn acc" onclick="openEditor()" aria-label="Nuevo hábito">+</button></div>
+    </div>
+<div class="wk-nav"><button class="wk-btn" onclick="wkShift(-1)" aria-label="Semana anterior">‹ Anterior</button><button class="wk-lbl" id="wkLbl" onclick="pick(todayK())"></button><button class="wk-btn" onclick="wkShift(1)" aria-label="Semana siguiente">Siguiente ›</button></div>
+    <div class="week">
+      <div class="wk-days" id="wkDays"></div>
+    </div>
+    <div id="hoyBody"></div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="view" id="v-agenda">
+    <div class="top">
+      <div><div class="h1" id="agTitle">Agenda</div><div class="sub" id="agSub"></div></div>
+      <div class="top-actions"><button class="icon-btn" onclick="pick(todayK())" aria-label="Ir a hoy" style="font-size:.72rem;font-weight:800;width:auto;padding:0 12px">Hoy</button></div>
+    </div>
+<div class="wk-nav"><button class="wk-btn" onclick="wkShift(-1)" aria-label="Semana anterior">‹ Anterior</button><button class="wk-lbl" id="agLbl" onclick="pick(todayK())"></button><button class="wk-btn" onclick="wkShift(1)" aria-label="Semana siguiente">Siguiente ›</button></div>
+    <div class="week">
+      <div class="wk-days" id="agWeek"></div>
+    </div>
+    <div id="agBody"></div>
+  </section>
+
+  <!-- HÁBITOS -->
+  <section class="view" id="v-hab">
+    <div class="top">
+      <div><div class="h1">Hábitos</div><div class="sub" id="habSub"></div></div>
+      <div class="top-actions"><button class="icon-btn acc" onclick="openEditor()" aria-label="Nuevo hábito">+</button></div>
+    </div>
+    <div id="habBody"></div>
+  </section>
+
+  <!-- ESTADÍSTICAS -->
+  <section class="view" id="v-stats">
+    <div class="top"><div><div class="h1">Estadísticas</div><div class="sub">Cómo vas de constancia</div></div></div>
+    <div id="statsBody"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="view" id="v-set">
+    <div class="top"><div><div class="h1">Ajustes</div><div class="sub">Personalización y copias</div></div></div>
+    <div id="setBody"></div>
+    <input type="file" id="importIn" accept=".json,application/json" hidden onchange="importData(this)">
+  </section>
+</div>
+
+<nav><div class="in">
+  <button class="on" data-v="hoy" onclick="go('hoy')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="m8.5 15 2.3 2.3 4.7-4.6"/></svg>Hoy</button>
+  <button data-v="agenda" onclick="go('agenda')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M7 13h4M7 17h7"/></svg>Agenda</button>
+  <button data-v="hab" onclick="go('hab')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Hábitos</button>
+  <button data-v="stats" onclick="go('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+  <button data-v="set" onclick="go('set')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Ajustes</button>
+</div></nav>
+
+<div class="ov" id="ov" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet"><div class="handle"></div><div id="sheetBody"></div></div>
+<div id="toast"></div>
+<button id="timerPill" onclick="sel=S.timer?S.timer.k:sel;go('hoy')"></button>
+
+<script>
+/* ═════════════ CONSTANTES ═════════════ */
+const APP_VERSION='1.7';
+const CHANGELOG=[
+  ['1.7','18 nov 2026',['Publicada en GitHub Pages: instalable en el iPhone y se actualiza sola','📅 Suscripción al calendario del iPhone / Google con aviso 5 min antes de cada tarea']],
+  ['1.6.1','18 nov 2026',['Botones grandes «‹ Anterior» y «Siguiente ›» para cambiar de semana en Hoy y en la Agenda','Se ve qué semana miras («Dentro de 2 semanas · 30 nov – 6 dic»); tócalo para volver a hoy','También puedes deslizar el dedo sobre los días']],
+  ['1.6','18 nov 2026',['🗓️ Ver todo el plan de cada hábito: todas las sesiones día a día hasta su meta (inglés hasta el examen B2 del 19 jun 2027)','Cuenta atrás: días, semanas y sesiones que quedan','Buscador (Speaking, Test 3, pierna…) y filtros Próximas / Todas / Hechas','Toca una sesión para ver exactamente qué hacer, abrir ese día o moverla']],
+  ['1.5','18 nov 2026',['📊 Total semanal de cada hábito (como los km de Runna): minutos hechos frente a los previstos','Si un día no puedes y lo compensas otro día, no cuenta como fallo: la racha y el % siguen','⏱ Apunta el tiempo real que has hecho (p. ej. 1 h 30 de francés)','Historial de semanas en cada hábito y en la revisión semanal']],
+  ['1.4.1','18 nov 2026',['Todo lo que haces suma: aunque cambies la hora, lo muevas, lo anules después o no tocara ese día','➕ Sesión extra: añade un hábito un día que no le toca (p. ej. boxeo) y cuenta para su progreso; si no la haces, no es fallo','No deja mover algo que ya has hecho']],
+  ['1.4','18 nov 2026',['Arriba en Hoy: qué toca ahora y qué viene después','Día flojo: versión mínima de cada hábito, cuenta para la racha','Registrar progreso (muscle-ups, pino, kg, islas, notas Use of English…) con gráfica','Revisión semanal con resumen para copiarme','Deshacer tras cada acción','Pausas (vacaciones, lesión) sin romper rachas','Avisos: exportar a Google Calendar/Apple con alarma y notificaciones','Copia de seguridad: compartir a Drive y recordatorio semanal','Vista de 3 días, mover a mañana buscando hueco libre','Si se anula la clase, el entreno pasa a sesión completa','Tarjetas plegables, mapas desde tu inicio, tus cambios no se pisan al actualizar el plan','Guardado más ligero y rápido']],
+  ['1.3.1','18 nov 2026',['Semana tipo Google Calendar: horas marcadas, cada bloque con su nombre y solo lo importante','Día: cada hora en su franja, con la hora bien visible']],
+  ['1.3','18 nov 2026',['Nueva pestaña Agenda: tu día hora a hora (comidas, trayectos, clases, fútbol, sueño y hábitos)','Toca cualquier bloque para ver qué toca y anularlo, cambiarle la hora o moverlo de día','Los cambios se reflejan en Hoy, rachas y estadísticas (un día anulado no cuenta como fallo)','Guía «Antes de empezar» en cada hábito','Datos versionados con migraciones automáticas']],
+  ['1.2','18 nov 2026',['Plan completo: entreno, francés (HyperLingua), inglés (B2 First), estudio y diagnóstico diferencial','El plan se carga solo desde plan.json']],
+  ['1.0','18 nov 2026',['Primera versión: hábitos, rachas, mapas de calor, estadísticas y copias']],
+];
+const KEY='rutina_v1';
+const COLORS=['#22C55E','#3B82F6','#EF4444','#F59E0B','#A855F7','#EC4899','#14B8A6','#F97316','#84CC16','#06B6D4','#E11D48','#8B5CF6','#EAB308','#64748B'];
+const EMOJIS=['💪','🥊','🏋️','🏃','🚴','🏊','🧘','🤸','📚','🧠','✍️','🎓','🇫🇷','🇬🇧','🗣️','💧','🥗','🍎','💊','😴','🦷','🚿','🧴','🧹','📵','📈','💰','🎯','❤️','🩺','🎸','☀️','🌙','📝','🙏','🐾'];
+const MOMENTS=[['manana','☀️ Mañana'],['tarde','🌤️ Tarde'],['noche','🌙 Noche'],['any','Cualquier momento']];
+const DOW_L=['D','L','M','X','J','V','S'];
+const DOW_N=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const WEEK_ORDER=[1,2,3,4,5,6,0];
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const TYPES=[
+  ['check','Sí / No','Lo haces o no'],
+  ['count','Cantidad','Objetivo numérico'],
+  ['time','Tiempo','Cronómetro o minutos'],
+  ['checklist','Checklist','Varios pasos'],
+];
+
+/* ═════════════ ESTADO ═════════════ */
+const SCHEMA=3;
+const PLAN_KEY='rutina_plan_v1'; // lo pesado (agenda y planes) va aparte y solo se guarda al cargar un plan
+const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{}};
+// Migraciones: cada versión del esquema añade lo que falta sin tocar los registros.
+function migrate(s){
+  s.schema=s.schema||1;
+  if(s.schema<2){s.agenda=s.agenda||{};s.agendaBase=s.agendaBase||{};s.agendaUntil=s.agendaUntil||'';s.schema=2;}
+  if(s.schema<3){s.pauses=s.pauses||[];s.minDays=s.minDays||{};s.reviews=s.reviews||{};s._needPlanSave=true;s.schema=3;}
+  return s;
+}
+function load(){
+  let st=null;
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.habits))st=migrate(Object.assign(JSON.parse(JSON.stringify(DEF)),s,{schema:s.schema||1}));}catch(e){}
+  st=st||JSON.parse(JSON.stringify(DEF));
+  try{const P=JSON.parse(localStorage.getItem(PLAN_KEY)||'null');
+    if(P){if(P.agendaBase&&!Object.keys(st.agendaBase||{}).length){st.agendaBase=P.agendaBase;st.agendaUntil=P.agendaUntil||'';st.classesKnownUntil=P.classesKnownUntil||'';}
+      for(const h of st.habits){const x=(P.habits||{})[h.id];if(x){h.plan=h.plan||{};if(x.program&&!h.plan.program)h.plan.program=x.program;if(x.guide&&!h.guide)h.guide=x.guide;if(x.minimal&&!h.minimal)h.minimal=x.minimal;}}}
+  }catch(e){}
+  return st;
+}
+const HEAVY=new Set(['agendaBase','program','guide','minimal']);
+function savePlan(){
+  try{const P={agendaBase:S.agendaBase,agendaUntil:S.agendaUntil,classesKnownUntil:S.classesKnownUntil,habits:{}};
+    for(const h of S.habits){const x={};if(h.plan&&h.plan.program)x.program=h.plan.program;if(h.guide)x.guide=h.guide;if(h.minimal)x.minimal=h.minimal;if(Object.keys(x).length)P.habits[h.id]=x;}
+    localStorage.setItem(PLAN_KEY,JSON.stringify(P));}catch(e){toast('⚠️ No se pudo guardar el plan');}
+}
+let S=load();
+function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}}
+
+let view='hoy';
+let sel=todayK();
+let D=null; // borrador del editor
+
+/* ═════════════ UTILIDADES ═════════════ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function pad(n){return String(n).padStart(2,'0');}
+function dk(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function pk(k){const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d,12);}
+function todayK(){return dk(new Date());}
+function addDays(k,n){const d=pk(k);d.setDate(d.getDate()+n);return dk(d);}
+function diffDays(a,b){return Math.round((pk(b)-pk(a))/864e5);}
+function dow(k){return pk(k).getDay();}
+function weekStartK(k){return addDays(k,-((dow(k)+6)%7));}
+function longDate(k){return pk(k).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});}
+function shortDate(k){const d=pk(k);return `${d.getDate()} ${MES[d.getMonth()]}`;}
+const r2=n=>Math.round(n*100)/100;
+function fmtNum(n){n=+n||0;return Number.isInteger(n)?String(n):String(Math.round(n*10)/10);}
+function fmtMin(m){m=+m||0;if(m<60)return `${fmtNum(Math.round(m*10)/10)} min`;const h=Math.floor(m/60),mm=Math.round(m%60);return `${h} h ${pad(mm)}`;}
+function fmtClock(ms){const s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;return h?`${h}:${pad(m)}:${pad(ss)}`:`${pad(m)}:${pad(ss)}`;}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(12);}catch(e){}}
+let _tt;function toast(m,actions){const t=$('#toast');t.innerHTML=esc(m)+(actions||[]).map((a,i)=>`<button onclick="toastAct(${i})">${esc(a[0])}</button>`).join('');toast._a=actions||[];t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),actions&&actions.length?5000:2400);}
+function toastAct(i){const a=(toast._a||[])[i];$('#toast').classList.remove('on');if(a)a[1]();}
+// Deshacer: foto de registros, agenda y pausas antes de cada cambio
+let _undo=null;
+function pushUndo(){_undo=JSON.stringify({logs:S.logs,agenda:S.agenda,timer:S.timer,pauses:S.pauses,minDays:S.minDays});}
+function doUndo(){if(!_undo)return;const o=JSON.parse(_undo);Object.assign(S,o);_undo=null;save();render();toast('Deshecho ↺');}
+function undoAct(){return ['Deshacer',doUndo];}
+// Diálogo propio (sustituye a confirm(), que no funciona en todos los sitios)
+let _dlg=null;
+function ask(msg,ok='Aceptar',danger=false){return new Promise(res=>{_dlg=res;openSheet(`<div class="sheet-title">¿Seguro?</div><p class="hint" style="font-size:.9rem;color:var(--text)">${esc(msg)}</p><div class="btns"><button class="btn ghost" onclick="dlgDone(false)">Cancelar</button><button class="btn ${danger?'danger':'pri'}" onclick="dlgDone(true)">${esc(ok)}</button></div>`);});}
+function dlgDone(v){const r=_dlg;_dlg=null;closeSheet();if(r)r(v);}
+function getH(id){return S.habits.find(h=>h.id===id);}
+function hexA(hex,a){return hex+a;}
+
+function ring(p,size,sw,color){
+  const r=(size-sw)/2,c=2*Math.PI*r,o=c*(1-Math.max(0,Math.min(1,p||0))),h=size/2;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${h}" cy="${h}" r="${r}" stroke="var(--border)" stroke-width="${sw}" fill="none"/>${p>0?`<circle cx="${h}" cy="${h}" r="${r}" stroke="${color}" stroke-width="${sw}" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${o}" transform="rotate(-90 ${h} ${h})" style="transition:stroke-dashoffset .4s"/>`:''}</svg>`;
+}
+
+/* ═════════════ LÓGICA DE HÁBITOS ═════════════ */
+function entry(h,k){return (S.logs[k]||{})[h.id];}
+function progress(h,k){
+  const e=entry(h,k);if(!e)return 0;
+  if(e.min)return 1;
+  if(h.type!=='time'&&e.mins>0)return 1;
+  if(h.type==='check')return e.v?1:0;
+  if(h.type==='checklist'){const n=h.steps.length;if(!n)return 0;return h.steps.filter(s=>(e.steps||[]).includes(s.id)).length/n;}
+  return Math.min(1,(e.v||0)/(h.target||1));
+}
+function isDone(h,k){return progress(h,k)>=1;}
+
+// ¿Toca según la frecuencia? (sin tener en cuenta el cupo semanal)
+function isScheduled(h,k){
+  if(k<h.start)return false;
+  const s=h.schedule;
+  switch(s.mode){
+    case 'daily':return true;
+    case 'weekdays':return (s.days||[]).includes(dow(k));
+    case 'xweek':return true;
+    case 'everyN':return diffDays(h.start,k)%Math.max(1,s.n||1)===0;
+    case 'dates':return (s.dates||[]).includes(k);
+  }
+  return false;
+}
+/* Cambios de agenda (anular, mover, cambiar hora). Los hábitos usan el id «h:<id>». */
+function tm(s){if(!s)return null;const[h,m]=s.split(':').map(Number);return h*60+m;}
+function fmtT(m){m=Math.round(m);return `${pad(Math.floor(m/60)%24)}:${pad(m%60)}`;}
+function agOv(k,id){return ((S.agenda||{})[k]||{})[id];}
+function agSet(k,id,o){_wc=null;S.agenda=S.agenda||{};if(o){(S.agenda[k]=S.agenda[k]||{})[id]=o;}else if(S.agenda[k]){delete S.agenda[k][id];if(!Object.keys(S.agenda[k]).length)delete S.agenda[k];}}
+function baseEvent(k,id){return ((S.agendaBase||{})[k]||[]).find(e=>e.id===id);}
+function isCancelledH(h,k){const o=agOv(k,'h:'+h.id);return !!(o&&(o.cancel||o.moveTo));}
+function movedFrom(h,k){const o=agOv(k,'in:'+h.id);return o&&!o.extra?o.from:null;}
+function isExtra(h,k){const o=agOv(k,'in:'+h.id);return !!(o&&o.extra);}
+function hasLog(h,k){return !!(S.logs[k]&&S.logs[k][h.id])&&isDone(h,k);}
+function habitTime(h,k){
+  const mi=agOv(k,'in:'+h.id);if(mi)return mi.start?{start:mi.start,end:mi.end}:null;
+  const o=agOv(k,'h:'+h.id);if(o&&o.start)return{start:o.start,end:o.end};
+  const b=baseEvent(k,'h:'+h.id);return b?{start:b.start,end:b.end}:null;
+}
+function classCancelled(k){const o=agOv(k,'clase');return !!(o&&o.cancel);}
+function momentOfTime(s){const m=tm(s);return m<14*60?'manana':m<20*60?'tarde':'noche';}
+function hasDatePlan(h,k){return !!(h.plan&&((h.plan.dates&&h.plan.dates[k])||(h.plan.program&&h.plan.program[k])));}
+function showOnBase(h,k){if(hasLog(h,k))return true;if(movedFrom(h,k))return true;if(isCancelledH(h,k))return false;return isScheduled(h,k)||hasDatePlan(h,k);}
+/* Volumen semanal (como los km de Runna): minutos hechos frente a minutos planificados en la semana.
+   Si cumples el total, los días que no hiciste no cuentan como fallo. Anular un día NO baja el objetivo (lo puedes compensar);
+   una pausa (vacaciones, lesión) sí lo baja. */
+var _wc=null;function wcache(){if(!_wc){_wc=new Map();queueMicrotask(()=>_wc=null);}return _wc;}
+function evDur(h,k){const t=habitTime(h,k);return t&&t.start?tm(t.end)-tm(t.start):typicalDur(h);}
+function minParse(t){const m=/(\d+)\s*min/.exec(t||'');return m?+m[1]:10;}
+function minsOf(h,k){
+  const e=entry(h,k);if(!e)return 0;
+  if(h.type==='time')return e.v||0;
+  if(e.mins!=null)return e.mins;
+  if(e.min)return minParse(h.minimal);
+  const p=progress(h,k);return p>0?Math.round(evDur(h,k)*p):0;
+}
+function isPaused(h,k){const o=agOv(k,'h:'+h.id);return !!(o&&o.pause);}
+function plannedMins(h,k){
+  if(k<h.start||isPaused(h,k))return 0;
+  if(h.schedule.mode==='xweek')return 0;
+  if(!(isScheduled(h,k)||hasDatePlan(h,k)))return 0;
+  const b=baseEvent(k,'h:'+h.id);return b?tm(b.end)-tm(b.start):(h.type==='time'&&h.target?h.target:typicalDur(h));
+}
+function weekGoal(h,k){
+  const ws=weekStartK(k),c=wcache(),key='g'+h.id+ws;if(c.has(key))return c.get(key);
+  let g=0;
+  if(h.weekGoal)g=h.weekGoal;
+  else if(h.schedule.mode==='xweek'){if(addDays(ws,6)>=h.start)g=(h.schedule.times||1)*typicalDur(h);}
+  else for(let i=0;i<7;i++)g+=plannedMins(h,addDays(ws,i));
+  c.set(key,g);return g;
+}
+function weekMins(h,k){const ws=weekStartK(k),c=wcache(),key='m'+h.id+ws;if(c.has(key))return c.get(key);let m=0;for(let i=0;i<7;i++)m+=minsOf(h,addDays(ws,i));c.set(key,m);return m;}
+function weekMet(h,k){const g=weekGoal(h,k);return g>0&&weekMins(h,k)>=g;}
+// Un día que tocaba y no hiciste: ¿es fallo? No si la semana va en curso (aún puedes compensar) o si cumpliste el total.
+function missCounts(h,k){const t=todayK();if(weekStartK(k)===weekStartK(t))return false;return !weekMet(h,k);}
+function fmtDur(m){m=Math.round(m);return m>=60?`${Math.floor(m/60)} h${m%60?' '+pad(m%60):''}`:`${m} min`;}
+function weekCount(h,k){const ws=weekStartK(k);let c=0;for(let i=0;i<7;i++)if(isDone(h,addDays(ws,i)))c++;return c;}
+// ¿Aparece en la lista de ese día?
+function showOn(h,k){
+  if(hasLog(h,k)||isExtra(h,k))return true;
+  if(movedFrom(h,k))return true;
+  if(isCancelledH(h,k))return false;
+  if(hasDatePlan(h,k))return true;
+  if(!isScheduled(h,k))return false;
+  if(h.schedule.mode==='xweek'){
+    if(isDone(h,k))return true;
+    const ws=weekStartK(k);let other=0;
+    for(let i=0;i<7;i++){const d=addDays(ws,i);if(d!==k&&isDone(h,d))other++;}
+    return other<(h.schedule.times||1);
+  }
+  return true;
+}
+function momentFor(h,k){const t=habitTime(h,k);if(t&&t.start)return momentOfTime(t.start);const e=h.plan&&h.plan.program&&h.plan.program[k];return (e&&typeof e==='object'&&e.moment)||h.moment||'any';}
+function dayHabits(k){return S.habits.filter(h=>!h.archived&&showOn(h,k));}
+function dayStats(k){const hs=dayHabits(k);return{total:hs.length,done:hs.filter(h=>isDone(h,k)).length};}
+
+function streaks(h){
+  const t=todayK();
+  if(h.schedule.mode==='xweek'){
+    const times=h.schedule.times||1,tw=weekStartK(t);
+    let ws=weekStartK(h.start),run=0,best=0;
+    while(ws<=tw){
+      if(weekCount(h,ws)>=times){run++;if(run>best)best=run;}
+      else if(ws!==tw)run=0;
+      ws=addDays(ws,7);
+    }
+    return{cur:run,best,unit:'sem'};
+  }
+  const first=Object.keys(S.logs).filter(d=>hasLog(h,d)).sort()[0];
+  let k=first&&first<h.start?first:h.start,run=0,best=0,guard=0;
+  while(k<=t&&guard++<4000){
+    if(showOnBase(h,k)){
+      if(isDone(h,k)){run++;if(run>best)best=run;}
+      else if(k!==t&&missCounts(h,k))run=0;
+    }
+    k=addDays(k,1);
+  }
+  return{cur:run,best,unit:'d'};
+}
+function habitRate(h,days=30){
+  const t=todayK();
+  if(h.schedule.mode==='xweek'){
+    const times=h.schedule.times||1;let got=0,need=0;
+    let ws=weekStartK(addDays(t,-(days-1)));
+    while(ws<=t){if(addDays(ws,6)>=h.start){need+=times;got+=Math.min(weekCount(h,ws),times);}ws=addDays(ws,7);}
+    return need?got/need:null;
+  }
+  let due=0,done=0;
+  for(let i=0;i<days;i++){
+    const k=addDays(t,-i);if(!showOnBase(h,k))continue;
+    const d=isDone(h,k);if(k===t&&!d)continue;
+    if(!d&&!missCounts(h,k)){if(weekMet(h,k)){due++;done++;}continue;}
+    due++;if(d)done++;
+  }
+  return due?done/due:null;
+}
+function countDone(h){let c=0;for(const k in S.logs)if(S.logs[k][h.id]&&isDone(h,k))c++;return c;}
+
+// Índice de rotación: el pasado avanza con cada vez que lo completas; el futuro, con cada día programado
+function cycleIdx(h,k){
+  const t=todayK();let c=0,d=h.start,guard=0;
+  while(d<k&&guard++<4000){
+    if(d<t){if(isDone(h,d))c++;}
+    else if(d===t){if(isDone(h,d))c++;}
+    else if(h.schedule.mode!=='xweek'&&isScheduled(h,d))c++;
+    d=addDays(d,1);
+  }
+  return c;
+}
+function planFor(h,k){
+  const mf=movedFrom(h,k);
+  if(mf&&mf!==k){const q=planFor(h,mf);return q?{text:q.text,tag:`↪ Movido desde el ${shortDate(mf)}${q.tag?' · '+q.tag:''}`}:{text:'',tag:`↪ Movido desde el ${shortDate(mf)}`};}
+  const p=h.plan||{};
+  if(p.dates&&p.dates[k])return{text:p.dates[k],tag:'Solo este día'};
+  if(isExtra(h,k)&&!(p.program&&p.program[k])){
+    const ks=p.program?Object.keys(p.program).filter(d=>d<k).sort():[];
+    const last=ks.length?p.program[ks[ks.length-1]]:null;
+    const txt=last?(typeof last==='string'?last:last.text||''):'';
+    return{text:txt,tag:'➕ Sesión extra · cuenta para tu progreso'+(last&&last.tag?' · repite: '+last.tag:'')};
+  }
+  if(p.program&&p.program[k]){const e=p.program[k];if(typeof e==='string')return{text:e,tag:''};
+    if(e.alt&&classCancelled(k))return{text:e.alt.text,tag:e.alt.tag};
+    return{text:e.text||'',tag:e.tag||''};}
+  if(p.mode==='weekly'){const t=(p.weekly||{})[dow(k)];return t?{text:t,tag:''}:null;}
+  if(p.mode==='cycle'){
+    const list=(p.cycle||[]).filter(x=>x&&x.trim());if(!list.length)return null;
+    const i=cycleIdx(h,k)%list.length;
+    return{text:list[i],tag:`Sesión ${String.fromCharCode(65+i)} · rotación de ${list.length}`};
+  }
+  return null;
+}
+function schedText(h){
+  const s=h.schedule;
+  if(s.mode==='daily')return 'Cada día';
+  if(s.mode==='weekdays'){
+    const d=[...(s.days||[])].sort((a,b)=>WEEK_ORDER.indexOf(a)-WEEK_ORDER.indexOf(b));
+    if(d.length===7)return 'Cada día';
+    if(d.join()==='1,2,3,4,5')return 'Lunes a viernes';
+    if(d.join()==='6,0')return 'Fines de semana';
+    return d.map(x=>DOW_L[x]).join(' · ');
+  }
+  if(s.mode==='xweek')return `${s.times}× por semana`;
+  if(s.mode==='everyN')return `Cada ${s.n} días`;
+  if(s.mode==='dates'){
+    const t=todayK(),ds=(s.dates||[]).filter(d=>d>=addDays(t,-14)&&d<=addDays(t,27));
+    if(!ds.length)return (s.dates||[]).length?'Según el plan':'Sin fechas';
+    const per=Math.round(ds.length/6*10)/10,days=[...new Set(ds.map(dow))].sort((a,b)=>WEEK_ORDER.indexOf(a)-WEEK_ORDER.indexOf(b));
+    if(days.length<=4&&per>=days.length-0.5)return days.map(x=>DOW_L[x]).join(' · ');
+    return `≈${Math.round(per)}× por semana`;
+  }
+  return '';
+}
+function targetText(h){
+  if(h.type==='count')return `${h.target} ${h.unit||''}`.trim();
+  if(h.type==='time')return `${h.target} min`;
+  if(h.type==='checklist')return `${h.steps.length} pasos`;
+  return '';
+}
+
+/* ═════════════ NAVEGACIÓN ═════════════ */
+function go(v){
+  view=v;
+  document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo(0,0);
+  render();
+}
+function render(){
+  if(view==='hoy')renderHoy();
+  else if(view==='agenda')renderAgenda();
+  else if(view==='hab')renderHab();
+  else if(view==='stats')renderStats();
+  else renderSet();
+}
+
+/* ═════════════ HOY ═════════════ */
+function pick(k){sel=k;render();}
+function wkShift(n){sel=addDays(sel,7*n);render();}
+function weekLabel(){
+  const ws=weekStartK(sel),tw=weekStartK(todayK()),d=Math.round(diffDays(tw,ws)/7);
+  const rel=d===0?'Esta semana':d===1?'Semana que viene':d===-1?'Semana pasada':d>0?`Dentro de ${d} semanas`:`Hace ${-d} semanas`;
+  const we=addDays(ws,6),y=ws.slice(0,4)!==todayK().slice(0,4)||we.slice(0,4)!==todayK().slice(0,4)?' '+we.slice(0,4):'';
+  return `${rel}<small>${d===0?shortDate(ws)+' – '+shortDate(we)+y:shortDate(ws)+' – '+shortDate(we)+y+' · volver a hoy'}</small>`;
+}
+// Deslizar el dedo sobre los días cambia de semana
+function swipeWeek(el){let x0=null,y0=null;el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  el.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)wkShift(dx<0?1:-1);},{passive:true});}
+
+function renderWeek(target){
+  const ws=weekStartK(sel),t=todayK();let html='';
+  for(let i=0;i<7;i++){
+    const k=addDays(ws,i),st=dayStats(k),p=st.total?st.done/st.total:0;
+    html+=`<button class="wd ${k===sel?'sel':''} ${k===t?'today':''} ${k>t?'fut':''}" onclick="pick('${k}')">
+      <span class="wd-l">${DOW_L[dow(k)]}</span>
+      <span class="wd-r">${ring(k>t?0:p,32,3,'var(--acc)')}<b>${pk(k).getDate()}</b></span></button>`;
+  }
+  $(target||'#wkDays').innerHTML=html;
+  const lb=$(target==='#agWeek'?'#agLbl':'#wkLbl');if(lb)lb.innerHTML=weekLabel();
+}
+
+function renderHoy(){
+  const k=sel,t=todayK();
+  $('#hoyTitle').textContent=k===t?'Hoy':k===addDays(t,-1)?'Ayer':k===addDays(t,1)?'Mañana':DOW_N[dow(k)];
+  $('#hoySub').textContent=longDate(k)+(pk(k).getFullYear()!==new Date().getFullYear()?' '+pk(k).getFullYear():'');
+  renderWeek();
+  const body=$('#hoyBody');
+
+  if(!S.habits.length){
+    body.innerHTML=`<div class="card empty"><div class="big">🗓️</div><h3>Empieza a montar tu rutina</h3>
+      <p>Añade tus hábitos uno a uno, dile qué días tocan y qué hay que hacer exactamente cada día.</p>
+      <button class="btn pri" onclick="openEditor()">+ Nuevo hábito</button>
+      <button class="btn ghost mt8" onclick="loadExamples()">Cargar hábitos de ejemplo</button></div>`;
+    return;
+  }
+  const hs=dayHabits(k);
+  const done=hs.filter(h=>isDone(h,k)).length,fut=k>t,minOn=!!(S.minDays||{})[k];
+  let html=(k===t?nowCard(k):'')+banners(k);
+  html+=`<div class="card sum">
+    <div class="sum-ring">${ring(hs.length?done/hs.length:0,64,7,'var(--acc)')}<b>${hs.length?Math.round(done/hs.length*100):0}%</b></div>
+    <div><div class="sum-t">${fut?`${hs.length} hábito${hs.length===1?'':'s'} programado${hs.length===1?'':'s'}`:hs.length?`${done} de ${hs.length} completados`:'Día libre'}</div>
+    <div class="sum-s">${fut?'Así se presenta el día':hs.length&&done===hs.length?'Día completo 🔥':hs.length?`Te falta${hs.length-done===1?'':'n'} ${hs.length-done}`:'No hay nada programado'}</div></div>
+    ${k!==t?`<button class="back-today" onclick="pick('${t}')">Hoy</button>`:hs.length?`<button class="min-btn ${minOn?'on':''}" onclick="toggleMinDay('${k}')">${minOn?'🪫 Día mínimo':'🪫 Día flojo'}</button>`:''}
+  </div>`;
+  html+=weekCard(k);
+  if(minOn)html+=`<div class="banner warn">🪫<div><b>Día mínimo activado</b><small>Cada hábito muestra su versión corta. Hazla y cuenta para la racha.</small></div></div>`;
+
+  if(!hs.length){
+    html+=`<div class="card empty"><div class="big">🌙</div><h3>Nada programado</h3><p>Descansa o adelanta algo de otro día.</p></div>`;
+  } else {
+    for(const[m,label]of MOMENTS){
+      const tt=h=>{const x=habitTime(h,k);return x&&x.start?tm(x.start):9999;};
+      const g=hs.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));
+      if(!g.length)continue;
+      html+=`<div class="sec">${label}</div>`+g.map(h=>hcHTML(h,k)).join('');
+    }
+  }
+  if(k<=addDays(t,7))html+=`<button class="btn ghost mt8" onclick="extraSheet('${k}')">➕ Añadir sesión extra</button>`;
+  const cx=S.habits.filter(h=>!h.archived&&isCancelledH(h,k)&&!hasLog(h,k));
+  if(cx.length){
+    html+=`<div class="sec">Anulados o movidos</div>`+cx.map(h=>{const o=agOv(k,'h:'+h.id);return `<div class="cx">${esc(h.emoji)} <span>${esc(h.name)} · ${o.moveTo?`movido al ${shortDate(o.moveTo)}`:'anulado'}${o.reason?` (${esc(o.reason)})`:''}</span><button onclick="evRestore('${k}','h:${h.id}')">Restaurar</button></div>`;}).join('');
+  }
+  html+=`<div class="sec">Nota del día</div><div class="card note"><textarea id="noteIn" placeholder="Cómo ha ido, sensaciones, qué ajustar…" oninput="setNote(this.value)">${esc(S.notes[k]||'')}</textarea></div>`;
+  body.innerHTML=html;
+}
+
+function metaText(h,k){
+  const e=entry(h,k)||{},parts=[];
+  const running=S.timer&&S.timer.hid===h.id&&S.timer.k===k;
+  const ht=habitTime(h,k);if(ht&&ht.start)parts.push(`🕗 ${ht.start}–${fmtT(tm(ht.end))}`);
+  if(h.type==='count')parts.push(`${fmtNum(e.v||0)} / ${h.target} ${esc(h.unit||'')}`.trim());
+  if(h.type==='time')parts.push(running?`⏱ <span id="tm-${h.id}">${fmtClock((e.v||0)*60000+Date.now()-S.timer.t0)}</span> / ${h.target} min`:`${fmtMin(e.v||0)} / ${h.target} min`);
+  if(h.type==='checklist')parts.push(`${h.steps.filter(s=>(e.steps||[]).includes(s.id)).length}/${h.steps.length} pasos`);
+  if(h.schedule.mode==='xweek')parts.push(`${weekCount(h,k)}/${h.schedule.times} esta semana`);
+  if(h.type==='check'&&!['xweek','dates'].includes(h.schedule.mode))parts.push(schedText(h));
+  if(e.min)parts.push('🪫 mínima');
+  if(e.mins!=null&&h.type!=='time')parts.push(`⏱ ${fmtDur(e.mins)}`);
+  if(e.m&&Object.keys(e.m).length)parts.push('📈');
+  const st=streaks(h);if(st.cur>0)parts.push(`🔥 ${st.cur}${st.unit==='sem'?' sem':''}`);
+  return parts.join(' · ');
+}
+
+function hcHTML(h,k){
+  const fut=k>todayK(),e=entry(h,k)||{},done=isDone(h,k),p=progress(h,k);
+  const running=S.timer&&S.timer.hid===h.id&&S.timer.k===k;
+  const dis=fut?'disabled':'';
+  let ctl='';
+  if(h.type==='check'){
+    ctl=`<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Marcar">${done?'':ring(0,46,4,h.color)}<span class="ctl-in">${done?'✓':''}</span></button>`;
+  } else if(h.type==='count'){
+    ctl=`${(e.v||0)>0&&!fut?`<button class="mini" onclick="minus('${h.id}')" aria-label="Restar">−</button>`:''}<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Sumar">${done?'':ring(p,46,4,h.color)}<span class="ctl-in">${done?'✓':'+'}</span></button>`;
+  } else if(h.type==='time'){
+    const full=done&&!running;
+    ctl=`<button class="ctl ${full?'full':''} ${running?'run':''}" onclick="act('${h.id}')" ${dis} aria-label="Cronómetro">${full?'':ring(p,46,4,h.color)}<span class="ctl-in">${running?'❚❚':full?'✓':'▶'}</span></button>`;
+  } else {
+    const c=h.steps.filter(s=>(e.steps||[]).includes(s.id)).length;
+    ctl=`<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Completar todo">${done?'':ring(p,46,4,h.color)}<span class="ctl-in">${done?'✓':`${c}/${h.steps.length}`}</span></button>`;
+  }
+  const minOn=!!(S.minDays||{})[k]&&h.minimal&&!fut;
+  const pl=minOn?{text:h.minimal,tag:'Versión mínima'}:planFor(h,k);
+  const open=cardOpen(h,k,done);
+  const plan=pl&&open?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`:'';
+  const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
+  const more=pl?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',${open?0:1})">${open?'Ocultar plan ▴':'Ver plan del día ▾'}</button>`:'';
+  const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?'✓':''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
+  return `<div class="hc ${done?'done':''}" id="hc-${h.id}" style="--hc:${h.color}">
+    <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div>
+      <button class="hc-info" onclick="cardMenu('${h.id}')"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
+      <div class="hc-ctl">${ctl}</div></div>${plan}${minBtns}${steps}${more}</div>`;
+}
+function linkLabel(u){
+  if(/youtube\.com|youtu\.be/.test(u))return '▶ Buscar en YouTube';
+  if(/google\.[a-z.]+\/search/.test(u))return '🔎 Buscar en Google';
+  try{const x=new URL(u.replace(/&amp;/g,'&'));let p=(x.pathname+x.search).replace(/\/$/,'');if(p.length>28)p=p.slice(0,27)+'…';return '↗ '+x.hostname.replace(/^www\./,'')+p;}catch(e){return 'Abrir enlace ↗';}
+}
+function linkify(l){return l.replace(/(https?:\/\/[^\s<]+)/g,u=>`<a href="${u}" target="_blank" rel="noopener">${linkLabel(u)}</a>`);}
+function fmtPlan(t){
+  return esc(t).split('\n').map(l=>{
+    const h=l.match(/^\s*#\s+(.*)/);
+    if(h)return `<div class="pl-h">${linkify(h[1])}</div>`;
+    const m=l.match(/^\s*[-•*]\s+(.*)/);
+    if(m)return `<div class="pl-li">${linkify(m[1])}</div>`;
+    return l.trim()?`<div>${linkify(l)}</div>`:'<div class="pl-gap"></div>';
+  }).join('');
+}
+
+/* Acciones */
+function ens(h,k){_wc=null;S.logs[k]=S.logs[k]||{};const e=S.logs[k][h.id]=S.logs[k][h.id]||{v:0,steps:[]};e.steps=e.steps||[];return e;}
+function clean(h,k){
+  const L=S.logs[k];if(!L)return;const e=L[h.id];
+  if(e&&!e.v&&!e.min&&!(e.mins>0)&&!(e.steps&&e.steps.length)&&!(e.m&&Object.keys(e.m).length)&&!e.note)delete L[h.id];
+  if(!Object.keys(L).length)delete S.logs[k];
+}
+function commit(h,k,was){
+  clean(h,k);save();
+  const now=isDone(h,k);
+  const acts=[undoAct()];if(now&&!was&&(h.metrics||[]).length)acts.push(['📈 Registrar',()=>metricSheet(h.id,k)]);
+  if(now&&!was){
+    buzz();
+    const st=dayStats(k);
+    toast(st.total&&st.done===st.total?(k===todayK()?'¡Todo hecho hoy! 🔥':'¡Día completo! 🔥'):`✓ ${h.name}`,acts);
+  } else toast(now?'Actualizado':was?`${h.name} desmarcado`:'Guardado',acts);
+  render();
+  if(now&&!was){const el=document.getElementById('hc-'+h.id);if(el){el.classList.add('pop');}}
+}
+function act(id){
+  const h=getH(id),k=sel;if(!h)return;
+  if(k>todayK())return toast('Ese día aún no ha llegado');
+  pushUndo();
+  if(h.type==='time'){if(k!==todayK())return valueSheet(id);return toggleTimer(h,k);}
+  const was=isDone(h,k),e=ens(h,k);
+  if(h.type==='check')e.v=e.v?0:1;
+  else if(h.type==='count')e.v=r2((e.v||0)+(+h.step||1));
+  else{const all=h.steps.every(s=>e.steps.includes(s.id));e.steps=all?[]:h.steps.map(s=>s.id);}
+  commit(h,k,was);
+}
+function minus(id){
+  const h=getH(id),k=sel;if(!h||k>todayK())return;pushUndo();
+  const was=isDone(h,k),e=ens(h,k);e.v=Math.max(0,r2((e.v||0)-(+h.step||1)));commit(h,k,was);
+}
+function stepT(hid,sid){
+  const h=getH(hid),k=sel;if(!h||k>todayK())return;pushUndo();
+  const was=isDone(h,k),e=ens(h,k);
+  e.steps=e.steps.includes(sid)?e.steps.filter(x=>x!==sid):[...e.steps,sid];
+  commit(h,k,was);
+}
+function setNote(v){const k=sel;if(v.trim())S.notes[k]=v;else delete S.notes[k];clearTimeout(setNote._t);setNote._t=setTimeout(save,400);}
+
+/* Cronómetro */
+function toggleTimer(h,k){
+  const T=S.timer;
+  if(T&&T.hid===h.id&&T.k===k)return stopTimer();
+  if(T)stopTimer(true);
+  S.timer={hid:h.id,k,t0:Date.now()};save();render();toast('⏱ Cronómetro en marcha');
+}
+function stopTimer(silent){
+  const T=S.timer;if(!T)return;S.timer=null;
+  const h=getH(T.hid);if(!h){save();return;}
+  const add=(Date.now()-T.t0)/60000;
+  const was=isDone(h,T.k),e=ens(h,T.k);e.v=r2((e.v||0)+add);
+  if(!silent)toast(`+${fmtMin(add)} guardados`);
+  commit(h,T.k,was);
+}
+setInterval(()=>{
+  const T=S.timer,pill=$('#timerPill');
+  if(!T){pill.classList.remove('on');return;}
+  const h=getH(T.hid);if(!h)return;
+  const ms=((entry(h,T.k)||{}).v||0)*60000+Date.now()-T.t0;
+  if(!T.notified&&ms>=(h.target||0)*60000){T.notified=true;save();buzz();notify(`⏱ ${h.name}: objetivo de ${h.target} min cumplido`,'Puedes parar el cronómetro cuando quieras.');toast(`⏱ ${h.name}: ${h.target} min cumplidos 🎉`);}
+  const el=document.getElementById('tm-'+T.hid);if(el&&view==='hoy')el.textContent=fmtClock(ms);
+  pill.textContent=`⏱ ${h.emoji} ${h.name} · ${fmtClock(ms)}`;pill.classList.toggle('on',view!=='hoy');
+},1000);
+
+/* Menú de la tarjeta */
+function cardMenu(id){
+  const h=getH(id);if(!h)return;const k=sel,e=entry(h,k);
+  openSheet(`<div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">${longDate(k)}</div>
+    ${(h.type==='count'||h.type==='time')&&k<=todayK()?`<button class="row-btn" onclick="valueSheet('${id}')">✍️<div>Introducir ${h.type==='time'?'minutos':'cantidad'}<small>Escribir el valor a mano</small></div></button>`:''}
+    <button class="row-btn" onclick="fullPlan('${id}','${k}')">🗓️<div>Ver todo el plan<small>Todas las sesiones, día a día${h.goal?' hasta: '+esc(h.goal.label):''}</small></div></button>
+    ${k<=todayK()?`<button class="row-btn" onclick="minsSheet('${id}','${k}')">⏱<div>Tiempo que has hecho${h.type==='time'?'':`: ${fmtDur(minsOf(h,k))}`}<small>Si haces más (o menos) de lo previsto, cuenta para tu total semanal</small></div></button>`:''}
+    ${h.guide?`<button class="row-btn" onclick="guideSheet('${id}')">📘<div>Guía: qué necesitas y cómo usarlo<small>Material, apps y libros de este hábito</small></div></button>`:''}
+    ${(h.metrics&&h.metrics.length)||true?`<button class="row-btn" onclick="metricSheet('${id}','${k}')">📈<div>Registrar progreso<small>${(h.metrics||[]).length?esc(h.metrics.map(m=>m.label).slice(0,2).join(' · ')):'Nota de la sesión'}</small></div></button>`:''}
+    ${h.minimal&&k<=todayK()&&!isDone(h,k)?`<button class="row-btn" onclick="closeSheet();sel='${k}';doMin('${id}')">🪫<div>Hoy solo la versión mínima<small>${esc(h.minimal.split('\n')[0].replace('🪫 ',''))}</small></div></button>`:''}
+    <button class="row-btn" onclick="quickMove('${k}','${id}')">⏭️<div>Pasarlo a mañana</div></button>
+    <button class="row-btn" onclick="evSheet('${k}','h:${id}')">🗓️<div>Anular, cambiar la hora o mover<small>Se refleja en la agenda, en Hoy y en las estadísticas</small></div></button>
+    <button class="row-btn" onclick="dayPlanSheet('${id}')">📝<div>Plan de este día<small>Qué hacer exactamente solo este día</small></div></button>
+    <button class="row-btn" onclick="openDetail('${id}')">📊<div>Estadísticas y mapa de calor</div></button>
+    <button class="row-btn" onclick="openEditor('${id}')">✏️<div>Editar hábito</div></button>
+    ${e?`<button class="row-btn danger" onclick="clearDay('${id}')">↺<div>Borrar el registro de este día</div></button>`:''}`);
+}
+function guideSheet(id){
+  const h=getH(id);if(!h||!h.guide)return;
+  openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">Antes de empezar</div><div class="hc-plan">${fmtPlan(h.guide)}</div><div class="btns"><button class="btn ghost" onclick="closeSheet()">Cerrar</button></div></div>`);
+}
+function clearDay(id){
+  const h=getH(id),k=sel;if(S.logs[k])delete S.logs[k][h.id];
+  if(S.timer&&S.timer.hid===id&&S.timer.k===k)S.timer=null;
+  clean(h,k);save();closeSheet();render();toast('Registro borrado');
+}
+function valueSheet(id){
+  const h=getH(id),e=entry(h,sel)||{};
+  openSheet(`<div class="sheet-title">${esc(h.emoji)} ${esc(h.name)}</div><div class="sub">${longDate(sel)}</div>
+    <label class="lbl">${h.type==='time'?'Minutos':'Cantidad'+(h.unit?' ('+esc(h.unit)+')':'')} · objetivo ${h.target}</label>
+    <input id="valIn" type="number" inputmode="decimal" step="any" min="0" value="${fmtNum(e.v||0)}">
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveVal('${id}')">Guardar</button></div>`);
+  setTimeout(()=>{const i=$('#valIn');i&&i.select();},300);
+}
+function saveVal(id){
+  const h=getH(id),k=sel,v=parseFloat(String($('#valIn').value).replace(',','.'))||0;
+  pushUndo();const was=isDone(h,k),e=ens(h,k);e.v=Math.max(0,r2(v));closeSheet();commit(h,k,was);
+}
+function dayPlanSheet(id){
+  const h=getH(id),k=sel,own=h.plan&&h.plan.dates&&h.plan.dates[k],cur=planFor(h,k);
+  openSheet(`<div class="sheet-title">📝 Plan de este día</div><div class="sub">${esc(h.emoji)} ${esc(h.name)} · ${longDate(k)}</div>
+    <label class="lbl">Qué hay que hacer</label>
+    <textarea id="dpIn" rows="8" placeholder="Ej.:&#10;- Calentamiento 10 min&#10;- 4×8 sentadilla a 60 kg&#10;- Estiramientos">${esc(cur?cur.text:'')}</textarea>
+    <p class="hint">Empieza una línea con «- » para hacer una lista. Solo cambia este día${showOn(h,k)?'':'; además, el hábito aparecerá ese día aunque no le toque'}.</p>
+    <div class="btns">${own?`<button class="btn ghost" onclick="resetDayPlan('${id}')">Volver al plan normal</button>`:`<button class="btn ghost" onclick="closeSheet()">Cancelar</button>`}<button class="btn pri" onclick="saveDayPlan('${id}')">Guardar</button></div>`);
+}
+function saveDayPlan(id){
+  const h=getH(id),k=sel,v=$('#dpIn').value.replace(/\s+$/,'');
+  h.plan=h.plan||{mode:'none'};h.plan.dates=h.plan.dates||{};
+  const base=(()=>{const d=h.plan.dates[k];delete h.plan.dates[k];const p=planFor(h,k);if(d)h.plan.dates[k]=d;return p?p.text:'';})();
+  if(v.trim()&&v!==base)h.plan.dates[k]=v;else delete h.plan.dates[k];
+  save();closeSheet();render();toast('Plan del día guardado');
+}
+function resetDayPlan(id){const h=getH(id);if(h.plan&&h.plan.dates)delete h.plan.dates[sel];save();closeSheet();render();toast('Vuelve el plan normal');}
+
+/* ═════════════ AGENDA ═════════════ */
+const KIND={fijo:['Obligatorio','#F97316'],habito:['Hábito',null],comida:['Comida','#84CC16'],trayecto:['Trayecto','#64748B'],libre:['Tiempo libre','#55555F'],sueno:['Sueño','#6366F1'],rutina:['Rutina','#94A3B8']};
+const KIND_COLOR={clase:'#60A5FA',futbol:'#F97316',partido:'#F97316',mimi:'#E879F9'};
+let agView='day';
+const AG0=6*60,AG1=24*60+40;
+function evColor(e){if(e.kind==='habito'){const h=getH(e.habit);return h?h.color:'#22C55E';}return KIND_COLOR[e.id]||KIND[e.kind][1];}
+function evIcon(e){if(e.kind==='habito'){const h=getH(e.habit);return h?h.emoji:'•';}return {clase:'🎓',futbol:'⚽',partido:'⚽',mimi:'🏃‍♀️',desayuno:'☕',comida:'🍽️',cena:'🍽️',merienda:'🍎',taper:'🥡',dormir:'😴'}[e.id]||{trayecto:'🚶',libre:'·',comida:'🍽️'}[e.kind]||'';}
+function dayEvents(k){
+  const out=[];
+  for(const e of (S.agendaBase||{})[k]||[]){
+    const o=agOv(k,e.id);if(o&&o.moveTo)continue;
+    const ev={...e,date:k};
+    if(o){if(o.cancel){ev.cancelled=true;ev.reason=o.reason||'';}if(o.start){ev.start=o.start;ev.end=o.end;ev.edited=true;}}
+    if(e.id==='h:fuerza'&&classCancelled(k)){const hp=getH('fuerza'),pe=hp&&hp.plan&&hp.plan.program&&hp.plan.program[k];if(pe&&pe.alt)ev.title='Fuerza / calistenia · sesión completa (sin clase)';}
+    out.push(ev);
+  }
+  const ag=(S.agenda||{})[k]||{};
+  for(const id in ag){
+    if(!id.startsWith('in:'))continue;
+    const o=ag[id],hid=id.slice(3),h=getH(hid);if(!h)continue;
+    const src=(o.from&&baseEvent(o.from,'h:'+hid))||{id:'h:'+hid,title:h.name,kind:'habito',habit:hid};
+    out.push(o.extra?{...src,id:'h:'+hid,date:k,start:o.start,end:o.end,extra:true,title:h.name+' · extra'}:{...src,id:'h:'+hid,date:k,start:o.start,end:o.end,moved:o.from});
+  }
+  return out.filter(e=>e.start).sort((a,b)=>tm(a.start)-tm(b.start)||tm(a.end)-tm(b.end));
+}
+function layout(evs){ // reparte en columnas los bloques que se solapan
+  const res=[];let cluster=[],cEnd=-1;
+  const flush=()=>{const lanes=[];for(const e of cluster){let i=lanes.findIndex(end=>end<=tm(e.start));if(i<0){i=lanes.length;lanes.push(0);}lanes[i]=tm(e.end);e._lane=i;}for(const e of cluster)e._lanes=lanes.length;res.push(...cluster);cluster=[];};
+  for(const e of evs){if(cluster.length&&tm(e.start)>=cEnd){flush();cEnd=-1;}cluster.push(e);cEnd=Math.max(cEnd,tm(e.end));}
+  flush();return res;
+}
+function renderAgenda(){
+  const k=sel,t=todayK();
+  $('#agTitle').textContent=k===t?'Agenda · hoy':'Agenda';
+  $('#agSub').textContent=longDate(k);
+  renderWeek('#agWeek');
+  const body=$('#agBody');
+  const seg=`<div class="ag-bar"><div class="seg">${[['day','Día'],['3','3 días'],['week','Semana']].map(([v,l])=>`<button class="${agView===v?'on':''}" onclick="agView='${v}';renderAgenda()">${l}</button>`).join('')}</div></div>`;
+  const legend=`<div class="ag-legend"><span><i style="background:#F97316"></i>Obligatorio</span><span><i style="background:#60A5FA"></i>Clase</span><span><i style="background:#22C55E"></i>Hábitos (su color)</span><span><i style="background:#84CC16"></i>Comidas</span><span><i style="background:#64748B"></i>Trayectos</span><span><i style="border:1px dashed var(--dim)"></i>Libre</span></div>`;
+  const evs=dayEvents(k);
+  if(!evs.length&&agView==='day'){
+    const until=S.agendaUntil;
+    body.innerHTML=seg+`<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda para este día</h3><p>${until&&k>until?`La agenda está hecha hasta el ${shortDate(until)}. Pásame el horario del 2.º cuatrimestre y la alargo.`:'Todavía no hay agenda cargada. Se carga sola con el plan.'}</p></div>`;
+    return;
+  }
+  if(agView==='week'||agView==='3'){body.innerHTML=seg+legend+classesNote(k)+weekGrid(agView==='3'?3:7);return;}
+  const PX=1.1,H=(AG1-AG0)*PX;
+  let html=`<div class="ag-day" style="height:${H+10}px">`;
+  for(let m=AG0,i=0;m<AG1;m+=60,i++)html+=`<div class="ag-hour ${i%2?'alt':''}" style="top:${(m-AG0)*PX}px;height:${Math.min(60,AG1-m)*PX}px"><span>${pad((m/60)%24)}:00</span></div>`;
+  for(const e of layout(evs.map(e=>({...e})))){
+    const s=Math.max(tm(e.start),AG0),en=Math.min(tm(e.end),AG1),top=(s-AG0)*PX,h=Math.max(16,(en-s)*PX-2);
+    const w=`calc((100% - 44px) / ${e._lanes})`,left=`calc(44px + (100% - 44px) / ${e._lanes} * ${e._lane})`;
+    const hb=e.habit?getH(e.habit):null,done=hb&&isDone(hb,k);
+    const flags=(e.cancelled?' · anulado':'')+(e.edited?' · ✏️':'')+(e.moved?' · ↪':'');
+    const short=h<34;
+    html+=`<button class="ag-ev ${e.kind} ${e.cancelled?'cancel':''} ${short?'short':''}" style="--c:${evColor(e)};top:${top}px;height:${h}px;width:${w};left:${left}" onclick="evSheet('${k}','${e.id}')">
+      <b>${evIcon(e)} ${esc(e.title)}${done?' <span class="ok">✓</span>':''}</b><small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}${flags}</small></button>`;
+  }
+  if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();if(m>=AG0&&m<=AG1)html+=`<div class="ag-now" style="top:${(m-AG0)*PX}px"></div>`;}
+  html+=`</div>`;
+  body.innerHTML=seg+legend+classesNote(k)+html;
+  if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();setTimeout(()=>{const y=$('#agBody').getBoundingClientRect().top+window.scrollY+(m-AG0)*PX-160;if(m>AG0)window.scrollTo({top:Math.max(0,y),behavior:'smooth'});},60);}
+}
+const WEEK_SHORT={'h:fr':'Francés','h:en':'Inglés','h:estudio':'Estudio','h:dx':'Dx diferencial','h:fuerza':'Fuerza','h:boxeo':'Boxeo',futbol:'Fútbol (fisio)',partido:'Partido (fisio)',mimi:'Tirada con Mimi',comida:'Comida',cena:'Cena'};
+function weekRelevant(e){ // en la semana solo lo importante; el detalle está en la vista Día
+  if(e.kind==='habito'||e.kind==='fijo')return true;
+  return (e.id==='comida'||e.id==='cena')&&tm(e.end)-tm(e.start)>=30;
+}
+function classesNote(k){const c=S.classesKnownUntil;return c&&k>c?`<div class="banner warn">🎓<div><b>Clases de este periodo sin añadir</b><small>Tengo tu horario hasta el ${shortDate(c)}. Pásamelo y ajusto entreno y agenda.</small></div></div>`:'';}
+function weekGrid(n=7){
+  const ws=n===7?weekStartK(sel):sel,t=todayK(),HP=52;
+  const days=[...Array(n)].map((_,i)=>addDays(ws,i));
+  const evs=days.map(k=>dayEvents(k).filter(weekRelevant));
+  const all=evs.flat();
+  if(!all.length)return `<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda esta semana</h3><p>${S.agendaUntil?`La agenda está hecha hasta el ${shortDate(S.agendaUntil)}.`:''}</p></div>`;
+  const h0=Math.max(6,Math.floor(Math.min(...all.map(e=>tm(e.start)))/60)),h1=Math.min(24,Math.ceil(Math.max(...all.map(e=>tm(e.end)))/60));
+  const H=(h1-h0)*HP,PX=HP/60;
+  const lines=`background-image:linear-gradient(to bottom,var(--border) 1px,transparent 1px);background-size:100% ${HP}px`;
+  let html=`<div class="agw-wrap" id="agwWrap"><div class="agw" style="${n===3?'grid-template-columns:40px repeat(3,1fr);min-width:0':''}"><div class="agw-hd" style="cursor:default"></div>`;
+  days.forEach(k=>{html+=`<div class="agw-hd ${k===t?'today':''} ${k===sel?'sel':''}" onclick="sel='${k}';agView='day';renderAgenda()"><b>${DOW_N[dow(k)].slice(0,3)}</b><span>${pk(k).getDate()}</span></div>`;});
+  html+=`<div class="agw-hrs" style="height:${H}px">`;
+  for(let h=h0+1;h<h1;h++)html+=`<span style="top:${(h-h0)*HP}px">${pad(h)}:00</span>`;
+  html+=`</div>`;
+  days.forEach((k,i)=>{
+    html+=`<div class="agw-day" style="height:${H}px;${lines}">`;
+    for(const e of layout(evs[i].map(x=>({...x})))){
+      const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60),top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
+      const w=100/e._lanes,title=WEEK_SHORT[e.id]||e.title.replace(/ · /,' ');
+      const hb=e.habit?getH(e.habit):null,ok=hb&&isDone(hb,k)?' ✓':'';
+      html+=`<button class="agw-ev ${e.cancelled?'cancel':''}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 2px);width:calc(${w}% - 4px);right:auto" onclick="evSheet('${k}','${e.id}')"><b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}</small>`:''}</button>`;
+    }
+    html+=`</div>`;
+  });
+  html+=`</div></div><p class="hint" style="text-align:center">Solo lo importante. Toca un día para verlo entero (comidas, trayectos y huecos) o un bloque para modificarlo.</p>`;
+  if(n===7)setTimeout(()=>{const w=$('#agwWrap');if(!w)return;const i=days.indexOf(sel);if(i>2)w.scrollLeft=(i-2)*80;},30);
+  return html;
+}
+function evSheet(k,id){
+  let ev=dayEvents(k).find(e=>e.id===id);
+  if(!ev&&id.startsWith('h:')){const h=getH(id.slice(2));if(!h)return;const o=agOv(k,id);ev={id,title:h.name,kind:'habito',habit:h.id,start:'',end:'',cancelled:!!(o&&(o.cancel||o.moveTo)),reason:o&&o.reason};}
+  if(!ev)return;
+  const h=ev.habit?getH(ev.habit):null,o=agOv(k,id)||{},mi=h?agOv(k,'in:'+h.id):null;
+  const kindLbl=ev.kind==='habito'?'Hábito':KIND[ev.kind][0];
+  const plan=h?planFor(h,k):null;
+  const status=h&&!ev.cancelled?(isDone(h,k)?'<span class="badge">✓ Hecho</span>':'<span class="badge">Pendiente</span>'):'';
+  const badges=(ev.cancelled?`<span class="badge bad">Anulado${ev.reason?': '+esc(ev.reason):''}</span>`:'')+(ev.edited?'<span class="badge warn">Hora cambiada</span>':'')+(ev.moved?`<span class="badge warn">Movido desde el ${shortDate(ev.moved)}</span>`:'')+(ev.extra?'<span class="badge">➕ Sesión extra</span>':'');
+  const canEdit=!ev.cancelled;
+  const tomorrow=addDays(k,1);
+  openSheet(`<div style="--hc:${evColor(ev)}">
+    <div class="sheet-title">${evIcon(ev)} ${esc(ev.title)}</div>
+    <div class="sub">${longDate(k)}${ev.start?` · ${fmtT(tm(ev.start))}–${fmtT(tm(ev.end))}`:''} · ${kindLbl}</div>
+    <div>${badges}${status}</div>
+    ${ev.detail?`<p class="hint">${esc(ev.detail)}</p>`:''}
+    ${plan&&plan.text?`<div class="hc-plan" style="margin-top:12px">${plan.tag?`<div class="pl-tag">${esc(plan.tag)}</div>`:''}${fmtPlan(plan.text)}</div>`:''}
+    ${h&&!ev.cancelled?`<div class="btns"><button class="btn ghost" onclick="closeSheet();go('hoy')">Ver en Hoy</button>${k<=todayK()&&h.type!=='time'?`<button class="btn pri" onclick="act('${h.id}');evSheet('${k}','${id}')">${isDone(h,k)?'Desmarcar':'Marcar hecho'}</button>`:''}</div>`:''}
+    ${ev.cancelled?`<div class="btns"><button class="btn pri" onclick="evRestore('${k}','${id}')">↺ Restaurar</button></div>`:`
+      ${ev.start?`<label class="lbl">Cambiar la hora</label>
+      <div class="ev-row"><input type="time" id="evS" value="${fmtT(tm(ev.start))}"><span>→</span><input type="time" id="evE" value="${fmtT(tm(ev.end))}"></div>
+      <div class="btns" style="margin-top:8px"><button class="btn ghost" onclick="evSetTime('${k}','${id}')">Guardar hora</button></div>`:''}
+      ${ev.extra?`<div class="btns"><button class="btn danger" onclick="removeExtra('${k}','${h.id}')">Quitar sesión extra</button></div>`:''}
+      ${h&&!ev.moved&&!ev.extra?`<label class="lbl">Mover a otro día</label>
+      <div class="btns" style="margin-top:0"><button class="btn ghost" onclick="quickMove('${k}','${h.id}')">⏭️ A mañana</button></div>
+      <div class="ev-row" style="margin-top:8px"><input type="date" id="evD" value="${tomorrow}"><button class="btn ghost" style="width:auto;padding:12px 16px" onclick="evMove('${k}','${id}')">Mover</button></div>`:''}
+      ${!ev.moved&&!ev.extra?`<label class="lbl">Anular solo este día</label>
+      <input id="evR" placeholder="Motivo (opcional): no hay clase, lesión, viaje…">
+      <div class="btns" style="margin-top:8px"><button class="btn danger" onclick="evCancel('${k}','${id}')">Anular este día</button></div>`:''}
+      ${(ev.edited||ev.moved)?`<div class="btns"><button class="btn ghost" onclick="evRestore('${k}','${id}')">↺ Dejarlo como estaba</button></div>`:''}`}
+    ${h?`<p class="hint">Los cambios en un hábito se reflejan en Hoy, en las rachas y en las estadísticas: un día anulado no cuenta como fallo.</p>`:ev.kind==='fijo'?`<p class="hint">Si se anula o cambia algo obligatorio (por ejemplo, no hay clase), puedes mover aquí mismo el entreno u otro hábito de ese día.</p>`:''}
+  </div>`);
+}
+function afterAg(msg){save();closeSheet();render();toast(msg,[undoAct()]);}
+function overlaps(k,id,s,e){return dayEvents(k).filter(x=>x.id!==id&&!x.cancelled&&!['libre','sueno','trayecto'].includes(x.kind)&&tm(x.start)<e&&tm(x.end)>s).map(x=>x.title);}
+function evSetTime(k,id){
+  const s=$('#evS').value,e=$('#evE').value;
+  if(!s||!e||tm(e)<=tm(s))return toast('La hora de fin tiene que ser posterior');
+  pushUndo();
+  const hid=id.startsWith('h:')?id.slice(2):null,mi=hid?agOv(k,'in:'+hid):null;
+  if(mi){agSet(k,'in:'+hid,{...mi,start:s,end:e});}
+  else{const b=baseEvent(k,id);if(b&&b.start===s&&fmtT(tm(b.end))===e)agSet(k,id,null);else agSet(k,id,{start:s,end:e});}
+  const ov=overlaps(k,id,tm(s),tm(e));
+  afterAg(ov.length?`Hora cambiada · ojo, se solapa con: ${ov[0]}`:'Hora cambiada');
+}
+function evCancel(k,id){
+  const r=($('#evR')||{}).value||'';
+  pushUndo();
+  agSet(k,id,{cancel:true,reason:r.trim()});
+  if(S.timer&&id==='h:'+S.timer.hid&&S.timer.k===k)S.timer=null;
+  const h=getH('fuerza'),pe=h&&h.plan&&h.plan.program&&h.plan.program[k];
+  afterAg(id==='clase'&&pe&&pe.alt?'Clase anulada · el entreno pasa a sesión completa':'Anulado este día');
+}
+function evMove(k,id,toArg){
+  const to=toArg||$('#evD').value,hid=id.slice(2),h=getH(hid);
+  if(!to||to===k)return toast('Elige otro día');
+  if(isDone(h,k))return toast(`${h.name} ya está hecho ese día: no hace falta moverlo`);
+  if(showOn(h,to))return toast(`Ese día ya tienes ${h.name}`);
+  pushUndo();
+  const t=habitTime(h,k)||{start:'18:00',end:'19:00'};
+  const slot=freeSlot(to,tm(t.end)-tm(t.start),tm(t.start));
+  agSet(k,id,{moveTo:to});agSet(to,'in:'+hid,{from:k,start:fmtT(slot),end:fmtT(slot+tm(t.end)-tm(t.start))});
+  if(S.timer&&S.timer.hid===hid&&S.timer.k===k)S.timer=null;
+  afterAg(`Movido al ${shortDate(to)} a las ${fmtT(slot)}${slot!==tm(t.start)?' (primer hueco libre)':''}`);
+}
+function quickMove(k,hid){closeSheet();evMove(k,'h:'+hid,addDays(k,1));}
+// Busca el primer hueco libre del día a partir de la hora preferida (sin chocar con nada que no sea tiempo libre)
+function freeSlot(k,dur,pref){
+  const busy=dayEvents(k).filter(e=>!e.cancelled&&!['libre'].includes(e.kind)).map(e=>[tm(e.start),tm(e.end)]);
+  const fits=s=>s>=7*60&&s+dur<=23*60&&!busy.some(([a,b])=>s<b&&s+dur>a);
+  if(fits(pref))return pref;
+  for(let d=15;d<=16*60;d+=15){if(fits(pref+d))return pref+d;if(fits(pref-d))return pref-d;}
+  return pref;
+}
+function evRestore(k,id){
+  pushUndo();
+  const hid=id.startsWith('h:')?id.slice(2):null;
+  const mi=hid?agOv(k,'in:'+hid):null;
+  if(mi){agSet(mi.from,'h:'+hid,null);agSet(k,'in:'+hid,null);return afterAg('Vuelve a su día');}
+  const o=agOv(k,id);
+  if(o&&o.moveTo&&hid)agSet(o.moveTo,'in:'+hid,null);
+  agSet(k,id,null);afterAg('Restaurado');
+}
+
+/* ═════════════ HÁBITOS ═════════════ */
+function weeksSince(k0,max,min=8){const t=todayK();if(!k0||k0>t)return min;return Math.max(min,Math.min(max,Math.floor(diffDays(weekStartK(k0),weekStartK(t))/7)+1));}
+function heatCells(h,weeks,big){
+  const t=todayK(),start=addDays(weekStartK(t),-7*(weeks-1));let cells='';
+  for(let d=0;d<7;d++)for(let w=0;w<weeks;w++){
+    const k=addDays(start,7*w+d);cells+=`<i style="background:${cellColor(h,k,t)}"></i>`;
+  }
+  let months='';
+  if(big){let prev=-1;for(let w=0;w<weeks;w++){const m=pk(addDays(start,7*w)).getMonth();months+=`<span>${m!==prev?MES[m]:''}</span>`;prev=m;}}
+  return{cells,months};
+}
+function cellColor(h,k,t){
+  if(k>t)return 'transparent';
+  if(k<h.start)return '#121217';
+  const p=progress(h,k);
+  if(p>=1)return h.color;
+  if(p>0)return hexA(h.color,'66');
+  return showOnBase(h,k)?'#24242C':'#18181E';
+}
+function renderHab(){
+  const act=S.habits.filter(h=>!h.archived),arch=S.habits.filter(h=>h.archived);
+  $('#habSub').textContent=`${act.length} activo${act.length===1?'':'s'}${arch.length?` · ${arch.length} archivado${arch.length===1?'':'s'}`:''}`;
+  if(!S.habits.length){
+    $('#habBody').innerHTML=`<div class="card empty"><div class="big">✨</div><h3>Aún no hay hábitos</h3><p>Crea el primero o carga unos ejemplos para ver cómo funciona.</p>
+      <button class="btn pri" onclick="openEditor()">+ Nuevo hábito</button><button class="btn ghost mt8" onclick="loadExamples()">Cargar hábitos de ejemplo</button></div>`;
+    return;
+  }
+  const card=h=>{
+    const W=weeksSince(h.start,26,10);
+    const st=streaks(h),r=habitRate(h,30),hm=heatCells(h,W,false);
+    return `<button class="hl" style="--hc:${h.color}" onclick="openDetail('${h.id}')">
+      <div class="hl-top"><span class="hc-ico sm">${esc(h.emoji)}</span>
+      <div class="hl-name"><div>${esc(h.name)}</div><div class="hl-sub">${schedText(h)}${targetText(h)?' · '+esc(targetText(h)):''}${st.cur?` · 🔥 ${st.cur}${st.unit==='sem'?' sem':''}`:''}</div></div>
+      <span class="hl-pct">${r===null?'—':Math.round(r*100)+'%'}</span></div>
+      <div class="hm" style="grid-template-columns:repeat(${W},1fr)">${hm.cells}</div></button>`;
+  };
+  let html=act.map(card).join('');
+  if(arch.length)html+=`<div class="sec">Archivados</div>`+arch.map(card).join('');
+  $('#habBody').innerHTML=html;
+}
+
+function openDetail(id){
+  const h=getH(id);if(!h)return;
+  const st=streaks(h),r=habitRate(h,30),tot=countDone(h),W=weeksSince(h.start,53,12),hm=heatCells(h,W,true);
+  const idx=S.habits.indexOf(h);
+  const dp=Object.keys((h.plan&&h.plan.dates)||{}).filter(k=>k>=todayK()).sort();
+  openSheet(`<div style="--hc:${h.color}">
+    <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div><div class="hc-info"><div class="sheet-title" style="margin:0">${esc(h.name)}</div>
+      <div class="hc-meta">${schedText(h)}${targetText(h)?' · '+esc(targetText(h)):''} · desde ${shortDate(h.start)}</div></div></div>
+    ${h.desc?`<p class="hint">${esc(h.desc)}</p>`:''}
+    <div class="det-kpis">
+      <div><b>${st.cur}</b><span>Racha${st.unit==='sem'?' sem':''}</span></div>
+      <div><b>${st.best}</b><span>Mejor</span></div>
+      <div><b>${r===null?'—':Math.round(r*100)+'%'}</b><span>30 días</span></div>
+      <div><b>${tot}</b><span>Total</span></div>
+    </div>
+    <div class="hm-wrap" id="hmWrap"><div class="hm-months" style="grid-template-columns:repeat(${W},13px)">${hm.months}</div>
+      <div class="hm-big" style="grid-template-columns:repeat(${W},13px)">${hm.cells}</div></div>
+    ${weekHistBlock(h)}
+    ${metricsBlock(h)}
+    ${dp.length?`<div class="sec">Planes de días concretos</div>${dp.map(k=>`<div class="dp-item"><div><b>${longDate(k)}</b>${esc(h.plan.dates[k])}</div></div>`).join('')}`:''}
+    ${goalBox(h)}
+    <div class="btns"><button class="btn pri" onclick="fullPlan('${id}')">🗓️ Ver todo el plan</button></div>
+    <div class="btns" style="margin-top:8px">${h.guide?`<button class="btn ghost" onclick="guideSheet('${id}')">📘 Guía</button>`:''}<button class="btn ghost" onclick="openEditor('${id}')">✏️ Editar</button></div>
+    <div class="btns" style="margin-top:8px">
+      <button class="btn ghost" onclick="moveH('${id}',-1)" ${idx===0?'disabled style="opacity:.4"':''}>↑ Subir</button>
+      <button class="btn ghost" onclick="moveH('${id}',1)" ${idx===S.habits.length-1?'disabled style="opacity:.4"':''}>↓ Bajar</button>
+    </div>
+    <div class="btns" style="margin-top:8px">
+      <button class="btn ghost" onclick="archiveH('${id}')">${h.archived?'📤 Desarchivar':'🗄️ Archivar'}</button>
+      <button class="btn danger" onclick="deleteH('${id}')">🗑️ Eliminar</button>
+    </div></div>`);
+  setTimeout(()=>{const w=$('#hmWrap');if(w)w.scrollLeft=w.scrollWidth;},50);
+}
+function moveH(id,d){const i=S.habits.findIndex(h=>h.id===id),j=i+d;if(j<0||j>=S.habits.length)return;[S.habits[i],S.habits[j]]=[S.habits[j],S.habits[i]];save();openDetail(id);render();}
+function archiveH(id){const h=getH(id);h.archived=!h.archived;if(S.timer&&S.timer.hid===id)S.timer=null;save();closeSheet();render();toast(h.archived?'Hábito archivado':'Hábito recuperado');}
+async function deleteH(id){
+  const h=getH(id);if(!await ask(`Se eliminará «${h.name}» y todo su historial. No se puede deshacer.`,'Eliminar',true))return;
+  S.habits=S.habits.filter(x=>x.id!==id);
+  for(const k in S.logs){delete S.logs[k][id];if(!Object.keys(S.logs[k]).length)delete S.logs[k];}
+  if(S.timer&&S.timer.hid===id)S.timer=null;
+  save();closeSheet();render();toast('Hábito eliminado');
+}
+
+/* ═════════════ EDITOR ═════════════ */
+function blankHabit(){
+  return{id:uid(),name:'',desc:'',emoji:'💪',color:COLORS[S.habits.length%COLORS.length],type:'check',target:1,unit:'',step:1,steps:[],
+    moment:'any',start:todayK(),archived:false,
+    schedule:{mode:'daily',days:[1,2,3,4,5],times:3,n:2,dates:[]},
+    plan:{mode:'none',weekly:{},cycle:['',''],dates:{},program:{}}};
+}
+function openEditor(id){
+  const h=id?getH(id):null;
+  D=JSON.parse(JSON.stringify(h||blankHabit()));D._new=!h;
+  D.schedule=Object.assign({days:[1,2,3,4,5],times:3,n:2,dates:[]},D.schedule);
+  D.plan=Object.assign({mode:'none',weekly:{},cycle:['',''],dates:{},program:{}},D.plan);
+  if(!D.plan.cycle.length)D.plan.cycle=['',''];
+  edR();openSheet(null,true);
+}
+function edR(){
+  const s=D.schedule,p=D.plan;
+  const seg=(opts,cur,fn)=>`<div class="seg">${opts.map(([v,l])=>`<button class="${cur===v?'on':''}" onclick="${fn}('${v}')">${l}</button>`).join('')}</div>`;
+  let typeExtra='';
+  if(D.type==='count')typeExtra=`<div class="two" style="margin-top:10px"><div><label class="lbl" style="margin-top:0">Objetivo</label><input type="number" inputmode="decimal" min="1" step="any" value="${D.target}" oninput="D.target=+this.value"></div>
+    <div><label class="lbl" style="margin-top:0">Unidad</label><input value="${esc(D.unit)}" placeholder="vasos, páginas…" oninput="D.unit=this.value"></div></div>
+    <label class="lbl">Cuánto suma cada toque</label><input type="number" inputmode="decimal" min="0.1" step="any" value="${D.step||1}" oninput="D.step=+this.value">`;
+  if(D.type==='time')typeExtra=`<label class="lbl">Objetivo (minutos)</label><input type="number" inputmode="numeric" min="1" value="${D.target}" oninput="D.target=+this.value">`;
+  if(D.type==='checklist')typeExtra=`<label class="lbl">Pasos</label>${D.steps.map((st,i)=>`<div class="list-row"><input value="${esc(st.text)}" placeholder="Paso ${i+1}" oninput="D.steps[${i}].text=this.value"><button class="x" onclick="D.steps.splice(${i},1);edR()">✕</button></div>`).join('')}
+    <button class="btn ghost" onclick="D.steps.push({id:uid(),text:''});edR()">+ Añadir paso</button>`;
+
+  let schedExtra='';
+  if(s.mode==='weekdays')schedExtra=`<div class="days" style="margin-top:10px">${WEEK_ORDER.map(d=>`<button class="${s.days.includes(d)?'on':''}" onclick="edDay(${d})">${DOW_L[d]}</button>`).join('')}</div>`;
+  if(s.mode==='xweek')schedExtra=`<label class="lbl">Veces por semana</label><div class="days">${[1,2,3,4,5,6,7].map(n=>`<button class="${s.times===n?'on':''}" onclick="D.schedule.times=${n};edR()">${n}</button>`).join('')}</div><p class="hint">Aparece cada día hasta que lo cumplas las veces de la semana (de lunes a domingo).</p>`;
+  if(s.mode==='everyN')schedExtra=`<label class="lbl">Cada cuántos días</label><input type="number" inputmode="numeric" min="2" value="${s.n}" oninput="D.schedule.n=Math.max(1,parseInt(this.value)||1)"><p class="hint">Se cuenta a partir de la fecha de inicio.</p>`;
+  if(s.mode==='dates')schedExtra=`<div class="list-row" style="margin-top:10px"><input type="date" id="edDateIn" value="${todayK()}"><button class="x" style="width:auto;padding:0 14px;color:var(--text)" onclick="edAddDate()">Añadir</button></div>
+    <div class="chips">${[...s.dates].sort().map(k=>`<span class="chip">${shortDate(k)} ${pk(k).getFullYear()!==new Date().getFullYear()?pk(k).getFullYear():''}<button onclick="edDelDate('${k}')">✕</button></span>`).join('')||'<span class="hint" style="margin:0">Aún no hay fechas</span>'}</div>`;
+
+  let planExtra='';
+  if(p.mode==='weekly'){
+    const days=s.mode==='weekdays'?WEEK_ORDER.filter(d=>s.days.includes(d)):WEEK_ORDER;
+    planExtra=days.map(d=>`<div class="plan-day"><div class="pd-l">${DOW_N[d]}</div><textarea rows="3" placeholder="Qué toca el ${DOW_N[d].toLowerCase()}…" oninput="D.plan.weekly[${d}]=this.value">${esc(p.weekly[d]||'')}</textarea></div>`).join('');
+  }
+  if(p.mode==='cycle'){
+    planExtra=p.cycle.map((c,i)=>`<div class="plan-day"><div class="pd-l">Sesión ${String.fromCharCode(65+i)}</div><div class="list-row"><textarea rows="3" placeholder="Ej.: Empuje — press banca 4×8…" oninput="D.plan.cycle[${i}]=this.value">${esc(c)}</textarea>${p.cycle.length>1?`<button class="x" onclick="D.plan.cycle.splice(${i},1);edR()">✕</button>`:''}</div></div>`).join('')+
+      `<button class="btn ghost" onclick="D.plan.cycle.push('');edR()">+ Añadir sesión</button><p class="hint">Cada vez que completes el hábito pasas a la siguiente sesión (A → B → C → A…). Si te saltas un día, la sesión no se pierde.</p>`;
+  }
+  const dps=Object.keys(p.dates||{}).sort();
+
+  $('#sheetBody').innerHTML=`
+    <div class="sheet-title">${D._new?'Nuevo hábito':'Editar hábito'}</div>
+    <label class="lbl">Nombre</label><input value="${esc(D.name)}" placeholder="Ej.: Boxeo, Francés, Leer…" oninput="D.name=this.value">
+    <label class="lbl">Descripción (opcional)</label><input value="${esc(D.desc||'')}" placeholder="Por qué lo haces, detalles…" oninput="D.desc=this.value">
+
+    <label class="lbl">Icono</label>
+    <div class="emojis">${EMOJIS.map(e=>`<button class="${D.emoji===e?'on':''}" onclick="D.emoji='${e}';edR()">${e}</button>`).join('')}</div>
+    <input class="mt8" value="${esc(D.emoji)}" placeholder="O escribe cualquier emoji" oninput="D.emoji=this.value.trim()">
+    <label class="lbl">Color</label>
+    <div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${D.color===c?'on':''}" onclick="D.color='${c}';edR()" aria-label="${c}"></button>`).join('')}</div>
+
+    <label class="lbl">Tipo de registro</label>
+    <div class="types">${TYPES.map(([v,l,d])=>`<button class="${D.type===v?'on':''}" onclick="edType('${v}')"><b>${l}</b><small>${d}</small></button>`).join('')}</div>
+    ${typeExtra}
+
+    <label class="lbl">Momento del día</label>
+    ${seg(MOMENTS.map(([v,l])=>[v,l.replace('Cualquier momento','Cualquiera')]),D.moment,'edMoment')}
+
+    <label class="lbl">Frecuencia</label>
+    ${seg([['daily','Cada día'],['weekdays','Días concretos'],['xweek','X por semana'],['everyN','Cada N días'],['dates','Fechas sueltas']],s.mode,'edSched')}
+    ${schedExtra}
+    <label class="lbl">Empieza el</label><input type="date" value="${D.start}" onchange="D.start=this.value||todayK()">
+
+    <label class="lbl">Plan detallado</label>
+    ${seg([['none','Sin plan'],['weekly','Por día de la semana'],['cycle','Rotación de sesiones']],p.mode,'edPlan')}
+    <p class="hint">${p.mode==='none'?'Elige cómo quieres ver qué hacer exactamente cada día. ':''}Desde «Hoy» también puedes escribir el plan de una fecha concreta (toca el nombre del hábito).</p>
+    ${(()=>{const ks=Object.keys(p.program||{}).sort();return ks.length?`<p class="hint">📥 Programa cargado: ${ks.length} días (${shortDate(ks[0])} ${pk(ks[0]).getFullYear()} → ${shortDate(ks[ks.length-1])} ${pk(ks[ks.length-1]).getFullYear()}). Manda sobre el plan semanal o la rotación en esos días.</p>`:'';})()}
+    <div style="margin-top:10px">${planExtra}</div>
+    ${dps.length?`<label class="lbl">Planes de fechas concretas</label>${dps.map(k=>`<div class="dp-item"><div><b>${longDate(k)}</b>${esc(p.dates[k])}</div><button class="x" style="width:34px;height:34px" onclick="delete D.plan.dates['${k}'];edR()">✕</button></div>`).join('')}`:''}
+
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="edSave()">${D._new?'Crear hábito':'Guardar'}</button></div>`;
+}
+function edType(v){
+  D.type=v;
+  if(v==='checklist'&&!D.steps.length)D.steps=[{id:uid(),text:''},{id:uid(),text:''}];
+  if(v==='time'&&(!D.target||D.target<5))D.target=30;
+  if(v==='count'&&(!D.target||D.target<1))D.target=1;
+  edR();
+}
+function edMoment(v){D.moment=v;edR();}
+function edSched(v){D.schedule.mode=v;edR();}
+function edPlan(v){D.plan.mode=v;edR();}
+function edDay(d){const a=D.schedule.days;D.schedule.days=a.includes(d)?a.filter(x=>x!==d):[...a,d];edR();}
+function edAddDate(){const v=$('#edDateIn').value;if(!v)return;if(!D.schedule.dates.includes(v))D.schedule.dates.push(v);edR();}
+function edDelDate(k){D.schedule.dates=D.schedule.dates.filter(x=>x!==k);edR();}
+function edSave(){
+  D.name=(D.name||'').trim();
+  if(!D.name)return toast('Ponle un nombre');
+  if(!D.emoji)D.emoji='•';
+  if(D.type==='count'||D.type==='time'){if(!(D.target>0))return toast('El objetivo tiene que ser mayor que 0');}
+  else D.target=1;
+  if(D.type==='count'&&!(D.step>0))D.step=1;
+  if(D.type==='checklist'){D.steps=D.steps.filter(s=>s.text.trim());if(!D.steps.length)return toast('Añade al menos un paso');}
+  const s=D.schedule;
+  if(s.mode==='weekdays'&&!s.days.length)return toast('Elige al menos un día');
+  if(s.mode==='dates'&&!s.dates.length)return toast('Añade al menos una fecha');
+  if(s.mode==='everyN'&&!(s.n>=1))s.n=2;
+  // limpiar plan
+  const p=D.plan;
+  for(const d in p.weekly)if(!String(p.weekly[d]).trim())delete p.weekly[d];
+  if(p.mode==='cycle'&&!p.cycle.some(c=>c.trim()))p.mode='none';
+  const isNew=D._new;delete D._new;
+  if(!isNew&&S.packs&&Object.keys(S.packs).length)D.userEdited=true; // la próxima actualización del plan respeta tus cambios
+  if(isNew)S.habits.push(D);else{const i=S.habits.findIndex(h=>h.id===D.id);S.habits[i]=D;}
+  D=null;save();closeSheet();render();toast(isNew?'Hábito creado ✨':'Cambios guardados');
+}
+
+/* ═════════════ ESTADÍSTICAS ═════════════ */
+function renderStats(){
+  const t=todayK(),hs=S.habits.filter(h=>!h.archived);
+  if(!hs.length){$('#statsBody').innerHTML=`<div class="card empty"><div class="big">📊</div><h3>Sin datos todavía</h3><p>Cuando tengas hábitos y empieces a marcarlos, aquí verás tu evolución.</p></div>`;return;}
+  const agg=(from,to)=>{let d=0,n=0;for(let k=from;k<=to;k=addDays(k,1)){const s=dayStats(k);d+=s.done;n+=s.total;}return n?d/n:null;};
+  const today=dayStats(t);
+  const r7=agg(addDays(t,-7),addDays(t,-1)),r30=agg(addDays(t,-30),addDays(t,-1));
+  let bestS=null;for(const h of hs){const st=streaks(h);if(!bestS||st.cur>bestS.cur)bestS={...st,h};}
+  const pct=v=>v===null?'—':Math.round(v*100)+'%';
+
+  const first=hs.map(h=>h.start).sort()[0];
+  const nW=Math.min(12,weeksSince(first,12,1));
+  // Barras: desde la primera semana con hábitos (máx. 12)
+  const tw=weekStartK(t);let bars='';
+  for(let i=nW-1;i>=0;i--){
+    const ws=addDays(tw,-7*i);let d=0,n=0;
+    for(let j=0;j<7;j++){const k=addDays(ws,j);if(k>t)break;const s=dayStats(k);d+=s.done;n+=s.total;}
+    const v=n?d/n:0;
+    bars+=`<div class="bar"><em>${n?Math.round(v*100):''}</em><i class="${i===0?'cur':''}" style="height:${Math.max(2,v*100)}%"></i><span>${shortDate(ws).split(' ')[0]}/${pk(ws).getMonth()+1}</span></div>`;
+  }
+
+  // Mapa de calor global desde el inicio
+  const W=weeksSince(first,26,10),start=addDays(tw,-7*(W-1));let cells='';
+  const acc=S.settings.accent||'#22C55E';
+  for(let d=0;d<7;d++)for(let w=0;w<W;w++){
+    const k=addDays(start,7*w+d);let bg='transparent';
+    if(k<=t){const s=dayStats(k);if(!s.total)bg='#18181E';else{const v=s.done/s.total;bg=v===0?'#24242C':v<.34?acc+'55':v<.67?acc+'99':v<1?acc+'CC':acc;}}
+    cells+=`<i style="background:${bg}"></i>`;
+  }
+
+  const rows=hs.map(h=>({h,r:habitRate(h,30),st:streaks(h)})).sort((a,b)=>(b.r??-1)-(a.r??-1));
+
+  $('#statsBody').innerHTML=`
+    <div class="kpis">
+      <div class="kpi"><b>${today.done}/${today.total}</b><span>Hoy</span></div>
+      <div class="kpi"><b>${pct(r7)}</b><span>Últimos 7 días</span></div>
+      <div class="kpi"><b>${pct(r30)}</b><span>Últimos 30 días</span></div>
+      <div class="kpi"><b>${bestS&&bestS.cur?`🔥 ${bestS.cur}`:'—'}</b><span>${bestS&&bestS.cur?esc(bestS.h.emoji+' '+bestS.h.name):'Mejor racha actual'}</span></div>
+    </div>
+    <button class="banner" onclick="reviewSheet()">🗓️<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
+    <div class="sec">Cumplimiento por semana</div>
+    <div class="card"><div class="bars">${bars}</div></div>
+    <div class="sec">Todos los hábitos · desde el inicio</div>
+    <div class="card"><div class="hm" style="grid-template-columns:repeat(${W},1fr)">${cells}</div></div>
+    <div class="sec">Ranking · 30 días</div>
+    <div class="card">${rows.map(({h,r,st})=>`<div class="rk" style="--hc:${h.color}"><span class="hc-ico sm">${esc(h.emoji)}</span>
+      <div class="rk-n"><div>${esc(h.name)}${st.cur?` <span style="color:var(--muted);font-weight:500">· 🔥 ${st.cur}${st.unit==='sem'?' sem':''}</span>`:''}</div><div class="rk-bar"><i style="width:${r===null?0:r*100}%"></i></div></div>
+      <span class="rk-p">${pct(r)}</span></div>`).join('')}</div>`;
+}
+
+/* ═════════════ AJUSTES ═════════════ */
+function renderSet(){
+  const acc=S.settings.accent||'#22C55E';
+  $('#setBody').innerHTML=`
+    <div class="sec">Color de acento</div>
+    <div class="card"><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="${c}"></button>`).join('')}</div></div>
+    <div class="sec">Copia de seguridad</div>
+    <button class="row-btn" onclick="backupSheet()">📤<div>Hacer copia de seguridad<small>${S.settings.lastExport?`Última: ${shortDate(S.settings.lastExport)}`:'Aún no has hecho ninguna'} · guárdala en Drive, Archivos o donde quieras</small></div></button>
+    <button class="row-btn" onclick="$('#importIn').click()">📥<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade/actualiza hábitos y conserva tus registros</small></div></button>
+    <div class="sec">Recordatorios</div>
+    <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario (recomendado)<small>Tu agenda en el Calendario del iPhone o Google Calendar, con aviso 5 min antes. Se actualiza sola cuando cambia el plan</small></div></button>
+    <button class="row-btn" onclick="icsSheet()">🔔<div>Exportar unas semanas al calendario<small>Exporta la agenda (.ics) a Google Calendar o Calendario de Apple: te avisa 5 min antes de cada tarea, aunque la app esté cerrada</small></div></button>
+    <button class="row-btn" onclick="toggleNotif()">💬<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Notificación al empezar cada bloque mientras la app está abierta o en segundo plano reciente</small></div></button>
+    <div class="sec">Pausas</div>
+    <button class="row-btn" onclick="pauseSheet()">🏖️<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
+    ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
+    <div class="sec">Otros</div>
+    <button class="row-btn" onclick="loadExamples()">🧪<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>
+    <button class="row-btn danger" onclick="wipe()">🗑️<div>Borrar todos los datos</div></button>
+    <div class="sec">Novedades</div>
+    <div class="card">${CHANGELOG.map(([v,d,items],i)=>`<div style="${i?'margin-top:10px':''}"><b>v${v}</b> <span class="hint">· ${d}</span><ul class="chlog">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
+    <div class="sec">Instalar</div>
+    <div class="card"><p class="hint" style="margin:0">En iPhone: ábrela en Safari → Compartir → «Añadir a pantalla de inicio». En Android: menú de Chrome → «Instalar aplicación». Los datos se guardan solo en este dispositivo: exporta una copia de vez en cuando.</p></div>
+    <p class="hint" style="text-align:center;margin-top:16px">Rutina v${APP_VERSION} · datos v${S.schema} · ${S.habits.length} hábitos · ${Object.keys(S.logs).length} días con registros</p>`;
+}
+function setAccent(c){S.settings.accent=c;applyAccent();save();renderSet();}
+function applyAccent(){document.documentElement.style.setProperty('--acc',S.settings.accent||'#22C55E');}
+function backupJSON(){if(S.timer)stopTimer(true);const o={...S,exportedAt:new Date().toISOString()};delete o._needPlanSave;return JSON.stringify(o);}
+function markExport(){S.settings.lastExport=todayK();save();}
+function downloadFile(name,text,type){const blob=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
+async function shareFile(name,text,type,title){
+  try{const f=new File([text],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title});return true;}}catch(e){if(e&&e.name==='AbortError')return false;}
+  downloadFile(name,text,type);return true;
+}
+function exportData(){downloadFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json');markExport();toast('Copia descargada 📤');}
+function backupSheet(){
+  openSheet(`<div class="sheet-title">💾 Copia de seguridad</div><p class="hint">Guarda la copia fuera del móvil (Google Drive, iCloud, correo…). Si pierdes el móvil, la importas y lo recuperas todo.</p>
+    <button class="row-btn" onclick="shareBackup()">📲<div>Compartir o guardar<small>Elige Drive, Archivos, WhatsApp a ti mismo…</small></div></button>
+    <button class="row-btn" onclick="exportData()">⬇️<div>Descargar el archivo</div></button>
+    <button class="row-btn" onclick="copyBackup()">📋<div>Copiar como texto<small>Por si no puedes descargar archivos</small></div></button>`);
+}
+async function shareBackup(){const ok=await shareFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json','Copia de Rutina');if(ok){markExport();closeSheet();toast('Copia guardada 💾');}}
+async function copyBackup(){try{await navigator.clipboard.writeText(backupJSON());markExport();toast('Copia copiada al portapapeles');}catch(e){openSheet(`<div class="sheet-title">Copia en texto</div><p class="hint">Selecciona todo y cópialo.</p><textarea rows="10" onclick="this.select()">${esc(backupJSON())}</textarea>`);markExport();}}
+function importData(input){
+  const f=input.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d&&d.kind==='rutina-plan'){
+        ask(`¿Cargar el plan (${d.habits.length} hábito${d.habits.length===1?'':'s'})? Tus registros se conservan.`,'Cargar plan').then(ok=>{if(!ok)return;mergePack(d);go('hoy');toast('📥 Plan cargado');});return;
+      }
+      if(!d||!Array.isArray(d.habits)||typeof d.logs!=='object')return toast('❌ Archivo no válido');
+      ask(`Se importarán ${d.habits.length} hábitos y sustituirán los actuales.`,'Importar',true).then(ok=>{if(!ok)return;
+        delete d.exportedAt;S=migrate(Object.assign(JSON.parse(JSON.stringify(DEF)),d,{schema:d.schema||1}));save();savePlan();applyAccent();sel=todayK();go('hoy');toast('Datos restaurados ✅');});
+    }catch(err){toast('❌ No se pudo leer el archivo');}
+  };
+  rd.readAsText(f);input.value='';
+}
+async function wipe(){
+  if(!await ask('Se borrarán TODOS los hábitos, registros y notas.','Continuar',true))return;
+  if(!await ask('¿Seguro del todo? No se puede deshacer (haz una copia antes si quieres guardar algo).','Borrar todo',true))return;
+  S=JSON.parse(JSON.stringify(DEF));save();try{localStorage.removeItem(PLAN_KEY);}catch(e){}applyAccent();go('hoy');toast('Datos borrados');
+}
+
+/* Planes (plan.json) */
+function mergePack(pack){
+  if(!pack||pack.kind!=='rutina-plan'||!Array.isArray(pack.habits))return false;
+  const base=blankHabit();
+  for(const ph of pack.habits){
+    const ex=getH(ph.id);
+    if(ex){
+      const keepDates=(ex.plan&&ex.plan.dates)||{},keepArch=ex.archived;
+      const mine=ex.userEdited?{name:ex.name,emoji:ex.emoji,color:ex.color,desc:ex.desc,moment:ex.moment,target:ex.target,unit:ex.unit,steps:ex.steps,userEdited:true}:{};
+      Object.assign(ex,ph,mine);
+      ex.plan=Object.assign({},base.plan,ph.plan||{});ex.plan.dates=keepDates;ex.archived=keepArch;
+    } else {
+      const h=Object.assign(blankHabit(),ph);
+      h.plan=Object.assign({},base.plan,ph.plan||{});h.plan.dates=h.plan.dates||{};
+      h.schedule=Object.assign({},base.schedule,ph.schedule||{});
+      S.habits.push(h);
+    }
+  }
+  if(pack.agenda){S.agendaBase=pack.agenda;S.agendaUntil=pack.agendaUntil||'';S.classesKnownUntil=pack.classesKnownUntil||'';}
+  S.packs=S.packs||{};S.packs[pack.id||'plan']=pack.version||1;
+  save();savePlan();return true;
+}
+async function autoPlan(){
+  if(!location.protocol.startsWith('http'))return;
+  try{
+    const r=await fetch('plan.json',{cache:'no-store'});if(!r.ok)return;
+    const p=await r.json();if(!p||p.kind!=='rutina-plan')return;
+    const cur=((S.packs||{})[p.id||'plan'])||0;
+    if((p.version||1)>cur){mergePack(p);render();toast(cur?'📥 Plan actualizado':'📥 Plan cargado');}
+  }catch(e){}
+}
+
+/* Ejemplos */
+function mk(o){
+  const h=blankHabit();
+  Object.assign(h,o,{schedule:Object.assign(h.schedule,o.schedule||{}),plan:Object.assign(h.plan,o.plan||{})});
+  h.steps=(o.steps||[]).map(t=>({id:uid(),text:t}));
+  if(!o.plan||!o.plan.cycle)h.plan.cycle=['',''];
+  return h;
+}
+function loadExamples(){
+  const ex=[
+    mk({name:'Rutina de mañana',emoji:'☀️',color:'#F59E0B',type:'checklist',moment:'manana',steps:['Vaso de agua','Hacer la cama','Movilidad 5 min','Revisar el plan del día']}),
+    mk({name:'Gimnasio',emoji:'🏋️',color:'#A855F7',type:'check',moment:'manana',schedule:{mode:'xweek',times:3},
+      plan:{mode:'cycle',cycle:['Empuje\n- Press banca 4×8\n- Press militar 3×10\n- Fondos 3×máx','Tirón\n- Dominadas 4×6\n- Remo con barra 4×8\n- Curl bíceps 3×12','Pierna\n- Sentadilla 4×6\n- Peso muerto rumano 3×8\n- Zancadas 3×10 por pierna']}}),
+    mk({name:'Boxeo',emoji:'🥊',color:'#EF4444',type:'time',target:60,moment:'tarde',schedule:{mode:'weekdays',days:[1,3,5]},
+      plan:{mode:'weekly',weekly:{1:'Técnica\n- Comba 10 min\n- 6 rounds de sombra\n- 4 rounds de saco: combinaciones 1-2-3',3:'Sparring ligero\n- Calentamiento 15 min\n- 4 rounds de sparring\n- Core 10 min',5:'Físico\n- 5 rounds de saco a intervalos 30/30\n- Burpees y saltos\n- Movilidad de hombro'}}}),
+    mk({name:'Estudio',emoji:'📚',color:'#22C55E',type:'time',target:60,moment:'tarde',schedule:{mode:'weekdays',days:[1,2,3,4,5]}}),
+    mk({name:'Francés',emoji:'🇫🇷',color:'#3B82F6',type:'check',moment:'noche',desc:'Lección diaria de Duolingo'}),
+    mk({name:'Inglés',emoji:'🇬🇧',color:'#14B8A6',type:'time',target:20,moment:'noche'}),
+    mk({name:'Agua',emoji:'💧',color:'#06B6D4',type:'count',target:8,unit:'vasos'}),
+  ];
+  S.habits.push(...ex);save();closeSheet();go('hoy');toast('Ejemplos añadidos: edítalos o bórralos');
+}
+
+/* ═════════════ AHORA / SIGUIENTE ═════════════ */
+function nowCard(k){
+  const evs=dayEvents(k).filter(e=>!e.cancelled);if(!evs.length)return '';
+  const n=new Date(),m=n.getHours()*60+n.getMinutes();
+  const cur=evs.find(e=>tm(e.start)<=m&&m<tm(e.end));
+  const nxt=evs.find(e=>tm(e.start)>m&&!['libre','trayecto','sueno'].includes(e.kind));
+  if(!cur&&!nxt)return '';
+  const row=(e,lb,cls,extra)=>`<button class="now-row ${cls}" onclick="evSheet('${k}','${e.id}')"><span class="lb">${lb}</span><div class="tx"><b>${evIcon(e)} ${esc(e.title)}</b><small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))} · ${extra}</small></div></button>`;
+  const left=x=>{const d=x;return d>=60?`${Math.floor(d/60)} h ${pad(d%60)} min`:`${d} min`;};
+  return `<div class="now-card">${cur?row(cur,'AHORA','',`quedan ${left(tm(cur.end)-m)}`):''}${nxt?row(nxt,'DESPUÉS','next',`en ${left(tm(nxt.start)-m)}`):''}</div>`;
+}
+let _lastMin=-1;
+setInterval(()=>{const n=new Date(),m=n.getHours()*60+n.getMinutes();if(m===_lastMin)return;_lastMin=m;
+  if(view==='hoy'&&sel===todayK()&&!$('#sheet').classList.contains('on')&&document.activeElement.id!=='noteIn')renderHoy();
+  checkNotify(m);},20000);
+
+/* ═════════════ BANNERS (revisión, copia, plan) ═════════════ */
+function banners(k){
+  const t=todayK();if(k!==t)return '';let out='';
+  const wd=dow(t),ws=weekStartK(t),rk=wd===0?ws:addDays(ws,-7);
+  if((wd===0||wd===1)&&!(S.reviews||{})[rk])out+=`<button class="banner" onclick="reviewSheet('${rk}')">🗓️<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`;
+  const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
+  if(hasData&&(!le||diffDays(le,t)>=7))out+=`<button class="banner warn" onclick="backupSheet()">💾<div><b>Haz una copia de seguridad</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'}</small></div><span class="go">Hacer ›</span></button>`;
+  const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)out+=`<div class="banner warn">📅<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`;
+  return out;
+}
+
+/* ═════════════ VERSIÓN MÍNIMA ═════════════ */
+function toggleMinDay(k){pushUndo();S.minDays=S.minDays||{};if(S.minDays[k])delete S.minDays[k];else S.minDays[k]=true;save();render();toast(S.minDays[k]?'🪫 Día mínimo: cada hábito en su versión corta':'Vuelves al plan completo',[undoAct()]);}
+function doMin(id){const h=getH(id),k=sel;if(!h)return;if(k>todayK())return toast('Ese día aún no ha llegado');pushUndo();const was=isDone(h,k),e=ens(h,k);e.min=true;commit(h,k,was);}
+
+/* ═════════════ TARJETAS PLEGABLES ═════════════ */
+const OPEN={};
+function cardOpen(h,k,done){const key=k+':'+h.id;return key in OPEN?OPEN[key]:!done;}
+function toggleCard(k,id,v){OPEN[k+':'+id]=!!v;render();}
+
+/* ═════════════ PROGRESO (métricas) ═════════════ */
+function metricSheet(id,k){
+  const h=getH(id);if(!h)return;k=k||sel;const e=entry(h,k)||{},m=e.m||{};
+  openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">📈 ${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">${longDate(k)}</div>
+    ${(h.metrics||[]).map(x=>`<div class="mrow"><label>${esc(x.label)}${x.unit?` <span class="hint">(${esc(x.unit)})</span>`:''}</label><input type="number" inputmode="decimal" step="any" id="mt-${x.id}" value="${m[x.id]??''}"></div>`).join('')}
+    <label class="lbl">Cómo ha ido</label><textarea id="mtNote" rows="3" placeholder="Sensaciones, cargas, lo que te ha costado…">${esc(e.note||'')}</textarea>
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveMetrics('${id}','${k}')">Guardar</button></div></div>`);
+}
+function saveMetrics(id,k){
+  const h=getH(id);pushUndo();const e=ens(h,k);e.m={};
+  for(const x of h.metrics||[]){const v=$('#mt-'+x.id).value;if(v!=='')e.m[x.id]=parseFloat(String(v).replace(',','.'));}
+  if(!Object.keys(e.m).length)delete e.m;
+  const n=$('#mtNote').value.trim();if(n)e.note=n;else delete e.note;
+  clean(h,k);save();closeSheet();render();toast('Progreso guardado 📈',[undoAct()]);
+}
+function metricSeries(h,id){return Object.keys(S.logs).sort().map(k=>{const e=S.logs[k][h.id];return e&&e.m&&e.m[id]!=null?{k,v:e.m[id]}:null;}).filter(Boolean);}
+function spark(vals,color){if(vals.length<2)return '';const w=90,hh=28,mn=Math.min(...vals),mx=Math.max(...vals),r=mx-mn||1;
+  const pts=vals.map((v,i)=>`${(i/(vals.length-1)*w).toFixed(1)},${(hh-2-(v-mn)/r*(hh-4)).toFixed(1)}`).join(' ');
+  return `<svg width="${w}" height="${hh}" viewBox="0 0 ${w} ${hh}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/></svg>`;}
+function metricsBlock(h){
+  if(!(h.metrics||[]).length)return '';
+  const rows=h.metrics.map(x=>{const s=metricSeries(h,x.id);if(!s.length)return `<div class="metric"><div><b>${esc(x.label)}</b><small>Sin registros todavía</small></div></div>`;
+    const last=s[s.length-1],best=Math.max(...s.map(p=>p.v));
+    return `<div class="metric"><div><b>${esc(x.label)}</b><small>Último: ${fmtNum(last.v)} ${esc(x.unit||'')} (${shortDate(last.k)}) · Mejor: ${fmtNum(best)}</small></div>${spark(s.slice(-20).map(p=>p.v),h.color)}</div>`;}).join('');
+  return `<div class="sec">Progreso</div><div class="card" style="margin-bottom:0">${rows}<button class="btn ghost mt8" onclick="metricSheet('${h.id}',todayK())">📈 Registrar hoy</button></div>`;
+}
+
+/* ═════════════ REVISIÓN SEMANAL ═════════════ */
+function weekSummary(ws){
+  const days=[...Array(7)].map((_,i)=>addDays(ws,i)).filter(k=>k<=todayK());
+  const hs=S.habits.filter(h=>!h.archived);let D=0,N=0;const per=[],miss=[],canc=[];let mins=0;
+  for(const h of hs){let d=0,n=0,mn=0;for(const k of days){if(isCancelledH(h,k)){const o=agOv(k,'h:'+h.id);canc.push(`${h.emoji} ${h.name} · ${shortDate(k)}${o&&o.moveTo?` (movido al ${shortDate(o.moveTo)})`:''}`);continue;}
+    if(!showOnBase(h,k))continue;n++;if(isDone(h,k)){d++;if((entry(h,k)||{}).min)mn++;}else if(k<todayK()&&!weekMet(h,k))miss.push(`${h.emoji} ${h.name} · ${DOW_N[dow(k)].toLowerCase()} ${shortDate(k)}`);}
+    const g=weekGoal(h,ws),wm=weekMins(h,ws);
+    if(n||wm){per.push({h,d,n,mn,g,wm});D+=d;N+=n;mins+=mn;}}
+  const metr=[];for(const h of hs)for(const x of h.metrics||[]){const vals=days.map(k=>{const e=entry(h,k);return e&&e.m&&e.m[x.id]!=null?e.m[x.id]:null;}).filter(v=>v!=null);if(vals.length)metr.push(`${h.emoji} ${x.label}: ${vals.map(fmtNum).join(' → ')} ${x.unit||''}`);}
+  const nws=addDays(ws,7),next=[];for(let i=0;i<7;i++){const k=addDays(nws,i);for(const e of dayEvents(k))if(e.id==='clase'||/examen|prueba|parcial|presentaci/i.test(e.title))next.push(`${DOW_N[dow(k)].slice(0,3)} ${shortDate(k)} · ${e.title} (${fmtT(tm(e.start))})`);}
+  for(const h of hs){const pr=h.plan&&h.plan.program;if(!pr)continue;for(let i=0;i<7;i++){const k=addDays(nws,i),x=pr[k];if(x&&typeof x==='object'&&/Simulacro|examen|Matric/i.test((x.tag||'')+(x.text||'').slice(0,80)))next.push(`${DOW_N[dow(k)].slice(0,3)} ${shortDate(k)} · ${h.emoji} ${x.tag||h.name}`);}}
+  return{ws,days,D,N,per,miss,canc,mins,metr,next:[...new Set(next)]};
+}
+function reviewText(r){
+  const pct=r.N?Math.round(r.D/r.N*100):0;
+  return [`Revisión semanal Rutina · semana del ${shortDate(r.ws)}`,`Cumplimiento: ${r.D}/${r.N} (${pct}%)${r.mins?` · ${r.mins} en versión mínima`:''}`,
+    ...r.per.map(p=>`- ${p.h.emoji} ${p.h.name}: ${p.d}/${p.n} sesiones · ${fmtDur(p.wm)} de ${fmtDur(p.g)}${p.g&&p.wm>=p.g?' ✓':''}${p.mn?` (${p.mn} mínimas)`:''}`),
+    r.miss.length?`Fallados: ${r.miss.join('; ')}`:'Fallados: ninguno',
+    r.canc.length?`Anulados/movidos: ${r.canc.join('; ')}`:'',
+    r.metr.length?`Progreso: ${r.metr.join('; ')}`:'',
+    r.next.length?`La semana que viene: ${r.next.join('; ')}`:'',
+    'Notas: '+r.days.map(k=>S.notes[k]?`${shortDate(k)}: ${S.notes[k]}`:'').filter(Boolean).join(' | ')].filter(Boolean).join('\n');
+}
+function reviewSheet(ws){
+  const t=todayK();ws=ws||(dow(t)===1?addDays(weekStartK(t),-7):weekStartK(t));
+  S.reviews=S.reviews||{};S.reviews[ws]=true;save();
+  const r=weekSummary(ws),pct=r.N?Math.round(r.D/r.N*100):0;
+  window._reviewTxt=reviewText(r);
+  openSheet(`<div class="sheet-title">🗓️ Revisión semanal</div><div class="sub">Semana del ${shortDate(ws)} al ${shortDate(addDays(ws,6))}</div>
+    <div class="kpis" style="margin-top:12px"><div class="kpi"><b>${pct}%</b><span>${r.D} de ${r.N} hechos</span></div><div class="kpi"><b>${r.miss.length}</b><span>Fallados${r.mins?` · ${r.mins} mínimos`:''}</span></div></div>
+    <div class="sec">Por hábito</div><div class="card">${r.per.map(p=>`<div class="rv-row">${esc(p.h.emoji)} ${esc(p.h.name)}<span class="p" style="color:${p.h.color}">${fmtDur(p.wm)} / ${fmtDur(p.g)}${p.g&&p.wm>=p.g?' ✓':''}</span></div>`).join('')||'<p class="hint">Sin datos esta semana.</p>'}</div>
+    ${r.miss.length?`<div class="sec">Qué falló</div><div class="card">${r.miss.map(x=>`<div class="rv-row">${esc(x)}</div>`).join('')}</div>`:''}
+    ${r.canc.length?`<div class="sec">Anulado o movido</div><div class="card">${r.canc.map(x=>`<div class="rv-row">${esc(x)}</div>`).join('')}</div>`:''}
+    ${r.metr.length?`<div class="sec">Progreso</div><div class="card">${r.metr.map(x=>`<div class="rv-row">${esc(x)}</div>`).join('')}</div>`:''}
+    ${r.next.length?`<div class="sec">La semana que viene</div><div class="card">${r.next.map(x=>`<div class="rv-row">${esc(x)}</div>`).join('')}</div>`:''}
+    <div class="btns"><button class="btn pri" onclick="copyReview()">📋 Copiar resumen para Claude</button></div>
+    <div class="btns" style="margin-top:8px"><button class="btn ghost" onclick="backupSheet()">💾 Hacer copia</button><button class="btn ghost" onclick="closeSheet()">Cerrar</button></div>`);
+}
+async function copyReview(){try{await navigator.clipboard.writeText(window._reviewTxt);toast('Copiado: pégamelo en el chat 📋');}catch(e){openSheet(`<div class="sheet-title">Resumen</div><p class="hint">Selecciona todo y cópialo.</p><textarea rows="12" onclick="this.select()">${esc(window._reviewTxt)}</textarea>`);}}
+
+/* ═════════════ PAUSAS ═════════════ */
+function pauseSheet(){
+  const t=todayK();
+  openSheet(`<div class="sheet-title">🏖️ Pausar hábitos</div><p class="hint">Los días de la pausa no cuentan como fallo y no rompen rachas. Puedes quitarla cuando quieras.</p>
+    <div class="two" style="margin-top:10px"><div><label class="lbl" style="margin-top:0">Desde</label><input type="date" id="pzF" value="${t}"></div><div><label class="lbl" style="margin-top:0">Hasta</label><input type="date" id="pzT" value="${addDays(t,6)}"></div></div>
+    <label class="lbl">Motivo</label><input id="pzR" placeholder="Vacaciones, lesión, exámenes…">
+    <label class="lbl">Qué hábitos</label>${S.habits.filter(h=>!h.archived).map(h=>`<label class="chk"><input type="checkbox" class="pzH" value="${h.id}" checked> ${esc(h.emoji)} ${esc(h.name)}</label>`).join('')}
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="applyPause()">Pausar</button></div>`);
+}
+function applyPause(){
+  const f=$('#pzF').value,to=$('#pzT').value,r=$('#pzR').value.trim()||'Pausa',ids=[...document.querySelectorAll('.pzH:checked')].map(x=>x.value);
+  if(!f||!to||to<f)return toast('Revisa las fechas');if(!ids.length)return toast('Elige al menos un hábito');
+  pushUndo();const pid='pz'+uid();let n=0;
+  for(let k=f;k<=to;k=addDays(k,1))for(const id of ids){const h=getH(id);if(h&&showOn(h,k)&&!agOv(k,'h:'+id)){agSet(k,'h:'+id,{cancel:true,reason:'🏖️ '+r,pause:pid});n++;}}
+  S.pauses=S.pauses||[];S.pauses.push({id:pid,from:f,to,reason:r,habits:ids});
+  afterAg(`Pausa creada · ${n} tareas en pausa`);
+}
+function removePause(pid){
+  pushUndo();for(const k in S.agenda||{})for(const id in S.agenda[k]){const o=S.agenda[k][id];if(o&&o.pause===pid)agSet(k,id,null);}
+  S.pauses=(S.pauses||[]).filter(p=>p.id!==pid);afterAg('Pausa quitada');
+}
+
+/* ═════════════ RECORDATORIOS ═════════════ */
+function icsEsc(t){return String(t||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/[,;]/g,m=>'\\'+m);}
+function icsSheet(){
+  const t=todayK(),until=S.agendaUntil||addDays(t,28);
+  openSheet(`<div class="sheet-title">🔔 Avisos en tu calendario</div>
+    <p class="hint">Se crea un archivo de calendario con tus tareas importantes (hábitos, clases, fútbol, partido) y un aviso 5 minutos antes. Ábrelo y añádelo a Google Calendar o al Calendario de Apple: te avisará aunque la app esté cerrada.</p>
+    <p class="hint">Si cambias la agenda (anular, mover…), vuelve a exportarlo. Te recomiendo exportar 2–4 semanas cada vez.</p>
+    <div class="two" style="margin-top:10px"><div><label class="lbl" style="margin-top:0">Desde</label><input type="date" id="icF" value="${t}"></div><div><label class="lbl" style="margin-top:0">Hasta</label><input type="date" id="icT" value="${addDays(t,13)<until?addDays(t,13):until}"></div></div>
+    <label class="chk"><input type="checkbox" id="icM"> Incluir comidas y cenas</label>
+    <div class="btns"><button class="btn pri" onclick="exportICS()">Crear y abrir</button></div>`);
+}
+function buildICS(f,to,meals){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rutina//ES','CALSCALE:GREGORIAN','X-WR-CALNAME:Rutina'];let n=0;
+  const dt=(k,hm)=>{let m=tm(hm),kk=k;if(m>=1440){m-=1440;kk=addDays(k,1);}return kk.replace(/-/g,'')+'T'+pad(Math.floor(m/60))+pad(m%60)+'00';};
+  for(let k=f;k<=to;k=addDays(k,1))for(const e of dayEvents(k)){
+    if(e.cancelled)continue;if(!(e.kind==='habito'||e.kind==='fijo'||(meals&&(e.id==='comida'||e.id==='cena'))))continue;
+    const h=e.habit?getH(e.habit):null,pl=h?planFor(h,k):null;
+    const desc=pl&&pl.text?pl.text.slice(0,600):(e.detail||'');
+    L.push('BEGIN:VEVENT',`UID:${k}-${e.id.replace(':','-')}@rutina`,`DTSTAMP:${todayK().replace(/-/g,'')}T000000Z`,`DTSTART:${dt(k,e.start)}`,`DTEND:${dt(k,e.end)}`,
+      `SUMMARY:${icsEsc((h?h.emoji+' ':'')+e.title)}`,`DESCRIPTION:${icsEsc(desc)}`,'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(e.title)}`,'TRIGGER:-PT5M','END:VALARM','END:VEVENT');n++;}
+  L.push('END:VCALENDAR');return{text:L.join('\r\n'),n};
+}
+async function exportICS(){
+  const f=$('#icF').value,to=$('#icT').value,meals=$('#icM').checked;if(!f||!to||to<f)return toast('Revisa las fechas');
+  const{text,n}=buildICS(f,to,meals);if(!n)return toast('No hay tareas en esas fechas');
+  await shareFile(`rutina-${f}_a_${to}.ics`,text,'text/calendar','Agenda de Rutina');closeSheet();toast(`${n} tareas exportadas 🔔`);
+}
+async function toggleNotif(){
+  if(S.settings.notif){S.settings.notif=false;save();renderSet();return toast('Avisos desactivados');}
+  if(!('Notification' in window))return toast('Este navegador no permite notificaciones');
+  const p=await Notification.requestPermission();if(p!=='granted')return toast('Permiso denegado');
+  S.settings.notif=true;save();renderSet();notify('Rutina','Te avisaré al empezar cada tarea mientras la app esté abierta.');
+}
+function notify(title,body){
+  if(!S.settings.notif||!('Notification' in window)||Notification.permission!=='granted')return;
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body,icon:'icon-192.png',tag:title}));else new Notification(title,{body,icon:'icon-192.png'});}catch(e){}
+}
+const _notified=new Set();
+function checkNotify(m){
+  if(!S.settings.notif)return;const k=todayK();
+  for(const e of dayEvents(k)){if(e.cancelled||!(e.kind==='habito'||e.kind==='fijo'))continue;
+    const st=tm(e.start),key=k+e.id;if(st-5<=m&&m<st&&!_notified.has(key)){_notified.add(key);notify(`${evIcon(e)} ${e.title} a las ${fmtT(st)}`,'Empieza en 5 minutos');}}
+}
+
+/* ═════════════ PLAN COMPLETO ═════════════ */
+function planEnd(h){const pr=h.plan&&h.plan.program?Object.keys(h.plan.program).sort():[];return (h.goal&&h.goal.date)||pr[pr.length-1]||S.agendaUntil||addDays(todayK(),90);}
+function goalBox(h){
+  const end=planEnd(h),t=todayK(),left=diffDays(t,end);if(left<0&&!h.goal)return '';
+  const all=planDates(h),fut=all.filter(k=>k>=t&&!isCancelledH(h,k)).length,done=all.filter(k=>k<t&&isDone(h,k)).length+(isDone(h,t)?1:0);
+  return `<div class="fp-goal"><b>🎯 ${esc(h.goal?h.goal.label:'Fin del plan')} · ${longDate(end)} de ${end.slice(0,4)}</b><small>${left>=0?`Faltan ${left} días (${Math.ceil(left/7)} semanas) · quedan ${fut} sesiones · llevas ${done}`:'Plan terminado'}</small></div>`;
+}
+// Todos los días en que este hábito tiene algo: plan del día, programación, movidos, extras y registros
+function planDates(h){
+  const set=new Set(),end=planEnd(h),p=h.plan||{};
+  for(const k of Object.keys(p.program||{}))set.add(k);
+  for(const k of Object.keys(p.dates||{}))set.add(k);
+  if(h.schedule.mode!=='dates'&&h.schedule.mode!=='xweek'){let k=h.start,g=0;while(k<=end&&g++<800){if(isScheduled(h,k))set.add(k);k=addDays(k,1);}}
+  for(const k in S.agenda||{})if(S.agenda[k]['in:'+h.id])set.add(k);
+  for(const k in S.logs)if(S.logs[k][h.id])set.add(k);
+  return [...set].filter(k=>k>=h.start||(S.logs[k]&&S.logs[k][h.id])).sort();
+}
+function fpStatus(h,k){
+  const t=todayK(),o=agOv(k,'h:'+h.id);
+  if(isDone(h,k))return ['✅','Hecho'];
+  if(o&&o.moveTo)return ['↪️',`Movido al ${shortDate(o.moveTo)}`];
+  if(o&&o.cancel)return [o.pause?'🏖️':'⊘',o.reason||'Anulado'];
+  if(isExtra(h,k))return ['➕','Sesión extra'];
+  if(k===t)return ['👉','Hoy'];
+  if(k<t)return missCounts(h,k)?['❌','No hecho']:['〰️','Compensado en la semana'];
+  return ['',''];
+}
+let FP={id:null,f:'next',q:''};
+function fullPlan(id,k){FP={id,f:'next',q:''};renderFP();if(k)setTimeout(()=>fpGo(k),60);else setTimeout(()=>fpGo(todayK()),60);}
+function renderFP(){
+  const h=getH(FP.id);if(!h)return;const t=todayK(),q=FP.q.trim().toLowerCase();
+  let ds=planDates(h);
+  if(FP.f==='next')ds=ds.filter(k=>k>=t);else if(FP.f==='done')ds=ds.filter(k=>isDone(h,k));
+  const rows=ds.map(k=>{const pl=planFor(h,k)||{text:'',tag:''};return{k,pl}}).filter(x=>!q||(x.pl.tag+' '+x.pl.text).toLowerCase().includes(q));
+  let html='',month='';
+  for(const{k,pl}of rows){
+    const mk=k.slice(0,7);if(mk!==month){month=mk;const n=rows.filter(r=>r.k.slice(0,7)===mk).length;html+=`<div class="fp-month">${MONTHS[+k.slice(5,7)-1]} ${k.slice(0,4)} · ${n} sesion${n===1?'':'es'}</div>`;}
+    const[ic,lb]=fpStatus(h,k),title=pl.tag||(pl.text||h.name).split('\n')[0];
+    html+=`<div class="fp-item ${k===t?'today':k<t?'past':''}" id="fp-${k}"><button class="fp-row" onclick="fpToggle('${k}')"><span class="d"><b>${DOW_N[dow(k)].slice(0,3).toLowerCase()} ${+k.slice(8)}</b>${lb?esc(lb):''}</span><span class="t">${esc(title)}</span><span class="s">${ic}</span></button><div class="fp-body" id="fpb-${k}" style="display:none"></div></div>`;
+  }
+  openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">🗓️ ${esc(h.emoji)} ${esc(h.name)} · plan completo</div>
+    ${goalBox(h)}
+    <div class="fp-tools"><div class="seg">${[['next','Próximas'],['all','Todas'],['done','Hechas']].map(([v,l])=>`<button class="${FP.f===v?'on':''}" onclick="FP.f='${v}';renderFP()">${l}</button>`).join('')}</div>
+      <div class="row"><input id="fpQ" placeholder="Buscar: Speaking, Test 3, pierna, isla…" value="${esc(FP.q)}" oninput="FP.q=this.value;clearTimeout(window._fpT);window._fpT=setTimeout(()=>{renderFP();const i=$('#fpQ');i.focus();i.setSelectionRange(i.value.length,i.value.length);},350)"><button class="btn ghost" style="width:auto;padding:10px 14px" onclick="fpGo(todayK())">Hoy</button></div></div>
+    <p class="hint">${rows.length} sesiones${q?' con «'+esc(FP.q)+'»':''}. Toca una para ver exactamente qué hacer.</p>
+    ${html||'<p class="hint">No hay sesiones con ese filtro.</p>'}</div>`);
+}
+function fpToggle(k){
+  const b=$('#fpb-'+k),h=getH(FP.id);if(!b||!h)return;
+  if(b.style.display==='none'){const pl=planFor(h,k);
+    b.innerHTML=`${pl&&pl.text?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`:'<p class="hint">Sin plan detallado este día.</p>'}<div class="btns" style="margin-top:8px"><button class="btn ghost" onclick="closeSheet();pick('${k}');go('hoy')">Abrir este día</button><button class="btn ghost" onclick="evSheet('${k}','h:${h.id}')">Mover o anular</button></div>`;
+    b.style.display='block';}else b.style.display='none';
+}
+function fpGo(k){
+  const h=getH(FP.id);if(!h)return;const ds=planDates(h);const tgt=ds.find(d=>d>=k)||ds[ds.length-1];
+  if(!tgt)return;if(!$('#fp-'+tgt)){FP.f='all';FP.q='';renderFP();}
+  const el=$('#fp-'+tgt);if(el){el.scrollIntoView({block:'center'});}
+}
+
+/* ═════════════ TOTAL SEMANAL ═════════════ */
+function weekCard(k){
+  const hs=S.habits.filter(h=>!h.archived&&weekGoal(h,k)>0);if(!hs.length)return '';
+  const ws=weekStartK(k);let G=0,M=0;
+  const rows=hs.map(h=>{const g=weekGoal(h,k),m=weekMins(h,k);G+=g;M+=Math.min(m,g);const p=Math.min(1,m/g);
+    return `<button class="wk-row" onclick="openDetail('${h.id}')"><span>${esc(h.emoji)}</span><div><div class="nm">${esc(h.name)}</div><div class="wk-bar"><i style="width:${Math.round(p*100)}%;background:${h.color}"></i></div></div><span class="vl"><b>${fmtDur(m)}</b> / ${fmtDur(g)}${m>=g?' ✓':''}</span></button>`;}).join('');
+  const open=OPEN['wk']!==false;
+  return `<div class="card wk-card"><button class="wk-hd" style="width:100%" onclick="OPEN['wk']=${open?'false':'true'};render()"><b>📊 ${ws===weekStartK(todayK())?'Esta semana':'Total semanal'} · ${Math.round(M/G*100)}%</b><small>${shortDate(ws)}–${shortDate(addDays(ws,6))} ${open?'▴':'▾'}</small></button>${open?rows+'<p class="hint" style="margin:6px 0 0">Si un día no puedes, compénsalo otro día de la semana: si llegas al total, no cuenta como fallo.</p>':''}</div>`;
+}
+function weekHistBlock(h){
+  const t=todayK();if(!(weekGoal(h,t)>0||weekMins(h,t)>0))return '';
+  const n=Math.min(10,weeksSince(h.start,10,1)),bars=[];let mx=1;
+  for(let i=n-1;i>=0;i--){const k=addDays(weekStartK(t),-7*i),g=weekGoal(h,k),m=weekMins(h,k);mx=Math.max(mx,g,m);bars.push({k,g,m});}
+  const H=56;
+  return `<div class="sec">Total semanal</div><div class="card" style="margin-bottom:0"><div class="wk-hd"><b>${fmtDur(weekMins(h,t))} de ${fmtDur(weekGoal(h,t))} esta semana</b><small>${bars.filter(b=>b.g&&b.m>=b.g).length}/${bars.filter(b=>b.g).length} semanas cumplidas</small></div>
+    <div class="wk-hist">${bars.map(b=>`<div title="${fmtDur(b.m)} / ${fmtDur(b.g)}"><i style="height:${Math.max(2,Math.round(b.m/mx*H))}px;background:${b.g&&b.m>=b.g?h.color:'color-mix(in srgb,'+h.color+' 40%,transparent)'}"></i><span>${shortDate(b.k).split(' ')[0]}</span></div>`).join('')}</div></div>`;
+}
+function minsSheet(id,k){
+  const h=getH(id);if(!h)return;const cur=Math.round(minsOf(h,k));
+  openSheet(`<div style="--hc:${h.color}"><div class="sheet-title">⏱ ${esc(h.emoji)} ${esc(h.name)}</div><div class="sub mb12">${longDate(k)} · previsto ${fmtDur(evDur(h,k))}</div>
+    <p class="hint">Pon lo que has hecho de verdad. Suma a tu total de la semana: si un día haces más, compensa el que no pudiste.</p>
+    <div class="two" style="margin-top:10px"><div><label class="lbl" style="margin-top:0">Horas</label><input type="number" inputmode="numeric" min="0" id="mnH" value="${Math.floor(cur/60)}"></div><div><label class="lbl" style="margin-top:0">Minutos</label><input type="number" inputmode="numeric" min="0" max="59" id="mnM" value="${cur%60}"></div></div>
+    <div class="btns">${[30,45,60,90].map(v=>`<button class="btn ghost" onclick="$('#mnH').value=${Math.floor(v/60)};$('#mnM').value=${v%60}">${fmtDur(v)}</button>`).join('')}</div>
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="saveMins('${id}','${k}')">Guardar</button></div></div>`);
+}
+function saveMins(id,k){
+  const h=getH(id),v=(parseInt($('#mnH').value)||0)*60+(parseInt($('#mnM').value)||0);
+  if(v<0||v>16*60)return toast('Revisa el tiempo');
+  pushUndo();const was=isDone(h,k),e=ens(h,k);
+  if(h.type==='time')e.v=v;else if(v>0)e.mins=v;else delete e.mins;
+  closeSheet();commit(h,k,was);
+}
+
+/* ═════════════ SESIONES EXTRA ═════════════ */
+function typicalDur(h){for(const k in S.agendaBase||{}){const e=S.agendaBase[k].find(x=>x.id==='h:'+h.id);if(e)return tm(e.end)-tm(e.start);}return h.type==='time'&&h.target?h.target:60;}
+function extraSheet(k){
+  const opts=S.habits.filter(h=>!h.archived&&!showOn(h,k));
+  if(!opts.length)return toast('Ese día ya tienes todos tus hábitos');
+  openSheet(`<div class="sheet-title">➕ Sesión extra</div><div class="sub mb12">${longDate(k)}</div>
+    <p class="hint">Haz un hábito un día que no le toca. Si lo completas, suma a su progreso, sus estadísticas y su racha; si al final no lo haces, no cuenta como fallo.</p>
+    <label class="lbl">Qué</label><select id="exH">${opts.map(h=>`<option value="${h.id}">${esc(h.emoji)} ${esc(h.name)}</option>`).join('')}</select>
+    <label class="lbl">Hora de inicio</label><input type="time" id="exS" value="">
+    <p class="hint">Déjala vacía y busco el primer hueco libre a partir de las 18:00.</p>
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="addExtra('${k}')">Añadir</button></div>`);
+}
+function addExtra(k){
+  const h=getH($('#exH').value);if(!h)return;const dur=typicalDur(h),v=$('#exS').value;
+  const st=v?tm(v):freeSlot(k,dur,18*60);
+  pushUndo();agSet(k,'in:'+h.id,{extra:true,start:fmtT(st),end:fmtT(st+dur)});
+  const ov=overlaps(k,'h:'+h.id,st,st+dur);
+  afterAg(`${h.emoji} ${h.name} extra a las ${fmtT(st)}${ov.length?` · coincide con ${ov[0]}`:''}`);
+}
+function removeExtra(k,hid){
+  pushUndo();agSet(k,'in:'+hid,null);
+  if(S.logs[k]&&S.logs[k][hid]){delete S.logs[k][hid];if(!Object.keys(S.logs[k]).length)delete S.logs[k];}
+  afterAg('Sesión extra quitada');
+}
+
+function icsURL(){const u=new URL('rutina.ics',location.href);return u.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(u.host)?u.href:null;}
+function subscribeSheet(){
+  const u=icsURL();
+  if(!u)return openSheet(`<div class="sheet-title">📅 Suscribir el calendario</div><p class="hint">Disponible cuando la app esté publicada en tu dirección propia (GitHub Pages). Mientras tanto usa «Exportar unas semanas al calendario».</p>`);
+  const w=u.replace(/^https:/,'webcal:');
+  openSheet(`<div class="sheet-title">📅 Suscribir el calendario</div>
+    <p class="hint">Añade tu agenda (hábitos, clases, fútbol, partido) al calendario del móvil con un aviso 5 minutos antes de cada cosa. Funciona con la app cerrada y se actualiza sola.</p>
+    <div class="sec">iPhone</div>
+    <a class="btn pri" style="display:block;text-align:center;text-decoration:none" href="${w}">Suscribirme en el iPhone</a>
+    <p class="hint">Pulsa «Suscribirse» y luego «Añadir». En Ajustes › Apps › Calendario › Cuentas › Calendarios suscritos puedes poner que se actualice cada hora y que los avisos estén activados.</p>
+    <div class="sec">Google Calendar</div>
+    <button class="btn ghost" onclick="navigator.clipboard.writeText('${u}').then(()=>toast('Enlace copiado'))">Copiar enlace</button>
+    <p class="hint">En el ordenador: calendar.google.com › «Otros calendarios» › «+» › «Desde URL» y pega el enlace.</p>
+    <p class="hint">Ojo: refleja tu plan, no los cambios que hagas a mano en la app (anular, mover). Para esos días usa «Exportar unas semanas».</p>`);
+}
+
+/* ═════════════ SHEET ═════════════ */
+function openSheet(html,keep){
+  if(html!==null&&html!==undefined)$('#sheetBody').innerHTML=html;
+  $('#sheet').scrollTop=0;
+  $('#ov').classList.add('on');$('#sheet').classList.add('on');document.body.style.overflow='hidden';
+}
+function closeSheet(){$('#ov').classList.remove('on');$('#sheet').classList.remove('on');document.body.style.overflow='';D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
+
+/* ═════════════ INICIO ═════════════ */
+let _lastDay=todayK();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible')return;
+  const t=todayK();if(t!==_lastDay){if(sel===_lastDay)sel=t;_lastDay=t;}
+  render();
+});
+applyAccent();
+swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
+if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
+render();
+autoPlan();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

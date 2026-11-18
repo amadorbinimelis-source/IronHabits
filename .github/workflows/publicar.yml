@@ -1,0 +1,45 @@
+# Cada cambio en main: genera el calendario, pasa las pruebas y, si todo va bien, publica en GitHub Pages.
+name: Probar y publicar
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generar calendario
+        run: python gen/build_ics.py
+      - name: Revisar la agenda
+        run: python tests/test_agenda.py
+      - name: Probar la app en un navegador
+        run: |
+          pip install playwright
+          python -m http.server 8765 >/dev/null 2>&1 &
+          sleep 2
+          mkdir -p /tmp/t
+          python tests/test_app.py
+      - name: Preparar la web
+        run: |
+          mkdir _site
+          cp index.html plan.json sw.js manifest.webmanifest icon-192.png icon-512.png rutina.ics _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

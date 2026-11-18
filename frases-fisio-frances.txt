@@ -1,0 +1,60 @@
+Qu'est-ce que tu fais dans la vie ? | ¿A qué te dedicas?
+Tu es physiothérapeute ? | ¿Eres fisioterapeuta?
+Où est-ce que tu travailles ? | ¿Dónde trabajas?
+Tu travailles avec quelle équipe ? | ¿Con qué equipo trabajas?
+Combien de jours par semaine tu travailles ? | ¿Cuántos días a la semana trabajas?
+Tu aimes ton travail ? | ¿Te gusta tu trabajo?
+Pourquoi tu as choisi la physiothérapie ? | ¿Por qué elegiste fisioterapia?
+Quelle est ta spécialité ? | ¿Cuál es tu especialidad?
+Tu travailles avec des sportifs ? | ¿Trabajas con deportistas?
+Qu'est-ce que tu fais pendant un match ? | ¿Qué haces durante un partido?
+Bonjour, comment allez-vous ? | Hola, ¿cómo está?
+Qu'est-ce qui vous amène ? | ¿Qué le trae por aquí?
+Où avez-vous mal ? | ¿Dónde le duele?
+Depuis quand avez-vous mal ? | ¿Desde cuándo le duele?
+Comment est-ce arrivé ? | ¿Cómo pasó?
+Vous avez mal maintenant ? | ¿Le duele ahora?
+De zéro à dix, combien avez-vous mal ? | Del cero al diez, ¿cuánto le duele?
+La douleur est forte ou légère ? | ¿El dolor es fuerte o leve?
+Ça vous fait mal quand vous marchez ? | ¿Le duele al caminar?
+Vous avez mal la nuit ? | ¿Le duele por la noche?
+Vous faites du sport ? | ¿Hace deporte?
+Vous prenez des médicaments ? | ¿Toma medicamentos?
+Vous avez déjà eu cette blessure ? | ¿Ya ha tenido esta lesión antes?
+Vous avez vu un médecin ? | ¿Ha ido al médico?
+Vous pouvez plier le genou ? | ¿Puede doblar la rodilla?
+Vous pouvez lever le bras ? | ¿Puede levantar el brazo?
+Ça fait mal ici ? | ¿Le duele aquí?
+C'est mieux qu'hier ? | ¿Está mejor que ayer?
+Vous avez fait vos exercices à la maison ? | ¿Ha hecho los ejercicios en casa?
+Vous avez des questions ? | ¿Tiene alguna pregunta?
+Je suis physiothérapeute. | Soy fisioterapeuta.
+Je suis en quatrième année de physiothérapie. | Estoy en cuarto de fisioterapia.
+Je travaille dans une équipe de football. | Trabajo en un equipo de fútbol.
+Je travaille avec les jeunes et l'équipe première. | Trabajo con los pequeños y con el primer equipo.
+Je travaille deux soirs par semaine et le jour du match. | Trabajo dos tardes a la semana y el día de partido.
+Je m'occupe des joueurs blessés. | Me encargo de los jugadores lesionados.
+Je fais des massages et des bandages. | Hago masajes y vendajes.
+J'aide les joueurs à revenir sur le terrain. | Ayudo a los jugadores a volver al campo.
+J'aime beaucoup la physio du sport. | Me gusta mucho la fisio deportiva.
+Pendant le match, je suis sur le banc. | Durante el partido estoy en el banquillo.
+Bonjour, je m'appelle Amador, je suis votre physio. | Hola, me llamo Amador, soy su fisio.
+Asseyez-vous, s'il vous plaît. | Siéntese, por favor.
+Allongez-vous sur la table. | Túmbese en la camilla.
+Je vais regarder votre genou. | Voy a mirarle la rodilla.
+Dites-moi si ça fait mal. | Dígame si le duele.
+Détendez-vous. | Relájese.
+Respirez profondément. | Respire hondo.
+Pliez la jambe. | Doble la pierna.
+Tendez le bras. | Estire el brazo.
+Encore une fois. | Otra vez.
+Très bien, continuez. | Muy bien, siga.
+Ce n'est pas grave. | No es grave.
+C'est un petit problème musculaire. | Es un pequeño problema muscular.
+On va faire quelques exercices. | Vamos a hacer algunos ejercicios.
+Faites trois séries de dix. | Haga tres series de diez.
+Mettez de la glace pendant quinze minutes. | Póngase hielo quince minutos.
+Évitez de courir cette semaine. | Evite correr esta semana.
+Il faut être patient. | Hay que tener paciencia.
+Ça va aller mieux. | Va a ir mejorando.
+On se voit la semaine prochaine. | Nos vemos la semana que viene.
