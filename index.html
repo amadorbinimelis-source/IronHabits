@@ -583,6 +583,8 @@ nav button svg{width:24px;height:24px}
 .ci-row{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s2)}
 .ci-row .ci-lb{width:86px;flex:none;margin:0;font-size:var(--fs-sm);font-weight:600}
 .ci-row .ci{flex:1;margin:0;gap:var(--s1)}
+.card.tmc{display:block;width:100%;text-align:left}
+.tmc .go{color:var(--acc);font-weight:600;font-size:var(--fs-sm)}
 </style>
 </head>
 <body>
@@ -2171,9 +2173,9 @@ function tomorrowInfo(){
 }
 function tomorrowCard(){
   if(new Date().getHours()<20)return '';const i=tomorrowInfo();if(!i)return '';
-  return `<div class="card"><b style="font-size:.95rem">🌙 Mañana · ${DOW_N[dow(i.tk)].toLowerCase()} ${shortDate(i.tk)}</b>${i.bed?`<p class="hint" style="margin:2px 0 6px">A dormir a las ${i.bed} · arriba a las ${i.wake}</p>`:''}
-    ${i.evs.slice(0,7).map(e=>`<div class="tm-row"><span>${fmtT(tm(e.start))}</span><span>${evIcon(e)} ${esc(e.title)}</span></div>`).join('')}
-    <button class="btn ghost mt8" onclick="pick('${i.tk}')">Ver el plan de mañana</button></div>`;
+  // Compacta: a qué hora dormir y con qué empiezas; el resto, tocando
+  return `<button class="card tmc" onclick="pick('${i.tk}')"><div class="wk-hd"><b>🌙 Mañana · ${DOW_N[dow(i.tk)].toLowerCase()} ${shortDate(i.tk)}</b><span class="go">Ver ›</span></div>${i.bed?`<p class="hint" style="margin:0 0 4px">A dormir a las ${i.bed} · arriba a las ${i.wake}</p>`:''}
+    ${i.evs[0]?`<div class="tm-row"><span>${fmtT(tm(i.evs[0].start))}</span><span>Empiezas con ${evIcon(i.evs[0])} ${esc(i.evs[0].title)}${i.evs.length>1?` · ${i.evs.length} tareas`:''}</span></div>`:''}</button>`;
 }
 
 /* ═════════════ CHECK-IN DE SUEÑO Y ENERGÍA ═════════════ */

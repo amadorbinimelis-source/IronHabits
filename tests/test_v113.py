@@ -12,9 +12,10 @@ def check(c, m):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path="/usr/bin/google-chrome")
-        ctx = await b.new_context(**p.devices["iPhone 13"])
+        # Hoy cambia según la hora: se prueba por la noche (la tarjeta de mañana es la más alta)
+        ctx = await b.new_context(**p.devices["iPhone 13"], timezone_id="Europe/Madrid")
         await ctx.add_init_script("Object.defineProperty(navigator,'standalone',{get:()=>true})")
-        pg = await ctx.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
+        pg = await ctx.new_page(); await pg.clock.install(time="2026-11-19T21:30:00+01:00"); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
         await pg.goto(URL); await pg.wait_for_timeout(1500)
         await pg.evaluate("S.habits.forEach(h=>h.start=addDays(todayK(),-30));S.logs={};S.checkins={};S.reviews={};save();sel=todayK();go('hoy')"); await pg.wait_for_timeout(300)
 
