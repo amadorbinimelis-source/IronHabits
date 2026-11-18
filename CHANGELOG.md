@@ -1,5 +1,10 @@
 # Rutina · Changelog
 
+## v1.7.1 · 18 nov 2026
+- Arreglado: en iPhone las hojas no se podían cerrar (Safari no dispara `click` en un `div` sin `cursor:pointer`, y la hoja cubría casi toda la pantalla).
+- Botón ✕ fijo arriba, zona libre de 70 px para tocar fuera, deslizar hacia abajo para cerrar, botón atrás y tecla Esc.
+- Test nuevo `tests/test_sheet_movil.py` con toques reales en un iPhone simulado.
+
 ## v1.7 · 18 nov 2026
 - Publicación en GitHub Pages con GitHub Actions: pruebas automáticas antes de cada publicación.
 - `gen/build_ics.py` genera `rutina.ics` (hábitos y compromisos fijos, zona Europe/Madrid, aviso −5 min, plan del día en la descripción).

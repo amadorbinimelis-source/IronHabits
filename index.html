@@ -201,10 +201,12 @@ textarea{resize:vertical;min-height:64px;line-height:1.45}
 
 /* Sheet */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
-.ov.on{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;max-height:92dvh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:24px 24px 0 0;z-index:210;transform:translateY(105%);transition:transform .32s cubic-bezier(.3,1.1,.5,1);padding:8px 18px calc(env(safe-area-inset-bottom) + 22px)}
+.ov.on{opacity:1;pointer-events:auto;cursor:pointer}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;max-height:calc(100vh - env(safe-area-inset-top) - 70px);max-height:calc(100dvh - env(safe-area-inset-top) - 70px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:24px 24px 0 0;z-index:210;transform:translateY(105%);transition:transform .32s cubic-bezier(.3,1.1,.5,1);padding:8px 18px calc(env(safe-area-inset-bottom) + 22px)}
 .sheet.on{transform:none}
-.handle{width:40px;height:4px;border-radius:99px;background:var(--border);margin:6px auto 14px}
+.sheet-top{position:sticky;top:-8px;z-index:5;background:var(--card);margin:-8px -18px 6px;padding:8px 12px 4px;display:flex;align-items:center;justify-content:center;touch-action:none}
+.handle{width:40px;height:5px;border-radius:99px;background:var(--border);margin:6px auto 8px}
+.sheet-x{position:absolute;right:10px;top:6px;width:38px;height:38px;border-radius:50%;background:var(--card2);border:1px solid var(--border);font-size:1.05rem;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:center}
 .sheet-title{font-size:1.2rem;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
 
 /* Nav */
@@ -396,15 +398,16 @@ nav button.on{color:var(--acc)}
   <button data-v="set" onclick="go('set')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Ajustes</button>
 </div></nav>
 
-<div class="ov" id="ov" onclick="closeSheet()"></div>
-<div class="sheet" id="sheet"><div class="handle"></div><div id="sheetBody"></div></div>
+<div class="ov" id="ov" onclick="closeSheet()" role="button" aria-label="Cerrar"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="sheet-top" id="sheetTop"><div class="handle"></div><button class="sheet-x" onclick="closeSheet()" aria-label="Cerrar">✕</button></div><div id="sheetBody"></div></div>
 <div id="toast"></div>
 <button id="timerPill" onclick="sel=S.timer?S.timer.k:sel;go('hoy')"></button>
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.7';
+const APP_VERSION='1.7.1';
 const CHANGELOG=[
+  ['1.7.1','18 nov 2026',['Arreglado: en el iPhone no se podían cerrar las ventanas de las tareas','Ahora se cierran con ✕, tocando la zona oscura, deslizando hacia abajo o con el botón atrás']],
   ['1.7','18 nov 2026',['Publicada en GitHub Pages: instalable en el iPhone y se actualiza sola','📅 Suscripción al calendario del iPhone / Google con aviso 5 min antes de cada tarea']],
   ['1.6.1','18 nov 2026',['Botones grandes «‹ Anterior» y «Siguiente ›» para cambiar de semana en Hoy y en la Agenda','Se ve qué semana miras («Dentro de 2 semanas · 30 nov – 6 dic»); tócalo para volver a hoy','También puedes deslizar el dedo sobre los días']],
   ['1.6','18 nov 2026',['🗓️ Ver todo el plan de cada hábito: todas las sesiones día a día hasta su meta (inglés hasta el examen B2 del 19 jun 2027)','Cuenta atrás: días, semanas y sesiones que quedan','Buscador (Speaking, Test 3, pierna…) y filtros Próximas / Todas / Hechas','Toca una sesión para ver exactamente qué hacer, abrir ese día o moverla']],
@@ -1824,9 +1827,15 @@ function subscribeSheet(){
 function openSheet(html,keep){
   if(html!==null&&html!==undefined)$('#sheetBody').innerHTML=html;
   $('#sheet').scrollTop=0;
+  if(!$('#sheet').classList.contains('on')&&!(history.state&&history.state.sheet)){try{history.pushState({sheet:1},'');}catch(e){}}
   $('#ov').classList.add('on');$('#sheet').classList.add('on');document.body.style.overflow='hidden';
 }
-function closeSheet(){$('#ov').classList.remove('on');$('#sheet').classList.remove('on');document.body.style.overflow='';D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
+var _skipPop=false;
+function closeSheet(fromPop){
+  if(!$('#sheet').classList.contains('on'))return;
+  if(!fromPop&&history.state&&history.state.sheet){_skipPop=true;try{history.back();}catch(e){_skipPop=false;}}
+  $('#sheet').style.transform='';
+  $('#ov').classList.remove('on');$('#sheet').classList.remove('on');document.body.style.overflow='';D=null;if(_dlg){const r=_dlg;_dlg=null;r(false);}}
 
 /* ═════════════ INICIO ═════════════ */
 let _lastDay=todayK();
@@ -1836,6 +1845,14 @@ document.addEventListener('visibilitychange',()=>{
   render();
 });
 applyAccent();
+addEventListener('popstate',()=>{if(_skipPop){_skipPop=false;return;}if($('#sheet').classList.contains('on'))closeSheet(true);});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+(function(){ // deslizar la hoja hacia abajo para cerrarla
+  const sh=$('#sheet');let y0=null,dy=0,fromTop=false;
+  sh.addEventListener('touchstart',e=>{fromTop=e.target.closest('#sheetTop')||sh.scrollTop<=0;y0=fromTop?e.touches[0].clientY:null;dy=0;},{passive:true});
+  sh.addEventListener('touchmove',e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy>0&&(sh.scrollTop<=0||e.target.closest('#sheetTop'))){sh.style.transition='none';sh.style.transform=`translateY(${dy}px)`;}else if(dy<0){y0=null;sh.style.transform='';}},{passive:true});
+  sh.addEventListener('touchend',()=>{sh.style.transition='';if(y0!==null&&dy>110)closeSheet();else sh.style.transform='';y0=null;},{passive:true});
+})();
 swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();

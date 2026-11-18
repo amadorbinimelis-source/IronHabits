@@ -28,6 +28,7 @@ jobs:
           sleep 2
           mkdir -p /tmp/t
           python tests/test_app.py
+          python tests/test_sheet_movil.py
       - name: Preparar la web
         run: |
           mkdir _site
