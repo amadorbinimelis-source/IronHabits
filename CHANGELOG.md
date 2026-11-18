@@ -1,5 +1,11 @@
 # Rutina · Changelog
 
+## v1.12 · 19 nov 2026 · Auditoría, trozo 3: sistema visual
+- Tokens en `:root`: color (fondo `#0B0B0F`, superficies `#141419`/`#1C1C23`/`#26262F`, bordes `#2A2A33`, texto `#F4F4F6`/`#A3A3AE`/`#82828E`, estados), tipografía (32/22/17/15/13/12 px; el rem sigue a 16), espaciado 4–32, radios 8/12/16/24, sombras `--e1`/`--e2` y movimiento (`--ease`, 150/250 ms). Los nombres antiguos de variables se mantienen.
+- Componentes revisados: tarjetas, hábitos, botones, filas, campos con foco, semana, KPIs, Ahora/Después, hojas, toasts, barra inferior y píldora.
+- Iconos SVG (`ICONS`, `ic()`, `ri()`) en Ajustes, copias y nube; ✓ de completar y pasos en SVG.
+- `COLORS` afinados para fondo oscuro (12); los hábitos existentes conservan su color.
+
 ## v1.11 · 18 nov 2026 · Auditoría, trozo 2: arreglos de iPhone
 - Objetivos táctiles de 44 px o más en todas las pantallas y hojas (medido en `tests/test_v111.py`); iconos del editor en 7 columnas.
 - Letra mínima de 11 px (antes había textos de 8,8 px); `--dim` pasa a `#80808C` (4,7:1); la barra inferior usa `--muted`.

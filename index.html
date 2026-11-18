@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0A0A0D">
+<meta name="theme-color" content="#0B0B0F">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -393,6 +393,164 @@ nav button{color:var(--muted)}
 body.kb-on .sheet{transition:transform .32s cubic-bezier(.3,1.1,.5,1),bottom .15s ease;padding-bottom:16px}
 body.kb-on nav,body.kb-on #timerPill{visibility:hidden}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* ═════════════ SISTEMA VISUAL v2 (v1.12) ═════════════
+   Una sola fuente de verdad: color, tipografía, espaciado (múltiplos de 4), radios, sombras y movimiento.
+   Los nombres antiguos (--bg, --card, --muted…) se mantienen para no romper nada y apuntan a los nuevos valores. */
+:root{
+  /* Color */
+  --bg:#0B0B0F;--bg2:#101015;--card:#141419;--card2:#1C1C23;--card3:#26262F;--border:#2A2A33;--border2:#363641;
+  --text:#F4F4F6;--muted:#A3A3AE;--dim:#82828E;
+  --acc-press:color-mix(in srgb,var(--acc) 82%,#000);--on-acc:#06140B;
+  --warn:#FBBF24;--danger:#F87171;--info:#60A5FA;--ok:#22C55E;
+  /* Tipografía (px) */
+  --fs-title:32px;--fs-h2:22px;--fs-h3:17px;--fs-body:15px;--fs-sm:13px;--fs-xs:12px;
+  /* Espaciado */
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;
+  /* Radios */
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r:16px;
+  /* Sombras */
+  --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.03);--e2:0 12px 32px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);
+  /* Movimiento */
+  --ease:cubic-bezier(.2,.8,.2,1);--t-fast:150ms;--t:250ms;
+}
+html{background:var(--bg)}
+body{background:var(--bg);font-size:var(--fs-body);line-height:1.4;letter-spacing:-.01em} /* el rem sigue a 16 px */
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:var(--r-sm)}
+button{transition:transform var(--t-fast) var(--ease),background-color var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease),opacity var(--t-fast)}
+button:active:not(:disabled){transform:scale(.97)}
+.view.on{animation:fade var(--t) var(--ease)}
+
+/* Títulos y textos */
+.top{margin-bottom:var(--s4);align-items:center}
+.h1{font-size:var(--fs-title);font-weight:700;letter-spacing:-.04em;line-height:1.1}
+.sub{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s1)}
+.sec{font-size:var(--fs-xs);font-weight:600;letter-spacing:.08em;color:var(--dim);margin:var(--s5) var(--s1) var(--s2)}
+.sec::after{background:linear-gradient(90deg,var(--border),transparent)}
+.lbl{font-size:var(--fs-xs);font-weight:600;letter-spacing:.06em;color:var(--muted);margin:var(--s4) 0 var(--s2)}
+.hint{font-size:var(--fs-sm);color:var(--muted);line-height:1.5}
+.sheet-title{font-size:var(--fs-h2);font-weight:700;letter-spacing:-.02em;padding-right:48px}
+
+/* Superficies */
+.card,.kpi,.hl,.banner{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--e1)}
+.card{padding:var(--s4);margin-bottom:var(--s3)}
+.banner{padding:var(--s3) var(--s4);margin-bottom:var(--s3);font-size:var(--fs-sm);gap:var(--s3)}
+.banner b{font-size:var(--fs-body);font-weight:600}
+.banner small{font-size:var(--fs-sm)}
+.banner.warn{border-color:color-mix(in srgb,var(--warn) 40%,var(--border));background:color-mix(in srgb,var(--warn) 6%,var(--card))}
+.banner .go{font-size:var(--fs-sm);font-weight:600}
+
+/* Botones */
+.btn{min-height:50px;padding:var(--s3) var(--s4);border-radius:var(--r-md);font-size:var(--fs-body);font-weight:600}
+.btn.pri{background:var(--acc);color:var(--on-acc)}
+.btn.pri:active:not(:disabled){background:var(--acc-press)}
+.btn.ghost{background:var(--card2);border:1px solid var(--border)}
+.btn.danger{color:var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent);border:1px solid color-mix(in srgb,var(--danger) 28%,transparent)}
+.btns{gap:var(--s2);margin-top:var(--s4)}
+.icon-btn{border-radius:var(--r-md);background:var(--card2);border-color:var(--border)}
+.icon-btn.acc{color:var(--on-acc);box-shadow:0 4px 14px color-mix(in srgb,var(--acc) 35%,transparent)}
+.row-btn{min-height:56px;padding:var(--s3) var(--s4);border-radius:var(--r-md);background:var(--card);border:1px solid var(--border);margin-bottom:var(--s2);font-size:var(--fs-body);font-weight:600;gap:var(--s3)}
+.row-btn small{font-size:var(--fs-sm);font-weight:400;color:var(--muted);margin-top:2px;line-height:1.35}
+.row-btn.danger{color:var(--danger)}
+.ri{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--ic,var(--acc)) 14%,transparent);color:var(--ic,var(--acc))}
+.ri svg,.ico svg{width:20px;height:20px}
+.row-btn.danger .ri{--ic:var(--danger)}
+.seg{gap:var(--s1)}
+.seg button{border-radius:10px;font-size:var(--fs-sm);font-weight:600;padding:0 var(--s3);background:var(--card2);color:var(--muted)}
+.seg button.on{background:color-mix(in srgb,var(--acc) 16%,var(--card2));border-color:color-mix(in srgb,var(--acc) 60%,transparent);color:var(--text)}
+.days button.on,.ci button.on{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.wk-btn{font-size:var(--fs-sm);font-weight:600;background:var(--card2);color:var(--text);padding:0 var(--s3)}
+.back-today,.min-btn{font-size:var(--fs-sm);font-weight:600;border-radius:999px;padding:0 var(--s3);background:var(--card2)}
+.min-btn.on{background:color-mix(in srgb,var(--warn) 16%,transparent);border-color:var(--warn);color:var(--warn)}
+
+/* Campos */
+input,textarea,select{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-md);padding:var(--s3);transition:border-color var(--t-fast),box-shadow var(--t-fast)}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+
+/* Semana */
+.wd{border-radius:var(--r-md);padding:var(--s1) 0 var(--s2)}
+.wd-l{font-size:var(--fs-xs);font-weight:600;color:var(--dim)}
+.wd.today .wd-l{color:var(--acc)}
+.wd.sel{background:var(--card);border-color:var(--border2);box-shadow:var(--e1)}
+.wd-r b{font-size:var(--fs-sm);font-weight:600;font-variant-numeric:tabular-nums}
+.wk-lbl{font-size:var(--fs-sm);font-weight:600}
+.wk-lbl small{font-size:var(--fs-xs);font-weight:500}
+
+/* Resumen del día y KPIs */
+.sum{gap:var(--s4)}
+.sum-ring b{font-size:var(--fs-body);font-weight:700;font-variant-numeric:tabular-nums}
+.sum-t{font-size:var(--fs-h3);font-weight:600}
+.sum-s{font-size:var(--fs-sm);color:var(--muted)}
+.kpis{gap:var(--s2);margin-bottom:var(--s3)}
+.kpi{padding:var(--s4)}
+.kpi b{font-size:28px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kpi span{font-size:var(--fs-xs);font-weight:600;color:var(--muted)}
+.det-kpis{gap:var(--s2)}
+.det-kpis div{border-radius:var(--r-md);background:var(--card2)}
+.det-kpis b{font-size:var(--fs-h2);font-weight:700;font-variant-numeric:tabular-nums}
+.det-kpis span{font-size:var(--fs-xs);font-weight:600;letter-spacing:.04em}
+
+/* Tarjeta de hábito */
+.hc{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:var(--s3);margin-bottom:var(--s2);box-shadow:var(--e1);transition:border-color var(--t),opacity var(--t),background-color var(--t)}
+.hc.done{background:color-mix(in srgb,var(--hc) 5%,var(--card));border-color:color-mix(in srgb,var(--hc) 35%,var(--border))}
+.hc-row{gap:var(--s3)}
+.hc-ico{width:44px;height:44px;border-radius:var(--r-md);font-size:22px;background:color-mix(in srgb,var(--hc) 16%,var(--card2))}
+.hc-ico.sm{width:36px;height:36px;border-radius:10px;font-size:18px}
+.hc-name{font-size:var(--fs-h3);font-weight:600;letter-spacing:-.01em}
+.hc-meta{font-size:var(--fs-sm);color:var(--muted);margin-top:2px}
+.ctl{width:48px;height:48px}
+.ctl.full{box-shadow:0 4px 14px color-mix(in srgb,var(--hc) 35%,transparent)}
+.ctl.full .ctl-in{color:var(--on-acc)}
+.ctl-in svg{width:22px;height:22px;display:block}
+.ctl-in{font-size:var(--fs-sm);font-weight:700;font-variant-numeric:tabular-nums}
+.hc-plan{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--hc);border-radius:var(--r-md);padding:var(--s3);font-size:var(--fs-body);line-height:1.5;margin-top:var(--s3)}
+.pl-tag{font-size:var(--fs-xs);font-weight:600;letter-spacing:.06em}
+.pl-h{font-weight:600}
+.hc-more{font-size:var(--fs-sm);font-weight:600;color:var(--muted)}
+.step{font-size:var(--fs-body);border-radius:var(--r-sm)}
+.step .sb{width:24px;height:24px;border-radius:var(--r-sm);border-color:var(--border2);color:var(--on-acc)}
+.step .sb svg{width:14px;height:14px}
+.step.on{color:var(--dim)}
+
+/* Lista de hábitos y gráficas */
+.hl{padding:var(--s3) var(--s4);margin-bottom:var(--s2)}
+.hl-name{font-size:var(--fs-body);font-weight:600}
+.hl-sub{font-size:var(--fs-sm)}
+.hl-pct{font-size:var(--fs-body);font-weight:700;font-variant-numeric:tabular-nums}
+.bar i{border-radius:var(--r-sm) var(--r-sm) 3px 3px}
+.rk{padding:var(--s3) 0}
+.rk-n div{font-size:var(--fs-body);font-weight:600}
+.rk-p{font-size:var(--fs-sm);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Ahora / después */
+.now-card{border-radius:var(--r-lg);padding:var(--s3) var(--s4);margin-bottom:var(--s3);background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 12%,var(--card)),var(--card));border-color:color-mix(in srgb,var(--acc) 30%,var(--border));box-shadow:var(--e1)}
+.now-row .lb{font-size:var(--fs-xs);font-weight:700;letter-spacing:.08em}
+.now-row .tx b{font-size:var(--fs-body);font-weight:600}
+.now-row .tx small{font-size:var(--fs-sm)}
+
+/* Hoja, aviso y barra inferior */
+.ov{background:rgba(0,0,0,.55)}
+.sheet{background:var(--card);border-color:var(--border2);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e2);padding:var(--s2) var(--s4) calc(env(safe-area-inset-bottom) + var(--s5))}
+.sheet-top{margin:-8px calc(-1 * var(--s4)) var(--s2)}
+.handle{background:var(--border2);width:36px}
+.sheet-x{background:var(--card2);border-color:var(--border);color:var(--muted)}
+#toast{background:var(--card3);border-color:var(--border2);box-shadow:var(--e2);font-size:var(--fs-sm);font-weight:500;padding:var(--s3) var(--s4)}
+#toast button{font-weight:700}
+nav{background:color-mix(in srgb,var(--bg) 82%,transparent);border-top-color:var(--border)}
+nav button{font-size:11px;font-weight:600;gap:3px}
+nav button svg{width:24px;height:24px}
+#timerPill{background:var(--card3);border-color:var(--border2);box-shadow:var(--e2);font-size:var(--fs-sm);font-weight:600}
+.badge{font-size:var(--fs-xs);font-weight:600;border-radius:999px;padding:var(--s1) var(--s2)}
+.chip{font-size:var(--fs-sm)}
+.cx{border-radius:var(--r-md);font-size:var(--fs-sm)}
+.zone{font-size:var(--fs-xs);font-weight:700}
+.empty h3{font-size:var(--fs-h3);font-weight:600}
+.empty p{font-size:var(--fs-body)}
+.empty .big{font-size:40px}
+.fp-goal{border-radius:var(--r-md)}
+.dp-item{border-radius:var(--r-md);font-size:var(--fs-sm)}
+.colors button.on{border-color:var(--text);box-shadow:0 0 0 2px var(--bg) inset}
 </style>
 </head>
 <body>
@@ -463,8 +621,9 @@ body.kb-on nav,body.kb-on #timerPill{visibility:hidden}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.11';
+const APP_VERSION='1.12';
 const CHANGELOG=[
+  ['1.12','19 nov 2026',['🎨 Nuevo sistema visual: colores más cuidados, cinco tamaños de letra, espacios y esquinas coherentes','Sombras suaves y tarjetas con tres niveles de profundidad','Iconos propios en Ajustes, la nube y las copias; el ✓ de completar ahora es un icono','Los botones se hunden al pulsarlos y los campos se iluminan al escribir','Colores nuevos, menos chillones, para tus próximos hábitos']],
   ['1.11','18 nov 2026',['📱 Hecha para el iPhone: todos los botones son fáciles de tocar (44 px) y no hay letra diminuta','⌨️ El teclado ya no tapa lo que escribes: la ventana sube con él','Los selectores de fecha y hora salen en modo oscuro','Al abrir una ventana, lo de detrás ya no se mueve y al cerrarla vuelves al mismo sitio','Los avisos largos se leen enteros y no tapan lo que hay debajo','A medianoche, «Hoy» pasa solo al día nuevo','Vibración al completar en iPhone (iOS 18 o posterior)','Respeta «Reducir movimiento» del iPhone']],
   ['1.10','18 nov 2026',['🛟 Copias automáticas en el móvil: una al día y otra antes de cada cambio grande; se restauran desde Ajustes','🔒 Nube más privada: tus datos y el calendario van en notas separadas (si ya la usabas, te pide 1 toque)','☁️ Si cierras la app justo después de marcar algo, se sube al volver a abrirla','Arreglado: «Deshacer» ya no puede devolver los datos a un momento antiguo','Arreglado: «Marcar hecho» desde la agenda marca el día del bloque, no el que tenías seleccionado','⚡ Abre al momento aunque haya mala cobertura']],
   ['1.9','18 nov 2026',['☁️ Copia automática en la nube (tu GitHub, privado): la recuperas en cualquier dispositivo y el calendario suscrito incluye tus cambios','💪 Carga de entreno: RPE × minutos y ratio agudo:crónico con aviso si subes demasiado rápido','🎯 Simulacros B2 First con nota en la escala oficial de Cambridge y tu parte más floja','🌙 Resumen de mañana a partir de las 20:00 (y aviso a las 22:00)','☀️ Check-in de sueño y energía: qué días rindes más','Arrastra un hábito a otro día en la vista Semana o 3 días']],
@@ -482,7 +641,8 @@ const CHANGELOG=[
   ['1.0','18 nov 2026',['Primera versión: hábitos, rachas, mapas de calor, estadísticas y copias']],
 ];
 const KEY='rutina_v1';
-const COLORS=['#22C55E','#3B82F6','#EF4444','#F59E0B','#A855F7','#EC4899','#14B8A6','#F97316','#84CC16','#06B6D4','#E11D48','#8B5CF6','#EAB308','#64748B'];
+// Paleta afinada para fondo oscuro (mismo brillo percibido, sin colores chillones). Los hábitos ya creados conservan su color.
+const COLORS=['#22C55E','#4ADE80','#60A5FA','#2DD4BF','#A3E635','#FBBF24','#FB923C','#F87171','#F472B6','#C084FC','#818CF8','#94A3B8'];
 const EMOJIS=['💪','🥊','🏋️','🏃','🚴','🏊','🧘','🤸','📚','🧠','✍️','🎓','🇫🇷','🇬🇧','🗣️','💧','🥗','🍎','💊','😴','🦷','🚿','🧴','🧹','📵','📈','💰','🎯','❤️','🩺','🎸','☀️','🌙','📝','🙏','🐾'];
 const MOMENTS=[['manana','☀️ Mañana'],['tarde','🌤️ Tarde'],['noche','🌙 Noche'],['any','Cualquier momento']];
 const DOW_L=['D','L','M','X','J','V','S'];
@@ -496,6 +656,31 @@ const TYPES=[
   ['time','Tiempo','Cronómetro o minutos'],
   ['checklist','Checklist','Varios pasos'],
 ];
+
+/* ═════════════ ICONOS ═════════════
+   Un único estilo de icono (trazo de 2 px, 24×24) para acciones y ajustes. Los emoji quedan solo para identificar cada hábito. */
+const ICONS={
+  upload:'<path d="M12 16V4m0 0-5 5m5-5 5 5M5 20h14"/>',
+  download:'<path d="M12 4v12m0 0-5-5m5 5 5-5M5 20h14"/>',
+  share:'<path d="M12 15V3m0 0L8 7m4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  archive:'<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>',
+  calendar:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+  calplus:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M12 12.5v6M9 15.5h6"/>',
+  bell:'<path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9M10 20.5a2 2 0 0 0 4 0"/>',
+  message:'<path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.6L3.5 21l1.4-4.6A8.5 8.5 0 1 1 20.5 12z"/>',
+  pause:'<rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/>',
+  cloud:'<path d="M7 19a5 5 0 1 1 1-9.9A6.5 6.5 0 0 1 20 11a4 4 0 0 1-1.5 8z"/>',
+  flask:'<path d="M9 3h6M10 3v6.5L4.8 18.3A1.8 1.8 0 0 0 6.4 21h11.2a1.8 1.8 0 0 0 1.6-2.7L14 9.5V3M7.5 15h9"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-3 3 3 3m-5-1 2 2"/>',
+  eject:'<path d="M5 15 12 6l7 9zM5 19h14"/>',
+  check:'<path d="M5 12.5 9.5 17 19 7.5"/>',
+};
+function ic(n,sw=2){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;}
+const ICON_HUE={calendar:'var(--info)',calplus:'var(--info)',bell:'var(--info)',message:'var(--info)',cloud:'var(--info)',pause:'var(--warn)',lock:'var(--warn)',key:'var(--warn)',flask:'#C084FC',trash:'var(--danger)'};
+function ri(n){return `<span class="ri" style="--ic:${ICON_HUE[n]||'var(--acc)'}">${ic(n)}</span>`;}
 
 /* ═════════════ ESTADO ═════════════ */
 const SCHEMA=3;
@@ -886,15 +1071,15 @@ function hcHTML(h,k){
   const dis=fut?'disabled':'';
   let ctl='';
   if(h.type==='check'){
-    ctl=`<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Marcar">${done?'':ring(0,46,4,h.color)}<span class="ctl-in">${done?'✓':''}</span></button>`;
+    ctl=`<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Marcar">${done?'':ring(0,46,4,h.color)}<span class="ctl-in">${done?ic('check',3):''}</span></button>`;
   } else if(h.type==='count'){
-    ctl=`${(e.v||0)>0&&!fut?`<button class="mini" onclick="minus('${h.id}')" aria-label="Restar">−</button>`:''}<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Sumar">${done?'':ring(p,46,4,h.color)}<span class="ctl-in">${done?'✓':'+'}</span></button>`;
+    ctl=`${(e.v||0)>0&&!fut?`<button class="mini" onclick="minus('${h.id}')" aria-label="Restar">−</button>`:''}<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Sumar">${done?'':ring(p,46,4,h.color)}<span class="ctl-in">${done?ic('check',3):'+'}</span></button>`;
   } else if(h.type==='time'){
     const full=done&&!running;
-    ctl=`<button class="ctl ${full?'full':''} ${running?'run':''}" onclick="act('${h.id}')" ${dis} aria-label="Cronómetro">${full?'':ring(p,46,4,h.color)}<span class="ctl-in">${running?'❚❚':full?'✓':'▶'}</span></button>`;
+    ctl=`<button class="ctl ${full?'full':''} ${running?'run':''}" onclick="act('${h.id}')" ${dis} aria-label="Cronómetro">${full?'':ring(p,46,4,h.color)}<span class="ctl-in">${running?'❚❚':full?ic('check',3):'▶'}</span></button>`;
   } else {
     const c=h.steps.filter(s=>(e.steps||[]).includes(s.id)).length;
-    ctl=`<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Completar todo">${done?'':ring(p,46,4,h.color)}<span class="ctl-in">${done?'✓':`${c}/${h.steps.length}`}</span></button>`;
+    ctl=`<button class="ctl ${done?'full':''}" onclick="act('${h.id}')" ${dis} aria-label="Completar todo">${done?'':ring(p,46,4,h.color)}<span class="ctl-in">${done?ic('check',3):`${c}/${h.steps.length}`}</span></button>`;
   }
   const minOn=!!(S.minDays||{})[k]&&h.minimal&&!fut;
   const pl=minOn?{text:h.minimal,tag:'Versión mínima'}:planFor(h,k);
@@ -902,7 +1087,7 @@ function hcHTML(h,k){
   const plan=pl&&open?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`:'';
   const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
   const more=pl?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',${open?0:1})">${open?'Ocultar plan ▴':'Ver plan del día ▾'}</button>`:'';
-  const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?'✓':''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
+  const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
   return `<div class="hc ${done?'done':''}" id="hc-${h.id}" style="--hc:${h.color}">
     <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div>
       <button class="hc-info" onclick="cardMenu('${h.id}')"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
@@ -1489,21 +1674,21 @@ function renderSet(){
     <div class="sec">Color de acento</div>
     <div class="card"><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="${c}"></button>`).join('')}</div></div>
     <div class="sec">Copia de seguridad</div>
-    <button class="row-btn" onclick="backupSheet()">📤<div>Hacer copia de seguridad<small>${S.settings.lastExport?`Última: ${shortDate(S.settings.lastExport)}`:'Aún no has hecho ninguna'} · guárdala en Drive, Archivos o donde quieras</small></div></button>
-    <button class="row-btn" onclick="snapSheet()">🗂️<div>Copias automáticas en este móvil<small>Una al día (últimos 7 días) y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
-    <button class="row-btn" onclick="$('#importIn').click()">📥<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade/actualiza hábitos y conserva tus registros</small></div></button>
+    <button class="row-btn" onclick="backupSheet()">${ri('upload')}<div>Hacer copia de seguridad<small>${S.settings.lastExport?`Última: ${shortDate(S.settings.lastExport)}`:'Aún no has hecho ninguna'} · guárdala en Drive, Archivos o donde quieras</small></div></button>
+    <button class="row-btn" onclick="snapSheet()">${ri('archive')}<div>Copias automáticas en este móvil<small>Una al día (últimos 7 días) y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
+    <button class="row-btn" onclick="$('#importIn').click()">${ri('download')}<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade/actualiza hábitos y conserva tus registros</small></div></button>
     <div class="sec">Recordatorios</div>
-    <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario (recomendado)<small>Tu agenda en el Calendario del iPhone o Google Calendar, con aviso 5 min antes. Se actualiza sola cuando cambia el plan</small></div></button>
-    <button class="row-btn" onclick="icsSheet()">🔔<div>Exportar unas semanas al calendario<small>Exporta la agenda (.ics) a Google Calendar o Calendario de Apple: te avisa 5 min antes de cada tarea, aunque la app esté cerrada</small></div></button>
-    <button class="row-btn" onclick="toggleNotif()">💬<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Solo con la app abierta en pantalla (el iPhone para la app al salir). Para avisos con el móvil bloqueado, usa «Suscribir el calendario»</small></div></button>
+    <button class="row-btn" onclick="subscribeSheet()">${ri('calplus')}<div>Suscribir el calendario (recomendado)<small>Tu agenda en el Calendario del iPhone o Google Calendar, con aviso 5 min antes. Se actualiza sola cuando cambia el plan</small></div></button>
+    <button class="row-btn" onclick="icsSheet()">${ri('bell')}<div>Exportar unas semanas al calendario<small>Exporta la agenda (.ics) a Google Calendar o Calendario de Apple: te avisa 5 min antes de cada tarea, aunque la app esté cerrada</small></div></button>
+    <button class="row-btn" onclick="toggleNotif()">${ri('message')}<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Solo con la app abierta en pantalla (el iPhone para la app al salir). Para avisos con el móvil bloqueado, usa «Suscribir el calendario»</small></div></button>
     <div class="sec">Pausas</div>
-    <button class="row-btn" onclick="pauseSheet()">🏖️<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
+    <button class="row-btn" onclick="pauseSheet()">${ri('pause')}<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
     <div class="sec">Nube</div>
     ${cloudRow()}
     <div class="sec">Otros</div>
-    <button class="row-btn" onclick="loadExamples()">🧪<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>
-    <button class="row-btn danger" onclick="wipe()">🗑️<div>Borrar todos los datos</div></button>
+    <button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>
+    <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar todos los datos</div></button>
     <div class="sec">Novedades</div>
     <div class="card">${CHANGELOG.map(([v,d,items],i)=>`<div style="${i?'margin-top:10px':''}"><b>v${v}</b> <span class="hint">· ${d}</span><ul class="chlog">${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</div>
     <div class="sec">Instalar</div>
@@ -1522,9 +1707,9 @@ async function shareFile(name,text,type,title){
 function exportData(){downloadFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json');markExport();toast('Copia descargada 📤');}
 function backupSheet(){
   openSheet(`<div class="sheet-title">💾 Copia de seguridad</div><p class="hint">Guarda la copia fuera del móvil (Google Drive, iCloud, correo…). Si pierdes el móvil, la importas y lo recuperas todo.</p>
-    <button class="row-btn" onclick="shareBackup()">📲<div>Compartir o guardar<small>Elige Drive, Archivos, WhatsApp a ti mismo…</small></div></button>
-    <button class="row-btn" onclick="exportData()">⬇️<div>Descargar el archivo</div></button>
-    <button class="row-btn" onclick="copyBackup()">📋<div>Copiar como texto<small>Por si no puedes descargar archivos</small></div></button>`);
+    <button class="row-btn" onclick="shareBackup()">${ri('share')}<div>Compartir o guardar<small>Elige Drive, Archivos, WhatsApp a ti mismo…</small></div></button>
+    <button class="row-btn" onclick="exportData()">${ri('download')}<div>Descargar el archivo</div></button>
+    <button class="row-btn" onclick="copyBackup()">${ri('copy')}<div>Copiar como texto<small>Por si no puedes descargar archivos</small></div></button>`);
 }
 async function shareBackup(){const ok=await shareFile(`rutina-backup-${todayK()}.json`,backupJSON(),'application/json','Copia de Rutina');if(ok){markExport();closeSheet();toast('Copia guardada 💾');}}
 async function copyBackup(){try{await navigator.clipboard.writeText(backupJSON());markExport();toast('Copia copiada al portapapeles');}catch(e){openSheet(`<div class="sheet-title">Copia en texto</div><p class="hint">Selecciona todo y cópialo.</p><textarea rows="10" onclick="this.select()">${esc(backupJSON())}</textarea>`);markExport();}}
@@ -2125,21 +2310,21 @@ async function cloudMigrate(){
 }
 function cloudRow(){
   const c=cloudCfg();
-  if(!c||!c.gistId)return `<button class="row-btn" onclick="cloudSheet()">☁️<div>Copia automática en la nube<small>Se guarda sola en tu GitHub (privado), la recuperas en cualquier móvil u ordenador y el calendario suscrito incluye tus cambios</small></div></button>`;
+  if(!c||!c.gistId)return `<button class="row-btn" onclick="cloudSheet()">${ri('cloud')}<div>Copia automática en la nube<small>Se guarda sola en tu GitHub (privado), la recuperas en cualquier móvil u ordenador y el calendario suscrito incluye tus cambios</small></div></button>`;
   const when=c.lastSync?new Date(c.lastSync).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'}):'nunca';
   const st=c.err==='auth'?'<span class="cloud-bad">El código ha caducado: vuelve a conectar</span>':c.err==='gone'?'<span class="cloud-bad">No encuentro tus datos en GitHub: vuelve a conectar</span>':c.err==='net'?'<span class="cloud-bad">Sin conexión: lo reintentaré</span>':`<span class="cloud-ok">Conectada</span> · última copia ${when}${cloudPending(c)?' · cambios por subir':''}`;
-  return `${cloudLegacy(c)?`<button class="row-btn" onclick="cloudMigrate()" style="border-color:#FBBF24">🔒<div>Proteger tus datos de la nube<small>Separa tus datos del calendario compartido (1 toque)</small></div></button>`:''}<button class="row-btn" onclick="cloudSheet()">☁️<div>Nube (${esc(c.login)})<small>${st}</small></div></button>`;
+  return `${cloudLegacy(c)?`<button class="row-btn" onclick="cloudMigrate()" style="border-color:#FBBF24">${ri('lock')}<div>Proteger tus datos de la nube<small>Separa tus datos del calendario compartido (1 toque)</small></div></button>`:''}<button class="row-btn" onclick="cloudSheet()">${ri('cloud')}<div>Nube (${esc(c.login)})<small>${st}</small></div></button>`;
 }
 function cloudSheet(){
   const c=cloudCfg();
   if(c&&c.gistId){
     openSheet(`<div class="sheet-title">☁️ Nube</div><p class="hint">Conectada como <b>${esc(c.login)}</b>. Cada cambio se guarda solo en un gist secreto de tu GitHub (unos segundos después). Al abrir la app en otro dispositivo, carga lo último.</p>
-      ${cloudLegacy(c)?`<button class="row-btn" onclick="closeSheet();cloudMigrate()">🔒<div>Proteger tus datos<small>Separa tus datos del calendario compartido</small></div></button>`:''}
-      <button class="row-btn" onclick="closeSheet();cloudPush(true).then(()=>toast('☁️ Copia hecha'))">⬆️<div>Guardar ahora</div></button>
-      <button class="row-btn" onclick="closeSheet();cloudForcePull()">⬇️<div>Cargar lo que hay en la nube<small>Sustituye lo de este dispositivo (antes guardo una copia automática)</small></div></button>
-      <button class="row-btn" onclick="subscribeSheet()">📅<div>Suscribir el calendario con tus cambios</div></button>
-      ${c.err==='auth'||c.err==='gone'?`<button class="row-btn" onclick="cloudDisconnect(true)">🔑<div>Volver a conectar</div></button>`:''}
-      <button class="row-btn" onclick="cloudDisconnect()">⏏️<div>Desconectar este dispositivo<small>Tus datos siguen en la nube y en este móvil</small></div></button>`);
+      ${cloudLegacy(c)?`<button class="row-btn" onclick="closeSheet();cloudMigrate()">${ri('lock')}<div>Proteger tus datos<small>Separa tus datos del calendario compartido</small></div></button>`:''}
+      <button class="row-btn" onclick="closeSheet();cloudPush(true).then(()=>toast('☁️ Copia hecha'))">${ri('upload')}<div>Guardar ahora</div></button>
+      <button class="row-btn" onclick="closeSheet();cloudForcePull()">${ri('download')}<div>Cargar lo que hay en la nube<small>Sustituye lo de este dispositivo (antes guardo una copia automática)</small></div></button>
+      <button class="row-btn" onclick="subscribeSheet()">${ri('calplus')}<div>Suscribir el calendario con tus cambios</div></button>
+      ${c.err==='auth'||c.err==='gone'?`<button class="row-btn" onclick="cloudDisconnect(true)">${ri('key')}<div>Volver a conectar</div></button>`:''}
+      <button class="row-btn" onclick="cloudDisconnect()">${ri('eject')}<div>Desconectar este dispositivo<small>Tus datos siguen en la nube y en este móvil</small></div></button>`);
     return;
   }
   openSheet(`<div class="sheet-title">☁️ Copia automática en la nube</div>
