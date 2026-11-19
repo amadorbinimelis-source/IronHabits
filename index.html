@@ -608,6 +608,13 @@ nav button svg{width:24px;height:24px}
 .wl-ic{font-size:52px;margin:var(--s2) 0 var(--s3)}
 .wl-dots{display:flex;justify-content:center;gap:6px;margin:var(--s4) 0 0}
 .wl-dots i{width:7px;height:7px;border-radius:50%;background:var(--border2)}.wl-dots i.on{background:var(--acc);width:20px;border-radius:99px}
+.gd-top{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);font-weight:600;padding-right:48px}
+.gd-idx{min-height:44px;padding:0 var(--s3);border-radius:999px;background:var(--card2);border:1px solid var(--border);font-size:var(--fs-sm);font-weight:600;color:var(--text)}
+.gd-bar{height:4px;border-radius:99px;background:var(--card2);margin:var(--s2) 0 var(--s3);overflow:hidden}.gd-bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width var(--t) var(--ease)}
+.gd-list{text-align:left;margin:var(--s2) 0 0;padding:0;list-style:none}
+.gd-list li{position:relative;padding:var(--s2) 0 var(--s2) var(--s5);border-top:1px solid var(--border);font-size:var(--fs-body);line-height:1.5;color:var(--muted)}
+.gd-list li b{color:var(--text)}
+.gd-list li::before{content:'';position:absolute;left:6px;top:1.05em;width:6px;height:6px;border-radius:50%;background:var(--acc)}
 </style>
 </head>
 <body>
@@ -670,8 +677,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.15';
+const APP_VERSION='1.16';
 const CHANGELOG=[
+  ['1.16','19 nov 2026',['📖 Guía completa de IronHabits: 16 temas con todo lo que puedes hacer y cómo funciona (total semanal, rachas, día flojo, agenda, carga de entreno, nube…)','Índice para ir directo a cualquier tema; está en Ajustes › Guía de la app']],
   ['1.15','19 nov 2026',['💪 La app ahora se llama IronHabits (antes Rutina). Tus datos, copias y nube se conservan','Si usas la nube, vuelve a suscribir el calendario una vez: el enlace tiene el nombre nuevo']],
   ['1.14','19 nov 2026',['🕗 Hora en tus hábitos: los que crees tú salen en la agenda, en «Ahora / Después» y en el calendario','⏳ Cuenta atrás en Hoy: tus próximos exámenes y metas (B2, B1…)','🎉 Celebración al completar el día','📝 Tus notas: todas juntas y con buscador','👋 Guía rápida de la app (también en Ajustes)']],
   ['1.13.1','19 nov 2026',['Arreglado: «Añadir hábitos de ejemplo» ya no duplica los hábitos de tu plan, y se pueden quitar de una vez','«Borrar datos» ahora deja elegir: solo tus registros (el plan y la agenda se quedan) o todo y volver al plan inicial']],
@@ -1854,7 +1862,7 @@ function renderSet(){
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
     <div class="sec">Otros</div>
-    <button class="row-btn" onclick="welcomeSheet(0)">${ri('note')}<div>Guía rápida de la app<small>Cómo marcar, ver el plan, mover y saltar</small></div></button>
+    <button class="row-btn" onclick="guideIndex()">${ri('note')}<div>Guía de la app<small>Todo lo que puedes hacer, explicado por temas</small></div></button>
     <button class="row-btn" onclick="NQ='';notesSheet()">${ri('pen')}<div>Tus notas<small>Todas las notas del día y de cada hábito, con buscador</small></div></button>
     ${S.habits.some(h=>h.example)?`<button class="row-btn" onclick="removeExamples()">${ri('flask')}<div>Quitar los hábitos de ejemplo<small>${S.habits.filter(h=>h.example).length} ejemplos</small></div></button>`:hasPlan()?'':`<button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>`}
     <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar datos<small>Solo tus registros, o todo y volver al plan inicial</small></div></button>
@@ -2048,20 +2056,56 @@ function notesSheet(){
 }
 
 /* ═════════════ BIENVENIDA ═════════════ */
-const WELCOME=[
-  ['👋','Esto es IronHabits','Cada día te dice qué hacer exactamente. Empieza en <b>Hoy</b>: arriba ves lo más importante del momento y, debajo, tus hábitos por franjas.'],
-  ['✅','Marcar y ver el plan','Toca el <b>círculo</b> de la derecha para marcar un hábito. Toca su <b>nombre</b> para ver u ocultar el plan del día. El botón <b>⋯</b> tiene todo lo demás: apuntar tiempo, mover, cambiar el plan o editar.'],
-  ['👈','Moverlo o saltarlo','<b>Desliza un hábito a la izquierda</b> para pasarlo a mañana o saltarlo. En <b>Agenda</b>, mantén pulsado un bloque y arrástralo para cambiarle la hora. Todo se puede deshacer.'],
-  ['📊','Tu progreso y tus datos','En <b>Progreso</b> ves rachas, mapas de calor y la revisión semanal. En <b>Ajustes</b> conecta la nube y suscribe el calendario para tener avisos con el móvil bloqueado.'],
+const GUIDE=[
+  {ic:'💪',t:'Bienvenido a IronHabits',intro:'IronHabits te dice <b>qué hacer exactamente cada día</b> para cumplir tus objetivos: entreno, idiomas, estudio y lo que añadas. No tienes que decidir nada: abres la app y lo tienes.',
+   items:['<b>Hoy</b>: lo que toca hoy, con el plan de cada hábito.','<b>Agenda</b>: tu día hora a hora (clases, fútbol, comidas, trayectos, sueño y hábitos).','<b>Progreso</b>: rachas, porcentajes, mapas de calor, revisión semanal y gráficas.','<b>Ajustes</b>: tus datos, la nube, el calendario del iPhone, pausas y apariencia.','Esta guía tiene 16 pantallas. Puedes saltar a cualquier tema con <b>Índice</b> y volver a verla cuando quieras en Ajustes › Guía de la app.']},
+  {ic:'🗓️',t:'La pantalla Hoy',intro:'De arriba abajo:',
+   items:['<b>Semana</b>: cada día con un anillo que se llena según lo que hiciste. Toca un día para verlo o desliza a los lados (o usa las flechas) para cambiar de semana. Toca el texto del centro para volver a hoy.','<b>Tarjeta destacada</b>: una sola cosa importante según la hora (cómo has dormido por la mañana, qué toca ahora y después, o el plan de mañana a partir de las 20:00).','<b>Campana 🔔</b>: el resto de avisos (revisión semanal, copia, calendario…). El número dice cuántos hay.','<b>Resumen del día</b>: cuántos llevas y el botón <b>Día flojo</b>.','<b>⏳ Cuenta atrás</b>: tus próximos exámenes y metas. Tócala para verlas todas.','Debajo, tus hábitos por franjas: <b>Por la mañana, Por la tarde, Por la noche</b>. Al final: sesión extra, saltados, total semanal y nota del día.']},
+  {ic:'✅',t:'Marcar un hábito',intro:'Cada hábito tiene un botón redondo a la derecha. Funciona según su tipo:',
+   items:['<b>Sí / No</b>: un toque y hecho.','<b>Cantidad</b> (vasos, páginas…): cada toque suma; aparece <b>−</b> para restar.','<b>Tiempo</b>: ▶ pone en marcha el cronómetro y ❚❚ lo para. Sigue contando aunque cierres la app, te avisa al llegar al objetivo y, si cambias de pestaña, lo ves en una píldora abajo.','<b>Checklist</b>: marca cada paso dentro de la tarjeta, o toca el botón redondo para marcarlos todos.','Para desmarcar, vuelve a tocar. Después de cada acción sale un aviso abajo con <b>Deshacer</b>.','Al completar todo lo del día, ¡celebración! 🎉']},
+  {ic:'📋',t:'El plan de cada día',intro:'Lo que hace distinta a IronHabits: cada hábito te dice <b>exactamente qué hacer ese día</b>.',
+   items:['Toca el <b>nombre</b> del hábito para ver u ocultar su plan. Los pendientes salen abiertos y los hechos, cerrados.','Arriba del plan, una etiqueta te dice qué sesión es (p. ej. «Pierna B», «Semana 3 · Speaking»).','Los enlaces abren la web, el vídeo o el ejercicio directamente.','Si un día quieres hacer otra cosa: <b>⋯ › Cambiar el plan de este día</b>. Solo cambia ese día.','Para ver todas las sesiones hasta tu meta (con buscador): <b>⋯ › Progreso, guía y plan completo › Ver todo el plan</b>.','La <b>Guía</b> de cada hábito explica qué material, apps o libros necesitas.']},
+  {ic:'⋯',t:'El menú de cada hábito',intro:'El botón <b>⋯</b> de cada tarjeta abre 5 opciones:',
+   items:['<b>Apuntar lo que has hecho</b>: tiempo real, cantidad, tu progreso (muscle-ups, pino, islas, notas…) y cómo ha ido. Si haces más o menos tiempo del previsto, cuenta para tu total semanal.','<b>Mover, cambiar la hora o saltar</b>: lo mismo que tocar su bloque en la Agenda.','<b>Cambiar el plan de este día</b>.','<b>Progreso, guía y plan completo</b>: rachas, mapa de calor, historial de semanas, métricas con gráfica, meta y todas las sesiones.','<b>Editar hábito</b>: nombre, icono, color, frecuencia, hora…']},
+  {ic:'👈',t:'Mover, saltar y sesiones extra',intro:'La vida cambia y el plan se adapta:',
+   items:['<b>Desliza un hábito a la izquierda</b>: aparecen <b>Mañana</b> (lo pasa al día siguiente buscando un hueco libre) y <b>Saltar</b> (no se hace ese día).','Desde <b>⋯ › Mover…</b> puedes elegir cualquier día y hora, o saltar con un motivo (lesión, viaje, no hay clase…).','Lo saltado o movido aparece abajo en Hoy con <b>Restaurar</b>.','<b>➕ Añadir sesión extra</b> (al final de Hoy): haz un hábito un día que no te toca. Si lo haces, suma a su progreso; si al final no lo haces, no es fallo.','Algo ya hecho no se puede mover: ya cuenta.']},
+  {ic:'📊',t:'Total semanal y rachas',intro:'La regla más importante: <b>lo que cuenta es la semana</b>, como los kilómetros semanales de Runna.',
+   items:['Cada hábito tiene un <b>total semanal</b> (los minutos de sus sesiones de lunes a domingo). Lo ves en Hoy, en «Esta semana».','Si un día no puedes y <b>lo compensas otro día</b> (p. ej. 1 h 30 de francés el martes), llegas al total y ese día <b>no cuenta como fallo</b>.','Un día que tocaba y no hiciste solo es fallo si la semana termina sin llegar al total.','Saltar un día no baja el objetivo (lo puedes compensar); una <b>pausa</b> sí lo baja.','<b>Racha 🔥</b>: días seguidos cumpliendo (o semanas, en los hábitos de «X veces por semana»).','Todo lo que haces suma, aunque lo hayas movido, cambiado de hora o hecho en un día extra.']},
+  {ic:'🪫',t:'Día flojo y pausas',intro:'Para los días malos y las épocas complicadas:',
+   items:['<b>Día flojo</b> (en el resumen de Hoy): cada hábito pasa a su <b>versión mínima</b> (p. ej. 10 min). Hazla, pulsa «Versión mínima hecha» y cuenta para la racha.','Mejor una versión mínima que romper la racha: es la forma de no perder el hábito.','<b>Pausas</b> (Ajustes › Pausar hábitos): vacaciones, lesión o exámenes. Eliges fechas, motivo y qué hábitos. Esos días no cuentan como fallo ni rompen rachas.','Puedes quitar una pausa cuando quieras.']},
+  {ic:'🕗',t:'La Agenda',intro:'Tu día completo, hora a hora: clases, fútbol, partido, comidas, trayectos, sueño, tiempo libre y hábitos.',
+   items:['Elige vista: <b>Día</b>, <b>3 días</b> o <b>Semana</b>. La línea roja marca la hora actual.','<b>Toca un bloque</b> para ver su plan, marcarlo hecho, cambiar la hora, pasarlo a mañana, moverlo a otro día o saltarlo.','<b>Mantén pulsado un bloque y arrástralo</b> para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva).','En <b>Semana</b> y <b>3 días</b>, arrástralo de lado para pasarlo a otro día.','Si anulas una clase, el entreno de fuerza de ese día pasa a la sesión completa.','Si algo se solapa, te avisa. Todo se puede deshacer.']},
+  {ic:'⚡',t:'Cómo estás y carga de entreno',intro:'IronHabits aprende de ti:',
+   items:['<b>¿Cómo estás hoy?</b>: por la mañana puntúa del 1 al 5 cómo has dormido y tu energía. Tras unos días, en Progreso ves cuánto cumples según cómo estás y qué día de la semana rindes más.','<b>RPE</b>: al terminar fuerza o boxeo, toca «💪 RPE» en el aviso y di lo duro que ha sido (1–10).','<b>Carga de entreno</b> = RPE × minutos. La app compara tus últimos 7 días con la media de las 4 semanas anteriores (ratio agudo:crónico).','Zonas: baja, óptima (0,8–1,3), ojo y riesgo (más de 1,5). Si te pasas, te avisa en Hoy para que bajes unos días. Necesita 3 semanas de datos.']},
+  {ic:'📈',t:'Progreso',intro:'Todo lo que has hecho, en una pestaña:',
+   items:['Arriba: hoy, últimos 7 y 30 días, y tu mejor racha.','<b>Revisión de la semana</b> (te la recuerda el domingo o lunes): qué fue bien, qué falló, qué viene, carga, sueño y notas. Con <b>«Copiar resumen para Claude»</b> me lo pegas y ajustamos el plan.','<b>Tus hábitos</b>: cada uno con su mapa de calor y su %. Tócalo para el detalle (rachas, métricas con gráfica, total por semanas, meta y plan completo). Ahí también puedes archivarlo, ordenarlo o eliminarlo.','Gráficas: cumplimiento por semana, carga de entreno, sueño y energía, y el mapa de calor global.','<b>Simulacros B2</b>: en el detalle de Inglés (o al apuntar Inglés) pones tus puntos y te da la nota en la escala oficial de Cambridge y tu parte más floja.']},
+  {ic:'✏️',t:'Crear y editar hábitos',intro:'Con el botón <b>+</b> creas uno nuevo:',
+   items:['<b>Tipo</b>: sí/no, cantidad, tiempo o checklist.','<b>Hora (opcional)</b>: así sale en la agenda, en «Ahora / Después» y en el calendario.','<b>Frecuencia</b>: cada día, días concretos, X veces por semana, cada N días o fechas sueltas.','<b>Plan detallado</b>: qué hacer cada día de la semana, o una rotación de sesiones (A → B → C…) que avanza cada vez que lo completas, así no pierdes ninguna.','Los hábitos de tu plan se actualizan solos cuando te preparo un plan nuevo, conservando tus registros y tus cambios.']},
+  {ic:'🔔',t:'Avisos y calendario del iPhone',intro:'Para que el móvil te avise aunque no abras la app:',
+   items:['<b>Ajustes › Suscribir el calendario</b>: tu agenda entra en el Calendario del iPhone (o Google) con aviso 5 minutos antes de cada cosa, también con el móvil bloqueado. Se actualiza sola.','Con la nube conectada, el calendario incluye tus cambios (lo movido, saltado o con otra hora).','Truco: pon el <b>widget del Calendario</b> en tu pantalla de inicio y verás qué toca ahora y después.','En «Más opciones» puedes exportar unas semanas a mano o activar avisos con la app abierta (solo funcionan con la app en pantalla).']},
+  {ic:'☁️',t:'Tus datos están a salvo',intro:'Todo se guarda solo:',
+   items:['<b>En el móvil</b>, con <b>copias automáticas</b>: una al día (últimos 7 días) y otra antes de cada cambio grande. Se restauran en Ajustes › Copias automáticas.','<b>Nube</b> (Ajustes › Tus datos): se guarda en tu GitHub privado a los pocos segundos de cada cambio. Recuperas todo en otro móvil u ordenador; si hay cambios en los dos, te pregunta cuáles quedarte.','<b>Exportar o importar</b>: un archivo de copia para Drive, Archivos o WhatsApp.','<b>Borrar datos</b>: solo tus registros (el plan se queda) o todo y volver al plan inicial. Siempre se guarda antes una copia.','Tenla <b>instalada en la pantalla de inicio</b>: así el iPhone no borra nada aunque pasen días sin abrirla.']},
+  {ic:'📝',t:'Notas y trucos',intro:'Pequeñas cosas que ayudan mucho:',
+   items:['<b>Nota del día</b> al final de Hoy: sensaciones, molestias, qué ajustar. Se guarda sola.','<b>Tus notas</b> (final de Hoy o Ajustes): todas juntas, las del día y las de cada hábito, con buscador («rodilla», «cansado»…). Toca una para ir a ese día.','Navega a días futuros para ver cómo se presenta el día y a días pasados para apuntar algo que olvidaste.','Todos los avisos de abajo tienen <b>Deshacer</b> unos segundos.','<b>Apariencia</b>: cambia el color de acento en Ajustes.']},
+  {ic:'🚀',t:'Tu rutina ideal en 4 pasos',intro:'Cómo sacarle el máximo cada día:',
+   items:['<b>Al despertar</b>: responde «¿Cómo estás hoy?» y mira la tarjeta de arriba.','<b>Durante el día</b>: abre cada hábito, sigue su plan y márcalo al terminar (RPE en los entrenos).','<b>Si algo se tuerce</b>: desliza para pasarlo a mañana, usa el Día flojo o compénsalo otro día de la semana.','<b>El domingo</b>: haz la revisión semanal y cópiamela para ajustar el plan.','Ya está. Puedes volver a esta guía en <b>Ajustes › Guía de la app</b>. ¡A por ello! 💪']},
 ];
+const GUIDE_V=2; // cambia cuando la guía tenga contenido nuevo: se enseña una vez al actualizar
 function welcomeSheet(i=0){
-  const [ic,t,txt]=WELCOME[i],last=i===WELCOME.length-1;
-  openSheet(`<div class="welcome"><div class="wl-ic">${ic}</div><div class="sheet-title" style="padding:0">${t}</div><p>${txt}</p>
-    <div class="wl-dots">${WELCOME.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>
+  i=Math.max(0,Math.min(GUIDE.length-1,i));const g=GUIDE[i],last=i===GUIDE.length-1,pct=Math.round((i+1)/GUIDE.length*100);
+  openSheet(`<div class="welcome">
+    <div class="gd-top"><span>${i+1} / ${GUIDE.length}</span><button class="gd-idx" onclick="guideIndex()">☰ Índice</button></div>
+    <div class="gd-bar"><i style="width:${pct}%"></i></div>
+    <div class="wl-ic">${g.ic}</div><div class="sheet-title" style="padding:0">${g.t}</div><p>${g.intro}</p>
+    <ul class="gd-list">${g.items.map(x=>`<li>${x}</li>`).join('')}</ul>
     <div class="btns">${i?`<button class="btn ghost" onclick="welcomeSheet(${i-1})">Atrás</button>`:`<button class="btn ghost" onclick="welcomeDone()">Saltar</button>`}<button class="btn pri" onclick="${last?'welcomeDone()':`welcomeSheet(${i+1})`}">${last?'Empezar':'Siguiente'}</button></div></div>`);
-  S.settings.welcomed=true;save();
+  S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();
 }
-function welcomeDone(){S.settings.welcomed=true;save();closeSheet();}
+function guideIndex(){
+  openSheet(`<div class="sheet-title">📖 Guía de IronHabits</div><div class="sub mb12">Toca un tema para ir directo</div>
+    ${GUIDE.map((g,i)=>`<button class="row-btn" onclick="welcomeSheet(${i})"><span class="ri" style="font-size:18px">${g.ic}</span><div>${i+1}. ${g.t}</div></button>`).join('')}`);
+}
+function welcomeDone(){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();closeSheet();}
 
 /* ═════════════ AHORA / SIGUIENTE ═════════════ */
 function nowCard(k){
@@ -2837,7 +2881,7 @@ swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();
 askPersist();
-if(!S.settings.welcomed&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on'))welcomeSheet(0);},900);
+if((S.settings.guideV||0)<GUIDE_V&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on'))welcomeSheet(0);},900);
 migrateSnaps().then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>

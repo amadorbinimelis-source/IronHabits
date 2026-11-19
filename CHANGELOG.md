@@ -2,6 +2,9 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.16 · 19 nov 2026 · Guía completa
+- `GUIDE` (16 temas: Hoy, marcar, plan del día, menú, mover/saltar/extra, total semanal y rachas, día flojo y pausas, Agenda, check-in y carga, Progreso, crear hábitos, calendario, datos y nube, notas, rutina ideal) con barra de progreso e índice (`guideIndex`). Se enseña una vez al actualizar (`GUIDE_V`).
+
 ## v1.15 · 19 nov 2026 · Nuevo nombre: IronHabits
 - Nombre en título, pantalla de inicio del iPhone, manifest, textos, guía, resumen semanal, avisos, archivos exportados (`ironhabits-backup-*.json`, `ironhabits-*.ics`), calendario (`X-WR-CALNAME`, `PRODID`, UID `@ironhabits`), `ironhabits.ics` de la web, service worker (`ironhabits-v14`), generador y README.
 - Almacenamiento: `ironhabits_v1`, `ironhabits_plan_v1`, `ironhabits_cloud` e IndexedDB `ironhabits-copias`; las claves y copias de «Rutina» se pasan solas y se borran (si queda una clave antigua, la escribió una versión anterior y se considera la más reciente).
