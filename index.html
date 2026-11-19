@@ -620,6 +620,15 @@ nav button svg{width:24px;height:24px}
 .fp-row{min-height:44px}
 .ci-row .ci-lb{width:72px}.ci-row .ci{gap:4px}.ci button{min-width:44px}
 .chk{cursor:pointer}.chk input{width:22px;height:22px;flex:none}
+/* v1.18 · Hoy inteligente */
+.sec-late{color:var(--warn)}
+.sec-btn{width:100%;min-height:44px;cursor:pointer}
+.sec-btn::after{display:none}
+.sec-btn span{margin-left:auto;color:var(--acc);letter-spacing:0;text-transform:none;font-size:var(--fs-sm);font-weight:600}
+.all-done{text-align:center;padding:var(--s4);margin:var(--s2) 0;border-radius:var(--r-lg);background:color-mix(in srgb,var(--acc) 10%,var(--card));border:1px solid color-mix(in srgb,var(--acc) 30%,var(--border));font-weight:600}
+.cd-row span{flex:1;min-width:0}
+.cd-row i{color:var(--muted);font-weight:600}
+.wk-lbl.away small{display:inline-block;margin-top:2px;padding:2px 10px;border-radius:999px;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-weight:700}
 </style>
 </head>
 <body>
@@ -682,8 +691,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.17';
+const APP_VERSION='1.18';
 const CHANGELOG=[
+  ['1.18','19 nov 2026',['🧠 Hoy se ordena según la hora: lo que toca ahora va primero','Lo pendiente de antes sigue ahí, marcado como «aún pendiente»','✅ Lo que ya has hecho baja a «Hechos hoy», plegado al final','«Después» te enseña el siguiente hábito u obligación (sin comidas ni trayectos)','Cuenta atrás más clara y botón «Volver a hoy» cuando miras otro día']],
   ['1.17','19 nov 2026',['🛟 Eliminar, archivar o editar un hábito ahora se puede deshacer, y antes se guarda una copia automática','Copias automáticas: la primera y la última de cada día','Todos los botones (Restaurar, Quitar, filas del plan…) son fáciles de tocar','Una tarjeta deslizada ya no se cierra sola','Plan actualizado: arreglada una instrucción antigua de la guía de Inglés']],
   ['1.16','19 nov 2026',['📖 Guía completa de IronHabits: 16 temas con todo lo que puedes hacer y cómo funciona (total semanal, rachas, día flojo, agenda, carga de entreno, nube…)','Índice para ir directo a cualquier tema; está en Ajustes › Guía de la app']],
   ['1.15','19 nov 2026',['💪 La app ahora se llama IronHabits (antes Rutina). Tus datos, copias y nube se conservan','Si usas la nube, vuelve a suscribir el calendario una vez: el enlace tiene el nombre nuevo']],
@@ -1074,7 +1084,7 @@ function weekLabel(){
   const ws=weekStartK(sel),tw=weekStartK(todayK()),d=Math.round(diffDays(tw,ws)/7);
   const rel=d===0?'Esta semana':d===1?'Semana que viene':d===-1?'Semana pasada':d>0?`Dentro de ${d} semanas`:`Hace ${-d} semanas`;
   const we=addDays(ws,6),y=ws.slice(0,4)!==todayK().slice(0,4)||we.slice(0,4)!==todayK().slice(0,4)?' '+we.slice(0,4):'';
-  return `${rel}<small>${d===0?shortDate(ws)+' – '+shortDate(we)+y:shortDate(ws)+' – '+shortDate(we)+y+' · volver a hoy'}</small>`;
+  return `${rel}<small>${sel===todayK()?shortDate(ws)+' – '+shortDate(we)+y:'↩ Volver a hoy'}</small>`;
 }
 // Deslizar el dedo sobre los días cambia de semana
 function swipeWeek(el){let x0=null,y0=null;el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
@@ -1089,7 +1099,7 @@ function renderWeek(target){
       <span class="wd-r">${ring(k>t?0:p,32,3,'var(--acc)')}<b>${pk(k).getDate()}</b></span></button>`;
   }
   $(target||'#wkDays').innerHTML=html;
-  const lb=$(target==='#agWeek'?'#agLbl':'#wkLbl');if(lb)lb.innerHTML=weekLabel();
+  const lb=$(target==='#agWeek'?'#agLbl':'#wkLbl');if(lb){lb.innerHTML=weekLabel();lb.classList.toggle('away',sel!==t);}
 }
 
 function renderHoy(){
@@ -1122,12 +1132,7 @@ function renderHoy(){
   if(!hs.length){
     html+=`<div class="card empty"><div class="big">🌙</div><h3>Nada programado</h3><p>Descansa o adelanta algo de otro día.</p></div>`;
   } else {
-    for(const[m,label]of MOMENTS){
-      const tt=h=>{const x=habitTime(h,k);return x&&x.start?tm(x.start):9999;};
-      const g=hs.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));
-      if(!g.length)continue;
-      html+=`<div class="sec">${label}</div>`+g.map(h=>hcHTML(h,k)).join('');
-    }
+    html+=habitSections(hs,k);
   }
   if(k<=addDays(t,7))html+=`<button class="btn ghost mt8" onclick="extraSheet('${k}')">➕ Añadir sesión extra</button>`;
   const cx=S.habits.filter(h=>!h.archived&&isCancelledH(h,k)&&!hasLog(h,k));
@@ -1139,6 +1144,28 @@ function renderHoy(){
   html+=`<div class="sec">Nota del día</div><div class="card note"><textarea id="noteIn" placeholder="Cómo ha ido, sensaciones, qué ajustar…" oninput="setNote(this.value)">${esc(S.notes[k]||'')}</textarea></div>`;
   if(Object.keys(S.notes).length||Object.values(S.logs).some(d=>Object.values(d).some(e=>e&&e.note)))html+=`<button class="btn ghost" onclick="NQ='';notesSheet()">📝 Ver todas tus notas</button>`;
   body.innerHTML=html;
+}
+/* Orden de Hoy según la hora: la franja de ahora primero, luego las siguientes, después lo que quedó pendiente
+   de franjas pasadas y, al final, «Hechos hoy» plegado. Los demás días: franjas en orden y lo hecho al final. */
+function habitSections(hs,k){
+  const t=todayK(),isToday=k===t,tt=h=>{const x=habitTime(h,k);return x&&x.start?tm(x.start):9999;};
+  const pend=hs.filter(h=>!isDone(h,k)),done=hs.filter(h=>isDone(h,k));
+  const order=['manana','tarde','noche','any'];let seq=order.map(m=>({m,past:false}));
+  if(isToday){const now=momentOfTime(fmtT(new Date().getHours()*60+new Date().getMinutes())),i=order.indexOf(now);
+    seq=[...order.slice(i,3).map(m=>({m,past:false})),{m:'any',past:false},...order.slice(0,i).map(m=>({m,past:true}))];}
+  let html='';
+  for(const{m,past}of seq){
+    const g=pend.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));if(!g.length)continue;
+    const label=MOMENTS.find(x=>x[0]===m)[1];
+    html+=`<div class="sec ${past?'sec-late':''}">${label}${past?' · aún pendiente':''}</div>`+g.map(h=>hcHTML(h,k)).join('');
+  }
+  if(!pend.length&&done.length&&k<=t)html+=`<div class="all-done">🔥 Todo hecho${isToday?' hoy':''}. ¡Bien!</div>`;
+  if(done.length){
+    const key='done:'+k,open=OPEN[key]===true;
+    html+=`<button class="sec sec-btn" onclick="OPEN['${key}']=${!open};render()" aria-expanded="${open}">✅ Hechos${isToday?' hoy':''} (${done.length}) <span>${open?'Ocultar ▴':'Ver ▾'}</span></button>`;
+    if(open)html+=done.sort((a,b)=>tt(a)-tt(b)).map(h=>hcHTML(h,k)).join('');
+  }
+  return html;
 }
 /* Avisos: una lista con prioridad. Hoy enseña solo el primero; el resto queda en la campana. */
 function noticeList(k){
@@ -2034,7 +2061,8 @@ function countdowns(){
 function cdText(k){const d=diffDays(todayK(),k);return d===0?'hoy':d===1?'mañana':d<60?`en ${d} días`:`en ${Math.round(d/7)} semanas`;}
 function countdownRow(){
   const c=countdowns();if(!c.length)return '';
-  return `<button class="cd-row" onclick="countdownSheet()" aria-label="Cuenta atrás">⏳ ${c.slice(0,2).map(x=>`<span><b>${esc(x.label)}</b> ${cdText(x.k)}</span>`).join('<i>·</i>')}<em>›</em></button>`;
+  const x=c[0];
+  return `<button class="cd-row" onclick="countdownSheet()" aria-label="Cuenta atrás">⏳ <span><b>${esc(x.label)}</b> ${cdText(x.k)}</span>${c.length>1?`<i>+${c.length-1}</i>`:''}<em>›</em></button>`;
 }
 function countdownSheet(){
   const c=countdowns();
@@ -2127,8 +2155,8 @@ function welcomeDone(){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save()
 function nowCard(k){
   const evs=dayEvents(k).filter(e=>!e.cancelled);if(!evs.length)return '';
   const n=new Date(),m=n.getHours()*60+n.getMinutes();
-  const cur=evs.find(e=>tm(e.start)<=m&&m<tm(e.end));
-  const nxt=evs.find(e=>tm(e.start)>m&&!['libre','trayecto','sueno'].includes(e.kind));
+  const cur=evs.find(e=>tm(e.start)<=m&&m<tm(e.end)&&e.kind!=='libre');
+  const nxt=evs.find(e=>tm(e.start)>m&&(e.kind==='habito'||e.kind==='fijo')); // «Después»: el siguiente hábito u obligación (sin comidas ni trayectos)
   if(!cur&&!nxt)return '';
   const row=(e,lb,cls,extra)=>`<button class="now-row ${cls}" onclick="evSheet('${k}','${e.id}')"><span class="lb">${lb}</span><div class="tx"><b>${evIcon(e)} ${esc(e.title)}</b><small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))} · ${extra}</small></div></button>`;
   const left=x=>{const d=x;return d>=60?`${Math.floor(d/60)} h ${pad(d%60)} min`:`${d} min`;};

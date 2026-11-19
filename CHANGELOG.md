@@ -2,6 +2,13 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.18 · 19 nov 2026 · Reevaluación, trozo 2: Hoy inteligente
+- `habitSections`: hoy, la franja actual primero, luego las siguientes y «En cualquier momento», después lo pendiente de franjas pasadas («aún pendiente») y «Hechos hoy (n)» plegable (`OPEN['done:'+k]`). Los demás días, franjas en orden y lo hecho al final.
+- `nowCard`: «Después» = siguiente hábito u obligación; «Ahora» ignora el tiempo libre.
+- `countdownRow`: una meta completa + número de las demás.
+- Etiqueta de semana como botón «↩ Volver a hoy» cuando `sel` no es hoy (Hoy y Agenda).
+- Tests: `tests/test_v118.py`.
+
 ## v1.17 · 19 nov 2026 · Reevaluación, trozo 1: arreglos
 - R1: `deleteH` guarda copia antes y ofrece Deshacer (hábito con su plan, registros, cambios de agenda y posición); `archiveH` y `edSave` también con Deshacer (y copia al editar).
 - R2: áreas táctiles de 44 px en `.cx` (Restaurar/Quitar), filas del plan completo y check-in dentro de la campana. `tests/test_v117.py` recorre las 4 pantallas y 25 hojas.
