@@ -2,6 +2,15 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.19 · 19 nov 2026 · Reevaluación, trozo 3: marca IronHabits
+- Iconos «IH» (`icon-180/192/512.png`, `icon-maskable-512.png`, `favicon.png`) y 12 pantallas de arranque de iOS (`splash/`), generados con anillo vacío para enlazar con la animación.
+- Pantalla de arranque animada (`#boot`): el anillo se llena por etapas (código, plan cargado, listo) y se desvanece; máx. 3 s, no bloquea toques, respeta reduced motion.
+- Manifest con `id` e icono maskable aparte; service worker `ironhabits-v15`.
+- Marca: `--brand:#F97316` en el botón +, rachas (llama SVG), celebración y «Todo hecho»; números en `ui-rounded`; iconos SVG en franjas (`MOMENT_IC`) y avisos.
+- R7: el plan pesado pasa de localStorage a IndexedDB (`ironhabits-plan`, `PLANCACHE`, `initPlan`), con migración y respaldo en localStorage si no hay IndexedDB.
+- Repositorio y web renombrados a IronHabits.
+- Tests: `tests/test_v119.py`.
+
 ## v1.18 · 19 nov 2026 · Reevaluación, trozo 2: Hoy inteligente
 - `habitSections`: hoy, la franja actual primero, luego las siguientes y «En cualquier momento», después lo pendiente de franjas pasadas («aún pendiente») y «Hechos hoy (n)» plegable (`OPEN['done:'+k]`). Los demás días, franjas en orden y lo hecho al final.
 - `nowCard`: «Después» = siguiente hábito u obligación; «Ahora» ignora el tiempo libre.

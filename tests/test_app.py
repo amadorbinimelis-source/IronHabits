@@ -75,8 +75,8 @@ async def main():
         r = await pg.evaluate("planFor(getH('fuerza'),'2026-11-25').tag")
         check("completa" in (r or ""), f"clase anulada: fuerza usa la sesión completa ({r})")
         # 12. Guardado ligero: la clave principal es pequeña y el plan va aparte
-        sz = await pg.evaluate("({main:localStorage.getItem('ironhabits_v1').length, plan:(localStorage.getItem('ironhabits_plan_v1')||'').length})")
-        check(sz["main"] < 60000 and sz["plan"] > 200000, f"guardado ligero: principal {sz['main']} B, plan {sz['plan']} B")
+        sz = await pg.evaluate("planIDB('readonly').then(P=>({main:localStorage.getItem('ironhabits_v1').length, plan:JSON.stringify(P||{}).length, ls:localStorage.getItem('ironhabits_plan_v1')}))")
+        check(sz["main"] < 60000 and sz["plan"] > 200000 and sz["ls"] is None, f"guardado ligero: principal {sz['main']} B en localStorage, plan {sz['plan']} B en IndexedDB")
         await pg.reload(); await pg.wait_for_timeout(1200)
         check(await pg.evaluate("!!S.agendaBase['2026-11-23'] && !!getH('en').plan.program && !!getH('en').guide"), "guardado ligero: al recargar se recupera agenda, plan y guías")
         # 13. Versión mínima

@@ -11,8 +11,21 @@
 <meta name="apple-mobile-web-app-title" content="IronHabits">
 <title>IronHabits</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<!-- Pantallas de arranque de iOS (al abrir desde la pantalla de inicio) -->
+<link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1080x2340.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2208.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-828x1792.png">
 <style>
 :root{
   --bg:#0A0A0D;--bg2:#111116;--card:#15151B;--card2:#1C1C24;--border:#25252E;
@@ -629,9 +642,46 @@ nav button svg{width:24px;height:24px}
 .cd-row span{flex:1;min-width:0}
 .cd-row i{color:var(--muted);font-weight:600}
 .wk-lbl.away small{display:inline-block;margin-top:2px;padding:2px 10px;border-radius:999px;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-weight:700}
+
+/* ═════════════ v1.19 · Marca IronHabits ═════════════
+   Verde = hecho. Naranja «forja» = la marca: rachas, celebración y el botón +. */
+:root{--brand:#F97316;--brand-press:#EA580C;--on-brand:#1A0A00;--num:ui-rounded,"SF Pro Rounded","SF Pro Display",-apple-system,system-ui,sans-serif}
+.icon-btn.acc{background:linear-gradient(135deg,#FB923C,var(--brand));border-color:transparent;color:var(--on-brand);box-shadow:0 4px 16px color-mix(in srgb,var(--brand) 40%,transparent)}
+.icon-btn.acc:active:not(:disabled){background:var(--brand-press)}
+.streak{display:inline-flex;align-items:center;gap:2px;color:var(--brand);font-weight:700;font-variant-numeric:tabular-nums}
+.streak svg{width:14px;height:14px;fill:color-mix(in srgb,var(--brand) 35%,transparent)}
+.kpi-streak b{display:flex;align-items:center;gap:4px;color:var(--brand)}
+.kpi-streak b svg{width:26px;height:26px;fill:color-mix(in srgb,var(--brand) 35%,transparent)}
+/* Números grandes en letra redondeada (como Apple Fitness) */
+.kpi b,.det-kpis b,.sum-ring b,.wd-r b,.cd-n,.acwr b,.dh-t b,.hl-pct,.rk-p,.bar em,.wk-row .vl b{font-family:var(--num);font-variant-numeric:tabular-nums}
+.sec-ic{display:inline-grid;place-items:center;width:18px;height:18px}
+.sec-ic svg{width:16px;height:16px}
+.cel-card{border-color:color-mix(in srgb,var(--brand) 45%,var(--border2));background:linear-gradient(160deg,color-mix(in srgb,var(--brand) 16%,var(--card3)),var(--card3))}
+.cel-big{color:var(--brand)}.cel-big svg{width:64px;height:64px;fill:color-mix(in srgb,var(--brand) 40%,transparent)}
+.all-done{background:color-mix(in srgb,var(--brand) 10%,var(--card));border-color:color-mix(in srgb,var(--brand) 30%,var(--border))}
+.banner .ri{width:32px;height:32px}
+
+/* ═════════════ Pantalla de arranque animada ═════════════ */
+#boot{position:fixed;inset:0;z-index:1000;background:#0B0B0F;pointer-events:none;transition:opacity .35s ease}
+#boot.out{opacity:0}
+.boot-logo{position:absolute;left:50%;top:40%;width:36vw;max-width:220px;height:auto;transform:translate(-50%,-50%)}
+#bootRing{transition:stroke-dashoffset .45s cubic-bezier(.2,.8,.2,1)}
+.boot-name{position:absolute;left:0;right:0;top:calc(40% + min(18vw,110px) + 6.8vw);text-align:center;color:#F4F4F6;font:900 7.5vw/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
+@media (min-width:600px){.boot-name{font-size:44px}}
+@media (prefers-reduced-motion:reduce){#bootRing{transition:none}}
 </style>
 </head>
 <body>
+<!-- Pantalla de arranque animada: el anillo se llena mientras carga (sigue a la pantalla de arranque de iOS, en la misma posición) -->
+<div id="boot" aria-hidden="true">
+  <svg class="boot-logo" viewBox="0 0 120 120">
+    <defs><linearGradient id="bootG" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F97316"/><stop offset="1" stop-color="#22C55E"/></linearGradient></defs>
+    <circle cx="60" cy="60" r="47" fill="none" stroke="#26262F" stroke-width="10"/>
+    <circle id="bootRing" cx="60" cy="60" r="47" fill="none" stroke="url(#bootG)" stroke-width="10" stroke-linecap="round" stroke-dasharray="295.3" stroke-dashoffset="295.3" transform="rotate(-90 60 60)"/>
+    <text x="60" y="61" text-anchor="middle" dominant-baseline="central" fill="#F4F4F6" font-size="38" font-weight="900" font-family="-apple-system,'SF Pro Display',Inter,system-ui,sans-serif" letter-spacing="-1">IH</text>
+  </svg>
+  <div class="boot-name">IronHabits</div>
+</div>
 <div id="app">
 
   <!-- HOY -->
@@ -691,8 +741,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.18';
+const APP_VERSION='1.19';
 const CHANGELOG=[
+  ['1.19','19 nov 2026',['💪 Nueva identidad IronHabits: icono «IH» y pantalla de arranque con el anillo que se llena mientras carga','🔶 Color de marca naranja para el botón +, las rachas y la celebración','Números redondeados e iconos dibujados en franjas y avisos','Tu plan se guarda en un espacio más grande del móvil (IndexedDB), sin límite de 5 MB','Nueva dirección: amadorbinimelis-source.github.io/IronHabits']],
   ['1.18','19 nov 2026',['🧠 Hoy se ordena según la hora: lo que toca ahora va primero','Lo pendiente de antes sigue ahí, marcado como «aún pendiente»','✅ Lo que ya has hecho baja a «Hechos hoy», plegado al final','«Después» te enseña el siguiente hábito u obligación (sin comidas ni trayectos)','Cuenta atrás más clara y botón «Volver a hoy» cuando miras otro día']],
   ['1.17','19 nov 2026',['🛟 Eliminar, archivar o editar un hábito ahora se puede deshacer, y antes se guarda una copia automática','Copias automáticas: la primera y la última de cada día','Todos los botones (Restaurar, Quitar, filas del plan…) son fáciles de tocar','Una tarjeta deslizada ya no se cierra sola','Plan actualizado: arreglada una instrucción antigua de la guía de Inglés']],
   ['1.16','19 nov 2026',['📖 Guía completa de IronHabits: 16 temas con todo lo que puedes hacer y cómo funciona (total semanal, rachas, día flojo, agenda, carga de entreno, nube…)','Índice para ir directo a cualquier tema; está en Ajustes › Guía de la app']],
@@ -725,7 +776,8 @@ const OLD_KEYS={rutina_v1:'ironhabits_v1',rutina_plan_v1:'ironhabits_plan_v1',ru
 // Paleta afinada para fondo oscuro (mismo brillo percibido, sin colores chillones). Los hábitos ya creados conservan su color.
 const COLORS=['#22C55E','#4ADE80','#60A5FA','#2DD4BF','#A3E635','#FBBF24','#FB923C','#F87171','#F472B6','#C084FC','#818CF8','#94A3B8'];
 const EMOJIS=['💪','🥊','🏋️','🏃','🚴','🏊','🧘','🤸','📚','🧠','✍️','🎓','🇫🇷','🇬🇧','🗣️','💧','🥗','🍎','💊','😴','🦷','🚿','🧴','🧹','📵','📈','💰','🎯','❤️','🩺','🎸','☀️','🌙','📝','🙏','🐾'];
-const MOMENTS=[['manana','☀️ Por la mañana'],['tarde','🌤️ Por la tarde'],['noche','🌙 Por la noche'],['any','En cualquier momento']];
+const MOMENTS=[['manana','Por la mañana'],['tarde','Por la tarde'],['noche','Por la noche'],['any','En cualquier momento']];
+const MOMENT_IC={manana:'sun',tarde:'sunset',noche:'moon',any:'clock'};
 const DOW_L=['D','L','M','X','J','V','S'];
 const DOW_N=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const WEEK_ORDER=[1,2,3,4,5,6,0];
@@ -758,6 +810,14 @@ const ICONS={
   key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-3 3 3 3m-5-1 2 2"/>',
   eject:'<path d="M5 15 12 6l7 9zM5 19h14"/>',
   check:'<path d="M5 12.5 9.5 17 19 7.5"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  sunset:'<path d="M17 18a5 5 0 0 0-10 0M12 3v6m0 0-3-3m3 3 3-3M4.2 10.2l1.4 1.4M18.4 11.6l1.4-1.4M2 18h20M6 22h12"/>',
+  moon:'<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  flame:'<path d="M12 22c4 0 7-2.7 7-7 0-3.5-2.2-5.6-3.6-7.6-.4 1.8-1.4 3-2.4 3.6.3-3-1-6.3-3.6-8 .2 2.8-1 4.6-2.4 6.2C5.6 10.8 5 12.6 5 15c0 4.3 3 7 7 7z"/>',
+  phone:'<rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M11 18.5h2"/>',
+  alert:'<path d="M12 3 2 20h20zM12 10v4M12 17.5v.5"/>',
+  review:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M8.5 15l2.3 2.3 4.7-4.6"/>',
   pen:'<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
   move:'<path d="M3 12h13m0 0-4-4m4 4-4 4"/><rect x="18" y="5" width="3" height="14" rx="1.5"/>',
   note:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
@@ -766,12 +826,28 @@ const ICONS={
   dots:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
 };
 function ic(n,sw=2){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;}
-const ICON_HUE={move:'var(--info)',note:'var(--warn)',chart:'#C084FC',edit:'var(--muted)',calendar:'var(--info)',calplus:'var(--info)',bell:'var(--info)',message:'var(--info)',cloud:'var(--info)',pause:'var(--warn)',lock:'var(--warn)',key:'var(--warn)',flask:'#C084FC',trash:'var(--danger)'};
+const ICON_HUE={sun:'var(--warn)',sunset:'var(--brand)',moon:'#A5B4FC',clock:'var(--muted)',flame:'var(--brand)',phone:'var(--info)',alert:'var(--warn)',review:'var(--info)',move:'var(--info)',note:'var(--warn)',chart:'#C084FC',edit:'var(--muted)',calendar:'var(--info)',calplus:'var(--info)',bell:'var(--info)',message:'var(--info)',cloud:'var(--info)',pause:'var(--warn)',lock:'var(--warn)',key:'var(--warn)',flask:'#C084FC',trash:'var(--danger)'};
 function ri(n){return `<span class="ri" style="--ic:${ICON_HUE[n]||'var(--acc)'}">${ic(n)}</span>`;}
 
 /* ═════════════ ESTADO ═════════════ */
 const SCHEMA=3;
-const PLAN_KEY='ironhabits_plan_v1'; // lo pesado (agenda y planes) va aparte y solo se guarda al cargar un plan
+const PLAN_KEY='ironhabits_plan_v1'; // (antiguo) el plan vivía en localStorage; ahora va en IndexedDB
+/* El plan (agenda y programas, lo pesado) se guarda en IndexedDB, que no tiene el límite de ~5 MB de localStorage.
+   En memoria se guarda una copia (PLANCACHE) para que load() siga siendo inmediato. */
+const PLAN_DB='ironhabits-plan';
+let PLANCACHE=null;try{PLANCACHE=JSON.parse(localStorage.getItem(PLAN_KEY)||'null');}catch(e){}
+function planDB(){return new Promise((res,rej)=>{if(!window.indexedDB)return rej(new Error('sin IndexedDB'));const r=indexedDB.open(PLAN_DB,1);
+  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('kv'))r.result.createObjectStore('kv');};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function planIDB(mode,val){const db=await planDB();return new Promise((res,rej)=>{const tx=db.transaction('kv',mode),st=tx.objectStore('kv');let out;
+  const q=mode==='readonly'?st.get('plan'):val===null?st.delete('plan'):st.put(val,'plan');q.onsuccess=()=>{out=q.result;};
+  tx.oncomplete=()=>{db.close();res(out);};tx.onerror=tx.onabort=()=>{db.close();rej(tx.error);};});}
+// Al arrancar: si el plan sigue en localStorage (versiones anteriores) se pasa a IndexedDB; si no, se lee de IndexedDB
+async function initPlan(){
+  try{
+    if(localStorage.getItem(PLAN_KEY)!==null){await planIDB('readwrite',PLANCACHE);localStorage.removeItem(PLAN_KEY);return;}
+    const P=await planIDB('readonly');if(P){PLANCACHE=P;mergePlanInto(S);}
+  }catch(e){}
+}
 const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[]};
 // Migraciones: cada versión del esquema añade lo que falta sin tocar los registros.
 function migrate(s){
@@ -785,17 +861,23 @@ function load(){
   let st=null;
   try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.habits))st=migrate(Object.assign(JSON.parse(JSON.stringify(DEF)),s,{schema:s.schema||1}));}catch(e){}
   st=st||JSON.parse(JSON.stringify(DEF));
-  try{const P=JSON.parse(localStorage.getItem(PLAN_KEY)||'null');
+  mergePlanInto(st);
+  return st;
+}
+function mergePlanInto(st){
+  try{const P=PLANCACHE;
     if(P){if(P.agendaBase&&!Object.keys(st.agendaBase||{}).length){st.agendaBase=P.agendaBase;st.agendaUntil=P.agendaUntil||'';st.classesKnownUntil=P.classesKnownUntil||'';}
       for(const h of st.habits){const x=(P.habits||{})[h.id];if(x){h.plan=h.plan||{};if(x.program&&!h.plan.program)h.plan.program=x.program;if(x.guide&&!h.guide)h.guide=x.guide;if(x.minimal&&!h.minimal)h.minimal=x.minimal;}}}
   }catch(e){}
-  return st;
 }
 const HEAVY=new Set(['agendaBase','program','guide','minimal']);
 function savePlan(){
   try{const P={agendaBase:S.agendaBase,agendaUntil:S.agendaUntil,classesKnownUntil:S.classesKnownUntil,habits:{}};
     for(const h of S.habits){const x={};if(h.plan&&h.plan.program)x.program=h.plan.program;if(h.guide)x.guide=h.guide;if(h.minimal)x.minimal=h.minimal;if(Object.keys(x).length)P.habits[h.id]=x;}
-    localStorage.setItem(PLAN_KEY,JSON.stringify(P));}catch(e){toast('⚠️ No se pudo guardar el plan');}
+    PLANCACHE=P;
+    planIDB('readwrite',P).then(()=>{try{localStorage.removeItem(PLAN_KEY);}catch(e){}})
+      .catch(()=>{try{localStorage.setItem(PLAN_KEY,JSON.stringify(P));}catch(e){toast('⚠️ No se pudo guardar el plan');}}); // sin IndexedDB: como antes
+  }catch(e){toast('⚠️ No se pudo guardar el plan');}
 }
 let S=load();
 function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}if(typeof cloudDirty==='function')cloudDirty();if(typeof snapSoon==='function')snapSoon();}
@@ -1157,7 +1239,7 @@ function habitSections(hs,k){
   for(const{m,past}of seq){
     const g=pend.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));if(!g.length)continue;
     const label=MOMENTS.find(x=>x[0]===m)[1];
-    html+=`<div class="sec ${past?'sec-late':''}">${label}${past?' · aún pendiente':''}</div>`+g.map(h=>hcHTML(h,k)).join('');
+    html+=`<div class="sec ${past?'sec-late':''}"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[m]]}">${ic(MOMENT_IC[m])}</span>${label}${past?' · aún pendiente':''}</div>`+g.map(h=>hcHTML(h,k)).join('');
   }
   if(!pend.length&&done.length&&k<=t)html+=`<div class="all-done">🔥 Todo hecho${isToday?' hoy':''}. ¡Bien!</div>`;
   if(done.length){
@@ -1171,15 +1253,15 @@ function habitSections(hs,k){
 function noticeList(k){
   const t=todayK();if(k!==t)return [];const out=[];const add=(prio,html)=>out.push({prio,html});
   const cc=cloudCfg();
-  if(cloudLegacy(cc))add(1,`<button class="banner warn" onclick="cloudMigrate()">🔒<div><b>Protege tus datos de la nube</b><small>Ahora el enlace del calendario podría llevar a tus datos. Se arregla en 1 toque.</small></div><span class="go">Arreglar ›</span></button>`);
-  else if(cc&&cc.resub)add(2,`<button class="banner warn" onclick="subscribeSheet()">📅<div><b>Vuelve a suscribir el calendario</b><small>Tu calendario tiene un enlace nuevo. Quita el antiguo para no verlo repetido.</small></div><span class="go">Abrir ›</span></button>`);
-  if(isIOS()&&!isStandalone())add(1,`<div class="banner warn">📲<div><b>Instálala en la pantalla de inicio</b><small>Abierta en Safari, iOS puede borrar tus datos si pasan 7 días sin usarla. Compartir › «Añadir a pantalla de inicio».</small></div></div>`);
-  const aw=acwr(t);if(aw.enough&&aw.r>1.5)add(1,`<button class="banner warn" onclick="closeSheet();go('prog')">⚠️<div><b>Pico de carga de entreno (${aw.r.toFixed(2)})</b><small>Has subido mucho respecto a tus últimas 4 semanas. Baja intensidad o volumen unos días.</small></div></button>`);
+  if(cloudLegacy(cc))add(1,`<button class="banner warn" onclick="cloudMigrate()">${ri('lock')}<div><b>Protege tus datos de la nube</b><small>Ahora el enlace del calendario podría llevar a tus datos. Se arregla en 1 toque.</small></div><span class="go">Arreglar ›</span></button>`);
+  else if(cc&&cc.resub)add(2,`<button class="banner warn" onclick="subscribeSheet()">${ri('calplus')}<div><b>Vuelve a suscribir el calendario</b><small>Tu calendario tiene un enlace nuevo. Quita el antiguo para no verlo repetido.</small></div><span class="go">Abrir ›</span></button>`);
+  if(isIOS()&&!isStandalone())add(1,`<div class="banner warn">${ri('phone')}<div><b>Instálala en la pantalla de inicio</b><small>Abierta en Safari, iOS puede borrar tus datos si pasan 7 días sin usarla. Compartir › «Añadir a pantalla de inicio».</small></div></div>`);
+  const aw=acwr(t);if(aw.enough&&aw.r>1.5)add(1,`<button class="banner warn" onclick="closeSheet();go('prog')">${ri('alert')}<div><b>Pico de carga de entreno (${aw.r.toFixed(2)})</b><small>Has subido mucho respecto a tus últimas 4 semanas. Baja intensidad o volumen unos días.</small></div></button>`);
   const wd=dow(t),ws=weekStartK(t),rk=wd===0?ws:addDays(ws,-7);
-  if((wd===0||wd===1)&&!(S.reviews||{})[rk])add(2,`<button class="banner" onclick="reviewSheet('${rk}')">🗓️<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`);
-  const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)add(2,`<div class="banner warn">📅<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`);
+  if((wd===0||wd===1)&&!(S.reviews||{})[rk])add(2,`<button class="banner" onclick="reviewSheet('${rk}')">${ri('review')}<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`);
+  const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)add(2,`<div class="banner warn">${ri('calplus')}<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`);
   const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
-  if(!(cc&&cc.gistId)&&hasData&&(!le||diffDays(le,t)>=7))add(3,`<button class="banner warn" onclick="backupSheet()">💾<div><b>Guarda una copia fuera del móvil</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'} · o conecta la nube y se hace sola</small></div><span class="go">Hacer ›</span></button>`);
+  if(!(cc&&cc.gistId)&&hasData&&(!le||diffDays(le,t)>=7))add(3,`<button class="banner warn" onclick="backupSheet()">${ri('upload')}<div><b>Guarda una copia fuera del móvil</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'} · o conecta la nube y se hace sola</small></div><span class="go">Hacer ›</span></button>`);
   return out.sort((a,b)=>a.prio-b.prio);
 }
 function banners(k){return noticeList(k).map(x=>x.html).join('');}
@@ -1210,7 +1292,7 @@ function metaText(h,k){
   if(e.min)parts.push('🪫 mínima');
   if(e.mins!=null&&h.type!=='time')parts.push(`⏱ ${fmtDur(e.mins)}`);
   if(e.m&&Object.keys(e.m).length)parts.push('📈');
-  const st=streaks(h);if(st.cur>0)parts.push(`🔥 ${st.cur}${st.unit==='sem'?' sem':''}`);
+  const st=streaks(h);if(st.cur>0)parts.push(`<span class="streak">${ic('flame')}${st.cur}${st.unit==='sem'?' sem':''}</span>`);
   return parts.join(' · ');
 }
 
@@ -1657,7 +1739,7 @@ function renderHab(){
     const st=streaks(h),r=habitRate(h,30),hm=heatCells(h,W,false);
     return `<button class="hl" style="--hc:${h.color}" onclick="openDetail('${h.id}')">
       <div class="hl-top"><span class="hc-ico sm">${esc(h.emoji)}</span>
-      <div class="hl-name"><div>${esc(h.name)}</div><div class="hl-sub">${schedText(h)}${targetText(h)?' · '+esc(targetText(h)):''}${st.cur?` · 🔥 ${st.cur}${st.unit==='sem'?' sem':''}`:''}</div></div>
+      <div class="hl-name"><div>${esc(h.name)}</div><div class="hl-sub">${schedText(h)}${targetText(h)?' · '+esc(targetText(h)):''}${st.cur?` · <span class="streak">${ic('flame')}${st.cur}${st.unit==='sem'?' sem':''}</span>`:''}</div></div>
       <span class="hl-pct">${r===null?'—':Math.round(r*100)+'%'}</span></div>
       <div class="hm" style="grid-template-columns:repeat(${W},1fr)">${hm.cells}</div></button>`;
   };
@@ -1872,9 +1954,9 @@ function renderStats(){
       <div class="kpi"><b>${today.done}/${today.total}</b><span>Hoy</span></div>
       <div class="kpi"><b>${pct(r7)}</b><span>Últimos 7 días</span></div>
       <div class="kpi"><b>${pct(r30)}</b><span>Últimos 30 días</span></div>
-      <div class="kpi"><b>${bestS&&bestS.cur?`🔥 ${bestS.cur}`:'—'}</b><span>${bestS&&bestS.cur?esc(bestS.h.emoji+' '+bestS.h.name):'Mejor racha actual'}</span></div>
+      <div class="kpi kpi-streak"><b>${bestS&&bestS.cur?`${ic('flame')}${bestS.cur}`:'—'}</b><span>${bestS&&bestS.cur?esc(bestS.h.emoji+' '+bestS.h.name):'Mejor racha actual'}</span></div>
     </div>
-    <button class="banner" onclick="reviewSheet()">🗓️<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
+    <button class="banner" onclick="reviewSheet()">${ri('review')}<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
     <!--MAS-->
     <div class="sec">Cumplimiento por semana</div>
     <div class="card"><div class="bars">${bars}</div></div>
@@ -1969,7 +2051,7 @@ async function wipeAll(){
   const plan=hasPlan();
   if(!await ask(plan?'Se borra todo y se vuelve a cargar el plan inicial, como el primer día.':'Se borrarán TODOS los hábitos, registros y notas.','Borrar todo',true))return;
   await safetySnap('Antes de borrar todo');dropUndo();
-  S=JSON.parse(JSON.stringify(DEF));save();try{localStorage.removeItem(PLAN_KEY);}catch(e){}applyAccent();sel=todayK();go('hoy');
+  S=JSON.parse(JSON.stringify(DEF));save();try{localStorage.removeItem(PLAN_KEY);}catch(e){}PLANCACHE=null;planIDB('readwrite',null).catch(()=>{});applyAccent();sel=todayK();go('hoy');
   if(plan){await autoPlan();render();toast(S.habits.length?'Empiezas de cero con tu plan ✨':'Datos borrados · el plan se cargará cuando tengas conexión');}
   else toast('Datos borrados');
 }
@@ -2079,7 +2161,7 @@ function celebrate(k){
   const el=document.createElement('div');el.className='celebrate';el.setAttribute('role','status');
   const C=['#22C55E','#60A5FA','#FBBF24','#F472B6','#C084FC','#2DD4BF','#FB923C'];
   el.innerHTML=(reduce?'':Array.from({length:42},(_,i)=>`<i style="left:${Math.random()*100}%;background:${C[i%C.length]};animation-delay:${Math.random()*.35}s;animation-duration:${1.3+Math.random()*.9}s;transform:rotate(${Math.random()*360}deg)"></i>`).join(''))+
-    `<div class="cel-card"><div class="cel-big">🔥</div><b>¡Día completo!</b><small>${best&&best.cur>1?`Racha de ${best.cur} ${best.unit==='sem'?'semanas':'días'}. Sigue así.`:'Todo lo de hoy, hecho.'}</small></div>`;
+    `<div class="cel-card"><div class="cel-big">${ic('flame',1.8)}</div><b>¡Día completo!</b><small>${best&&best.cur>1?`Racha de ${best.cur} ${best.unit==='sem'?'semanas':'días'}. Sigue así.`:'Todo lo de hoy, hecho.'}</small></div>`;
   document.body.appendChild(el);buzz();setTimeout(()=>buzz(),180);
   el.addEventListener('click',()=>el.remove());setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},2600);
 }
@@ -2926,10 +3008,23 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 })();
 swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
+/* ═════════════ ARRANQUE ═════════════
+   El anillo del logo se llena por etapas (código listo → plan cargado → listo) y la pantalla se desvanece.
+   No espera a internet: la sincronización sigue por detrás. */
+const BOOT_T0=performance.now();
+function bootProgress(p){const r=document.getElementById('bootRing');if(r)r.style.strokeDashoffset=String(295.3*(1-Math.max(0,Math.min(1,p))));}
+let _booted=false;
+function bootDone(){if(_booted)return;_booted=true;bootProgress(1);const b=document.getElementById('boot');if(!b)return;
+  const wait=Math.max(0,650-(performance.now()-BOOT_T0)); // que se vea el anillo completo un instante
+  setTimeout(()=>{b.classList.add('out');setTimeout(()=>b.remove(),400);},wait+450);}
+requestAnimationFrame(()=>bootProgress(.35));
+setTimeout(bootDone,3000); // por si algo tarda: nunca bloquea la app
+
+const _planReady=initPlan();_planReady.then(()=>{render();bootProgress(.75);requestAnimationFrame(()=>setTimeout(bootDone,120));});
 render();
 askPersist();
 if((S.settings.guideV||0)<GUIDE_V&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on')){welcomeSheet(0);guideSeen();}},900);
-migrateSnaps().then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon());
+_planReady.then(()=>migrateSnaps()).then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>

@@ -38,10 +38,11 @@ jobs:
           python tests/test_v115.py
           python tests/test_v117.py
           python tests/test_v118.py
+          python tests/test_v119.py
       - name: Preparar la web
         run: |
           mkdir _site
-          cp index.html plan.json sw.js manifest.webmanifest icon-192.png icon-512.png ironhabits.ics _site/
+          cp index.html plan.json sw.js manifest.webmanifest icon-*.png favicon.png ironhabits.ics _site/ && cp -r splash _site/
       - name: Publicar en la rama gh-pages (GitHub Pages)
         run: |
           cp CHANGELOG.md _site/ && touch _site/.nojekyll

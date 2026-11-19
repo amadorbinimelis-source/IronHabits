@@ -8,6 +8,6 @@ PWA personal de hábitos con el plan exacto de cada día (entreno, francés, ing
 - **Plan:** `plan.json`, generado con `python gen/build_plan.py`.
 - **Calendario:** `ironhabits.ics`, generado con `python gen/build_ics.py` (no se sube: lo crea la publicación).
 - **Pruebas:** `python tests/test_agenda.py` y `python tests/test_app.py` (necesita un servidor en el puerto 8765).
-- **Publicación:** cada push a `main` pasa las pruebas y publica en GitHub Pages a través de la rama `gh-pages` (`.github/workflows/publicar.yml`). Web: https://amadorbinimelis-source.github.io/Rutina/
+- **Publicación:** cada push a `main` pasa las pruebas y publica en GitHub Pages a través de la rama `gh-pages` (`.github/workflows/publicar.yml`). Web: https://amadorbinimelis-source.github.io/IronHabits/
 
 Historial de cambios: `CHANGELOG.md`.
