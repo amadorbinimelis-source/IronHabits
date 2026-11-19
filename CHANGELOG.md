@@ -2,6 +2,13 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.21 · 19 nov 2026
+- 🔔 Avisos push: llegan al iPhone a su hora aunque la app esté cerrada (Ajustes › Avisos de tus hábitos). Minutos antes, qué hábitos y si incluir lo fijo; no avisa de lo hecho, movido o saltado.
+- Servidor de avisos propio en Cloudflare Workers (`worker/`): Web Push con VAPID y cifrado aes128gcm sin librerías, envío cada minuto, se despliega solo desde GitHub Actions si existen los secretos `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
+- ☁️ Nube que junta: cada día y cada hábito llevan la hora de su último cambio; con cambios en dos dispositivos se queda lo más reciente de cada uno, sin preguntar. Los avisos son de cada dispositivo y no se sincronizan.
+- Casillas e interruptores con estilo propio (antes se veían vacíos).
+- Pruebas: `tests/test_v121.py` y `worker/test.mjs`.
+
 ## v1.20 · 19 nov 2026 · Reevaluación, trozo 4: funciones nuevas
 - Recolocar (`overdue`, `proposeSlot`, `freeSlotStrict`, `replanSheet`): aviso en Hoy y botón en la franja atrasada; propone el primer hueco libre (primero esta semana); para lo diario, saltar y compensar.
 - Modo «Empezar» (`focusMode`): pantalla completa con anillo-cronómetro, plan y pasos; Wake Lock; «Terminar» marca y guarda minutos.

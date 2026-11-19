@@ -633,6 +633,14 @@ nav button svg{width:24px;height:24px}
 .fp-row{min-height:44px}
 .ci-row .ci-lb{width:72px}.ci-row .ci{gap:4px}.ci button{min-width:44px}
 .chk{cursor:pointer}.chk input{width:22px;height:22px;flex:none}
+/* Casillas e interruptores propios (el estilo general de los campos les quitaba el aspecto) */
+input[type=checkbox]{width:22px;height:22px;min-height:0;padding:0;flex:none;border-radius:7px;border:2px solid var(--muted);background:transparent;display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s}
+input[type=checkbox]:checked{background:var(--acc);border-color:var(--acc)}
+input[type=checkbox]:checked::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+input[type=checkbox][switch]{width:48px;height:30px;border-radius:99px;border:none;background:var(--card2);box-shadow:inset 0 0 0 1px var(--border);position:relative;display:block}
+input[type=checkbox][switch]::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;border:none;transform:none;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:left .18s}
+input[type=checkbox][switch]:checked{background:var(--acc);box-shadow:none}
+input[type=checkbox][switch]:checked::after{left:21px;transform:none;width:24px;height:24px;border:none}
 /* v1.18 · Hoy inteligente */
 .sec-late{color:var(--warn)}
 .sec-btn{width:100%;min-height:44px;cursor:pointer}
@@ -789,8 +797,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.20';
+const APP_VERSION='1.21';
 const CHANGELOG=[
+  ['1.21','19 nov 2026',['🔔 Avisos de verdad: te llegan al iPhone a su hora aunque la app esté cerrada (Ajustes › Avisos de tus hábitos)','Eliges cuánto antes, qué hábitos y si también clases y fútbol; si ya lo hiciste, movido o saltado, no avisa','☁️ La nube junta los cambios: si usas dos dispositivos, se queda lo último de cada día y de cada hábito, sin preguntarte']],
   ['1.20','19 nov 2026',['🔁 Recolocar en un toque: lo que se te pasa, al primer hueco libre (y sigue contando en la semana)','▶ Modo «Empezar»: pantalla completa con cronómetro, plan y pasos; la pantalla no se apaga','⚡ Disposición del día: sueño, energía y carga en un número; si está baja, te propone el Día flojo','🧊 Comodín de racha: gana uno cada semana que llegas al total; protege un día fallado','📅 Resumen del mes con imagen para compartir','Tema claro u «como el iPhone», ordenar hábitos arrastrando y exportar a CSV']],
   ['1.19','19 nov 2026',['💪 Nueva identidad IronHabits: icono «IH» y pantalla de arranque con el anillo que se llena mientras carga','🔶 Color de marca naranja para el botón +, las rachas y la celebración','Números redondeados e iconos dibujados en franjas y avisos','Tu plan se guarda en un espacio más grande del móvil (IndexedDB), sin límite de 5 MB','Nueva dirección: amadorbinimelis-source.github.io/IronHabits']],
   ['1.18','19 nov 2026',['🧠 Hoy se ordena según la hora: lo que toca ahora va primero','Lo pendiente de antes sigue ahí, marcado como «aún pendiente»','✅ Lo que ya has hecho baja a «Hechos hoy», plegado al final','«Después» te enseña el siguiente hábito u obligación (sin comidas ni trayectos)','Cuenta atrás más clara y botón «Volver a hoy» cuando miras otro día']],
@@ -897,7 +906,7 @@ async function initPlan(){
     const P=await planIDB('readonly');if(P){PLANCACHE=P;mergePlanInto(S);}
   }catch(e){}
 }
-const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[]};
+const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[],touch:{}};
 // Migraciones: cada versión del esquema añade lo que falta sin tocar los registros.
 function migrate(s){
   s.schema=s.schema||1;
@@ -929,7 +938,39 @@ function savePlan(){
   }catch(e){toast('⚠️ No se pudo guardar el plan');}
 }
 let S=load();
-function save(){_wc=null;try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}if(typeof cloudDirty==='function')cloudDirty();if(typeof snapSoon==='function')snapSoon();}
+/* ═════════════ CAMBIOS POR DÍA (para que la nube junte en vez de elegir) ═════════════
+   Cada vez que se guarda, se apunta la hora de lo que cambió: cada día (registros, nota, agenda, día flojo, ¿cómo estás?,
+   revisión) y cada hábito. Si dos móviles cambian cosas a la vez, al juntar gana lo más reciente de cada día o hábito,
+   no un móvil entero. */
+const SYNC_COLS=['logs','notes','agenda','minDays','checkins','reviews'];
+const _heavyRep=(k,v)=>HEAVY.has(k)?undefined:v;
+let _dh=null;
+function syncParts(st){const m=new Map();for(const c of SYNC_COLS)for(const k in (st[c]||{}))m.set(c+':'+k,JSON.stringify(st[c][k],_heavyRep));for(const h of st.habits||[])m.set('h:'+h.id,JSON.stringify(h,_heavyRep));return m;}
+function touchBaseline(){_dh=syncParts(S);}
+function touchScan(){
+  const cur=syncParts(S);if(!_dh){_dh=cur;return;}
+  const now=Date.now(),t=S.touch||(S.touch={});
+  for(const[k,v]of cur)if(_dh.get(k)!==v)t[k]=now;
+  for(const k of _dh.keys())if(!cur.has(k))t[k]=now; // borrado: también cuenta como cambio
+  _dh=cur;
+}
+/* Junta dos estados: por cada día y cada hábito se queda el lado con el cambio más reciente.
+   Lo demás (ajustes, pausas, simulacros…) viene del lado guardado más tarde. */
+function mergeStates(L,R,localNewer){
+  const out=JSON.parse(JSON.stringify(localNewer?L:R)),tL=L.touch||{},tR=R.touch||{},touch={...tR};
+  for(const k in tL)touch[k]=Math.max(tL[k],touch[k]||0);
+  const pick=(id,inL,inR)=>{const a=tL[id]||0,b=tR[id]||0;let useL=a>b;
+    if(useL&&!inL&&!a)useL=false;if(!useL&&!inR&&!b&&inL)useL=true; // sin rastro de borrado: no se pierde nada
+    return useL;};
+  for(const c of SYNC_COLS){const A=L[c]||{},B=R[c]||{},o={};
+    for(const k of new Set([...Object.keys(A),...Object.keys(B)])){const id=c+':'+k,useL=pick(id,k in A,k in B),src=useL?A:B;if(k in src)o[k]=src[k];}
+    out[c]=o;}
+  const HA=new Map((L.habits||[]).map(h=>[h.id,h])),HB=new Map((R.habits||[]).map(h=>[h.id,h])),order=[...(localNewer?HA:HB).keys(),...(localNewer?HB:HA).keys()];
+  out.habits=[];for(const id of new Set(order)){const useL=pick('h:'+id,HA.has(id),HB.has(id)),h=(useL?HA:HB).get(id);if(h)out.habits.push(h);}
+  out.touch=touch;return out;
+}
+touchBaseline();
+function save(){_wc=null;touchScan();try{localStorage.setItem(KEY,JSON.stringify(S,(k,v)=>HEAVY.has(k)?undefined:v));}catch(e){toast('⚠️ No se pudo guardar');}if(typeof cloudDirty==='function')cloudDirty();if(typeof snapSoon==='function')snapSoon();if(typeof pushDirty==='function')pushDirty();}
 
 let view='hoy';
 let sel=todayK();
@@ -2036,8 +2077,9 @@ function renderSet(){
     <button class="row-btn" onclick="snapSheet()">${ri('archive')}<div>Copias automáticas en este móvil<small>Una al día y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
     <button class="row-btn" onclick="backupSheet()">${ri('share')}<div>Exportar o importar una copia<small>${S.settings.lastExport?`Última exportada: ${shortDate(S.settings.lastExport)}`:'Para guardarla en Drive, Archivos o pasarla a otro móvil'}</small></div></button>
     <div class="sec">Calendario y avisos</div>
+    <button class="row-btn" onclick="pushSheet()">${ri('bell')}<div>Avisos de tus hábitos<small>${pushRowText()}</small></div></button>
     <button class="row-btn" onclick="subscribeSheet()">${ri('calplus')}<div>Suscribir el calendario<small>Tu agenda en el Calendario del iPhone o Google, con aviso 5 min antes. Funciona con el móvil bloqueado y se actualiza sola</small></div></button>
-    <button class="row-btn" onclick="calMoreSheet()">${ri('bell')}<div>Más opciones<small>Archivo .ics para importar a mano · avisos con la app abierta</small></div></button>
+    <button class="row-btn" onclick="calMoreSheet()">${ri('calendar')}<div>Más opciones<small>Archivo .ics para importar a mano · avisos con la app abierta</small></div></button>
     <div class="sec">Pausas</div>
     <button class="row-btn" onclick="pauseSheet()">${ri('pause')}<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
@@ -2643,6 +2685,88 @@ function checkNotify(m){
   if(m>=22*60&&m<22*60+5&&!_notified.has(k+'manana')){_notified.add(k+'manana');const tm_=tomorrowInfo();if(tm_)notify('🌙 Mañana',tm_.text);}
 }
 
+/* ═════════════ AVISOS PUSH (también con la app cerrada) ═════════════
+   La app calcula los avisos de los próximos 7 días (hora y texto) y se los pasa al servidor de avisos de IronHabits
+   (Cloudflare, gratis). Él los envía a su hora al iPhone. Al servidor solo van la suscripción del móvil y esos avisos:
+   ni registros ni notas. Cada cambio (marcar hecho, mover, saltar, pausa…) vuelve a mandar la lista, así no avisa
+   de lo que ya hiciste. Su dirección la deja el despliegue en push.json. */
+const PUSH_DAYS=7,PUSH_URL_KEY='ironhabits_push_url';
+function pushCfg(){const p=S.settings.push||(S.settings.push={on:false,before:5,fixed:true,off:{}});if(!p.off)p.off={};if(p.before==null)p.before=5;if(p.fixed==null)p.fixed=true;return p;}
+function pushSupported(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;}
+async function pushURL(){
+  try{const r=await fetch('push.json',{cache:'no-store'});if(r.ok){const j=await r.json();if(j&&/^https:\/\//.test(j.url||'')){localStorage.setItem(PUSH_URL_KEY,j.url);return j.url;}}}catch(e){}
+  try{return localStorage.getItem(PUSH_URL_KEY)||null;}catch(e){return null;}
+}
+function pushId(){const p=pushCfg();if(!p.id){const a=new Uint8Array(12);crypto.getRandomValues(a);p.id=[...a].map(b=>b.toString(36).padStart(2,'0')).join('').slice(0,24).padEnd(16,'0');}return p.id;}
+function b64uToBytes(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}
+/* Lista de avisos: hábitos (y si quieres clases, fútbol…) de los próximos días, X minutos antes */
+function pushItems(from=new Date()){
+  const p=pushCfg(),out=[],k0=dk(from),now=from.getTime();
+  for(let i=0;i<PUSH_DAYS;i++){const k=addDays(k0,i);
+    for(const e of dayEvents(k)){
+      if(e.cancelled||!e.start)continue;
+      let h=null;
+      if(e.kind==='habito'){h=getH(e.habit);if(!h||h.archived||p.off[h.id]||isPaused(h,k)||isDone(h,k))continue;}
+      else if(!(e.kind==='fijo'&&p.fixed))continue;
+      const d=pk(k),st=tm(e.start);d.setHours(0,st,0,0);const at=d.getTime()-p.before*60000;
+      if(at<=now)continue;
+      const pl=h?planFor(h,k):null,when=p.before?`En ${p.before} min · ${e.start}`:`Ahora · ${e.start}`;
+      out.push({at,title:`${evIcon(e)} ${e.title}`.trim(),body:(when+(pl&&pl.text?' · '+pl.text.replace(/\s+/g,' ').slice(0,140):e.detail?' · '+e.detail:'')).slice(0,280),tag:k+'-'+e.id,url:'./'});}}
+  return out.sort((a,b)=>a.at-b.at).slice(0,200);
+}
+let _pushT=null,_pushLast='';
+function pushDirty(){if(!S.settings.push||!S.settings.push.on)return;clearTimeout(_pushT);_pushT=setTimeout(()=>pushSync(),4000);}
+async function pushSub(){const reg=await navigator.serviceWorker.ready;return reg.pushManager.getSubscription();}
+async function pushSync(force){
+  const p=pushCfg();if(!p.on||!pushSupported())return false;
+  try{const url=await pushURL();if(!url)return false;const sub=await pushSub();
+    if(!sub){p.on=false;p.err='perm';save();return false;}
+    const items=pushItems(),sig=JSON.stringify([sub.endpoint,items]);
+    if(!force&&sig===_pushLast)return true;
+    const r=await fetch(url+'/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:pushId(),sub:sub.toJSON(),items})});
+    if(!r.ok)throw new Error(r.status);_pushLast=sig;p.syncAt=Date.now();p.n=items.length;delete p.err;save();return true;
+  }catch(e){p.err='net';return false;}
+}
+async function pushEnable(){
+  if(!pushSupported())return toast(isStandalone()?'Este navegador no permite avisos':'Primero añade la app a la pantalla de inicio y ábrela desde ahí');
+  const url=await pushURL();if(!url)return toast('El servidor de avisos aún no está listo');
+  const perm=await Notification.requestPermission();if(perm!=='granted'){pushSheet();return toast('Sin permiso: actívalo en Ajustes del iPhone › Notificaciones › IronHabits');}
+  try{const{publicKey}=await (await fetch(url+'/vapid')).json();const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToBytes(publicKey)});
+    const p=pushCfg();p.on=true;save();
+    if(!await pushSync(true))throw new Error('sync');
+    pushSheet();toast(`🔔 Avisos activados · ${p.n} programados`);
+  }catch(e){const p=pushCfg();p.on=false;save();pushSheet();toast('❌ No se pudieron activar. Revisa la conexión');}
+}
+async function pushDisable(){
+  const p=pushCfg();p.on=false;save();
+  try{const url=await pushURL(),sub=await pushSub();if(url)await fetch(url+'/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:pushId()})});if(sub)await sub.unsubscribe();}catch(e){}
+  _pushLast='';pushSheet();renderSet();toast('Avisos desactivados');
+}
+async function pushTest(){const url=await pushURL();if(!url)return;try{await pushSync(true);const r=await fetch(url+'/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:pushId()})});toast(r.ok?'📨 Enviado: debería llegarte en unos segundos':'❌ No llegó: desactiva y vuelve a activar');}catch(e){toast('❌ Sin conexión');}}
+function pushSet(field,val){const p=pushCfg();if(field==='off'){if(val)delete p.off[val];else return;}else p[field]=val;save();pushSync(true);}
+function pushHabit(id,on){const p=pushCfg();if(on)delete p.off[id];else p.off[id]=true;save();pushDirty();}
+function pushRowText(){const p=pushCfg();if(!pushSupported()&&!isStandalone())return 'Añade la app a la pantalla de inicio para activarlos';if(!p.on)return 'Desactivados · toca para activarlos';return `Activados · ${p.n||0} en los próximos ${PUSH_DAYS} días${p.err==='net'?' · sin conexión, se reintenta':''}`;}
+async function pushSheet(){
+  const p=pushCfg(),url=await pushURL(),ok=pushSupported(),hs=S.habits.filter(h=>!h.archived);
+  const next=p.on?pushItems().slice(0,3):[];
+  openSheet(`<div class="sheet-title">🔔 Avisos</div>
+    <p class="hint">Te llegan al iPhone a su hora <b>aunque la app esté cerrada</b> y con el móvil bloqueado. Si ya marcaste un hábito, lo moviste o lo saltaste, no te avisa.</p>
+    ${!url?`<div class="cx">⏳ <span>El servidor de avisos aún no está listo. En cuanto se publique, aquí podrás activarlos.</span></div>`
+      :!ok?`<div class="cx">📲 <span>${isStandalone()?'Este navegador no admite avisos.':'Solo funcionan con la app <b>añadida a la pantalla de inicio</b> (Safari › Compartir › «Añadir a pantalla de inicio») y abierta desde ahí.'}</span></div>`
+      :p.on?`<div class="btns"><button class="btn ghost" onclick="pushTest()">Enviar uno de prueba</button><button class="btn danger" onclick="pushDisable()">Desactivar</button></div>`
+      :`<button class="btn pri" style="width:100%" onclick="pushEnable()">Activar avisos</button>`}
+    ${p.err==='perm'?`<p class="hint">El permiso se retiró. Vuelve a pulsar «Activar avisos».</p>`:''}
+    <label class="lbl">Cuándo</label>
+    <div class="seg">${[0,5,10,15].map(m=>`<button class="${p.before===m?'on':''}" onclick="pushSet('before',${m});pushSheet()">${m?m+' min antes':'A la hora'}</button>`).join('')}</div>
+    <label class="chk"><input type="checkbox" switch ${p.fixed?'checked':''} onchange="pushSet('fixed',this.checked)"> También clases, fútbol y lo fijo de la agenda</label>
+    <label class="lbl">Qué hábitos</label>
+    ${hs.map(h=>`<label class="chk"><input type="checkbox" switch ${p.off[h.id]?'':'checked'} onchange="pushHabit('${h.id}',this.checked)"> ${esc(h.emoji)} ${esc(h.name)}${habitTime(h,todayK())?'':' <span class="hint">· sin hora, no avisa</span>'}</label>`).join('')}
+    ${next.length?`<label class="lbl">Próximos</label>${next.map(i=>`<div class="hint">${new Date(i.at).toLocaleString('es-ES',{weekday:'short',hour:'2-digit',minute:'2-digit'})} · ${esc(i.title)}</div>`).join('')}`:''}
+    <p class="hint mt8">Se programan los próximos ${PUSH_DAYS} días cada vez que abres la app: ábrela al menos una vez por semana.</p>`);
+}
+
 /* ═════════════ ARRASTRAR BLOQUES ═════════════
    Móvil: mantener pulsado 0,35 s y arrastrar (así no se confunde con hacer scroll). Ordenador: arrastrar con el ratón.
    Encaja cada 15 min; al soltar guarda la hora nueva igual que el cambio manual (con Deshacer). */
@@ -2894,7 +3018,8 @@ async function restoreSnap(id){
 // Sustituye todos los datos por otro estado (copia, nube) conservando el plan pesado de este móvil o recargándolo
 async function applyState(state){
   dropUndo();
-  localStorage.setItem(KEY,JSON.stringify(state));S=load();
+  const myPush=S.settings&&S.settings.push;localStorage.setItem(KEY,JSON.stringify(state));S=load();touchBaseline();
+  if(myPush)S.settings.push=myPush; else if(S.settings)delete S.settings.push; // los avisos son de cada móvil
   if(!S.habits.some(h=>h.plan&&h.plan.program))S.packs={};
   save();applyAccent();sel=todayK();await autoPlan();render();
 }
@@ -2971,7 +3096,10 @@ async function cloudPull(){
   const c=cloudCfg();if(!c||!c.gistId)return;
   try{const rm=await cloudRemote(c);
     if(rm&&rm.savedAt&&!(c.lastSync&&rm.savedAt<=c.lastSync)){
-      if(cloudPending(c)){if(!await ask(`Hay cambios en la nube desde ${rm.device||'otro dispositivo'} (${new Date(rm.savedAt).toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})}) y también cambios en este. ¿Cargar los de la nube? Si dices que no, se quedan los de este dispositivo. Antes de cargar guardo una copia automática.`,'Cargar los de la nube'))return cloudPush(true);}
+      if(cloudPending(c)){ // cambios en los dos lados: se juntan día a día y se sube el resultado
+        const merged=mergeStates(lightState(),rm.state,(c.dirtyAt||0)>Date.parse(rm.savedAt));
+        await cloudApply({...rm,state:merged});const c2=cloudCfg();if(c2){c2.dirtyAt=Date.now();cloudSave(c2);}
+        await cloudPush(true);toast(`☁️ Juntados tus cambios con los de ${rm.device||'la nube'}`);return;}
       await cloudApply(rm);toast(`☁️ Datos actualizados desde ${rm.device||'la nube'}`);return;
     }
     // Nada nuevo en la nube: si quedaron cambios sin subir (p. ej. se cerró la app a medias), se suben ahora
@@ -3063,7 +3191,7 @@ async function cloudForcePull(){const c=cloudCfg();if(!c)return;try{const rm=awa
 async function cloudDisconnect(reconnect){if(!reconnect&&!await ask('Este dispositivo dejará de guardar en la nube. Tus datos no se borran.','Desconectar'))return;cloudSave(null);renderSet();if(reconnect)cloudSheet();else toast('Desconectado');}
 // Al salir de la app: guarda la nota a medio escribir, la copia del día y sube los cambios
 function flushOnHide(){if(setNote._t){clearTimeout(setNote._t);setNote._t=null;save();}if(_snapT){clearTimeout(_snapT);_snapT=null;writeSnap('auto').catch(()=>{});}clearTimeout(_cloudT);cloudPush(false,{hidden:true});}
-addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushOnHide();else cloudPull();});
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushOnHide();else{cloudPull();pushSync();}});
 addEventListener('pagehide',flushOnHide);
 addEventListener('online',()=>cloudPush());
 
@@ -3268,7 +3396,7 @@ const _planReady=initPlan();_planReady.then(()=>{render();bootProgress(.75);requ
 render();
 askPersist();
 if((S.settings.guideV||0)<GUIDE_V&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on')){welcomeSheet(0);guideSeen();}},900);
-_planReady.then(()=>migrateSnaps()).then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon());
+_planReady.then(()=>migrateSnaps()).then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon()).then(()=>pushSync(true));
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>

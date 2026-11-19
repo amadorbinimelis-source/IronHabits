@@ -2,7 +2,8 @@
 // - La app (index.html) y el plan: red primero, pero si en 3 s no responde se abre lo guardado (mala cobertura = app al instante).
 // - Iconos y manifest: lo guardado al momento y se actualiza por detrás.
 // - Solo se guardan respuestas correctas de esta web; las llamadas a GitHub (nube) no pasan por aquí.
-const CACHE = 'ironhabits-v15';
+// - Avisos: recibe los del servidor de avisos y, al tocarlos, abre la app.
+const CACHE = 'ironhabits-v16';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './favicon.png', './plan.json'];
 const TIMEOUT = 3000;
 
@@ -43,7 +44,26 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // GitHub y demás: directo a la red, sin guardar nada
+  if (url.pathname.endsWith('/push.json')) return; // dirección del servidor de avisos: siempre la última
   const isPage = req.mode === 'navigate' || /\/(index\.html)?$/.test(url.pathname);
   if (isPage || url.pathname.endsWith('/plan.json')) e.respondWith(networkFirst(req));
   else e.respondWith(staleWhileRevalidate(req));
+});
+
+// Avisos push (los manda el servidor de avisos de IronHabits a su hora, aunque la app esté cerrada)
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'IronHabits', {
+    body: d.body || '', tag: d.tag || undefined, icon: 'icon-192.png', badge: 'icon-192.png', data: { url: d.url || './' },
+  }));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    for (const c of cs) if (c.url.startsWith(self.registration.scope) && 'focus' in c) return c.focus();
+    return self.clients.openWindow(url);
+  }));
 });

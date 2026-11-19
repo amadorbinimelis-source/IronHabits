@@ -1,0 +1,13 @@
+# Servidor de avisos de IronHabits (Cloudflare Workers, plan gratuito).
+# El despliegue lo hace GitHub Actions (worker/deploy.sh): crea el almacén KV si no existe y pone aquí su id.
+name = "ironhabits-push"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+workers_dev = true
+
+[triggers]
+crons = ["* * * * *"]
+
+[[kv_namespaces]]
+binding = "PUSH"
+id = "KV_ID"

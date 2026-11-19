@@ -19,6 +19,8 @@ jobs:
           python-version: "3.12"
       - name: Generar calendario
         run: python gen/build_ics.py
+      - name: Probar el servidor de avisos
+        run: cd worker && npm i --no-save http_ece@1 >/dev/null && node test.mjs
       - name: Revisar la agenda
         run: python tests/test_agenda.py
       - name: Probar la app en un navegador
@@ -40,10 +42,21 @@ jobs:
           python tests/test_v118.py
           python tests/test_v119.py
           python tests/test_v120.py
+          python tests/test_v121.py
       - name: Preparar la web
         run: |
           mkdir _site
           cp index.html plan.json sw.js manifest.webmanifest icon-*.png favicon.png ironhabits.ics _site/ && cp -r splash _site/
+      - name: Desplegar el servidor de avisos (Cloudflare)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Sin secretos de Cloudflare: la app se publica sin avisos push."
+          else
+            bash worker/deploy.sh && cp push.json _site/
+          fi
       - name: Publicar en la rama gh-pages (GitHub Pages)
         run: |
           cp CHANGELOG.md _site/ && touch _site/.nojekyll
