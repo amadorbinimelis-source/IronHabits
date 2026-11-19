@@ -3,18 +3,20 @@
 # Necesita los secretos CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID en GitHub.
 set -euo pipefail
 cd "$(dirname "$0")"
-W="npx --yes wrangler@3"
+W="npx --yes wrangler@4"
 TITLE="ironhabits-push"
-find_id() { $W kv namespace list 2>/dev/null | jq -r --arg t "$TITLE" '.[] | select(.title==$t) | .id' | head -1; }
+API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
+cf() { curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" "$@"; }
+# Almacén KV por la API de Cloudflare (acepta también el creado por un intento anterior)
+find_id() { cf "$API/storage/kv/namespaces?per_page=100" | jq -r '(.result // [])[] | select(.title=="ironhabits-push" or .title=="worker-ironhabits-push") | .id' | head -1; }
 ID=$(find_id || true)
 if [ -z "$ID" ]; then
-  (cd /tmp && $W kv namespace create "$TITLE" >/dev/null)   # fuera del proyecto: el nombre queda tal cual
-  ID=$(find_id)
+  ID=$(cf -X POST "$API/storage/kv/namespaces" -d "{\"title\":\"$TITLE\"}" | jq -r '.result.id // empty')
 fi
-[ -n "$ID" ] || { echo "No se pudo crear el almacén KV"; exit 1; }
+[ -n "$ID" ] && [ "$ID" != "null" ] || { echo "No se pudo crear el almacén KV:"; cf "$API/storage/kv/namespaces" | jq -c '.errors'; exit 1; }
 sed -i "s/KV_ID/$ID/" wrangler.toml
 $W deploy
-SUB=$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | jq -r '.result.subdomain')
+SUB=$(cf "$API/workers/subdomain" | jq -r '.result.subdomain // empty')
 [ -n "$SUB" ] && [ "$SUB" != "null" ] || { echo "Falta el subdominio workers.dev: elige uno en Cloudflare › Workers & Pages"; exit 1; }
 echo "{\"url\":\"https://$TITLE.$SUB.workers.dev\"}" > ../push.json
 echo "Servidor de avisos: https://$TITLE.$SUB.workers.dev"
