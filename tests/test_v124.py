@@ -118,7 +118,37 @@ async def main():
         check(not errs, f"sin errores de JS {errs[:3]}")
         await b.close()
 
+
+async def eliminar():
+    """v1.24.2: «Eliminar hábito» en el menú ⋯, el editor y la agenda; pide confirmación y se puede deshacer."""
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path="/usr/bin/google-chrome")
+        ctx = await b.new_context(**p.devices["iPhone 13"], timezone_id="Europe/Madrid", service_workers="block")
+        pg = await ctx.new_page(); await pg.clock.install(time="2026-11-24T10:00:00+01:00")
+        errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
+        await pg.goto(URL); await pg.wait_for_timeout(2500)
+        await pg.evaluate("openEditor(null,{tpl:tplFrom(getH('fr'))});D.name='Francés prueba';edWhen('once');edSave()"); await pg.wait_for_timeout(300)
+        hid = await pg.evaluate("S.habits.find(h=>h.name==='Francés prueba').id")
+        await pg.evaluate(f"go('hoy');cardMenu('{hid}')"); await pg.wait_for_timeout(300)
+        check("Eliminar hábito" in await pg.inner_text("#sheetBody"), "«Eliminar hábito» en el menú ⋯")
+        await pg.locator("#sheetBody .row-btn.danger").tap(); await pg.wait_for_timeout(300)
+        check("¿Seguro?" in await pg.inner_text("#sheetBody"), "pide confirmación")
+        await pg.locator("#sheetBody .btn.danger").tap(); await pg.wait_for_timeout(600)
+        check(await pg.evaluate(f"!getH('{hid}')"), "se elimina")
+        await pg.locator("#toast button").first.tap(); await pg.wait_for_timeout(300)
+        check(await pg.evaluate(f"!!getH('{hid}')"), "y se puede deshacer")
+        await pg.evaluate(f"openEditor('{hid}')"); await pg.wait_for_timeout(300)
+        check(await pg.evaluate("[...document.querySelectorAll('#sheetBody .btn.danger')].some(b=>/Eliminar hábito/.test(b.textContent))"), "y al final del editor")
+        await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(300)
+        await pg.evaluate(f"evSheet(todayK(),'h:{hid}')"); await pg.wait_for_timeout(300)
+        check("Eliminar hábito" in await pg.inner_text("#sheetBody"), "y al tocar su bloque en la Agenda")
+        await pg.evaluate("openEditor(null,{blank:true})"); await pg.wait_for_timeout(300)
+        check(not await pg.evaluate("[...document.querySelectorAll('#sheetBody .btn.danger')].length"), "al crear uno nuevo no sale «Eliminar»")
+        check(not errs, f"sin errores de JS {errs[:2]}")
+        await b.close()
+
 if __name__ == "__main__":
     asyncio.run(main())
+    asyncio.run(eliminar())
     print("FALLAN:" if fails else "TODO OK", fails if fails else "")
     sys.exit(1 if fails else 0)

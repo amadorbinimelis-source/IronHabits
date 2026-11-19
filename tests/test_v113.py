@@ -48,7 +48,7 @@ async def main():
         await pg.locator("#hc-fr .hc-info").tap(); await pg.wait_for_timeout(300)
         await pg.locator("#hc-fr .hc-menu").tap(); await pg.wait_for_timeout(400)
         r = await pg.evaluate("[...document.querySelectorAll('#sheetBody .row-btn')].map(b=>b.querySelector('div').firstChild.textContent.trim())")
-        check(len(r) == 5, f"menú del hábito con 5 opciones {r}")
+        check(len(r) == 6 and r[-1] == "Eliminar hábito", f"menú del hábito: 5 opciones + «Eliminar hábito» al final {r}")
         await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(300)
 
         # Apuntar: tiempo + progreso + nota en una hoja

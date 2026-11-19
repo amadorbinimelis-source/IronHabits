@@ -844,8 +844,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.24.1';
+const APP_VERSION='1.24.2';
 const CHANGELOG=[
+  ['1.24.2','19 nov 2026',['🗑️ «Eliminar hábito» a mano: en el menú ⋯ de cada hábito, al final del editor y al tocar su bloque en la Agenda (con confirmación y Deshacer)']],
   ['1.24.1','19 nov 2026',['Al crear un hábito siempre te pregunta «¿Cuándo?»: solo ese día o se repite (y cada cuánto). Ya no se crea «cada día» sin darte cuenta']],
   ['1.24','19 nov 2026',['🕗 Hora del hábito arriba del todo: «Sin hora / Con hora», inicio y fin','🗓️ Los hábitos sin hora también salen en la agenda (franja «Sin hora» del día y fila en la semana)','📋 Plantillas: al crear un hábito eliges «En blanco» o una plantilla (Francés con sus 3 pasos, Inglés, Fuerza…). Se editan en Ajustes › Plantillas','«Un solo día» en la frecuencia; si lo creas mirando otro día, empieza ese día','Tiempo libre: un hábito encima se ve entero y el libre se recorta alrededor; lo que se solapa de verdad se ve lado a lado']],
   ['1.23.1','19 nov 2026',['Tutorial: al escribir los minutos, el teclado ya no descoloca el bocadillo; al pasar a «Guardar» se cierra el teclado para que veas el botón']],
@@ -1662,7 +1663,8 @@ function cardMenu(id){
     <button class="row-btn" onclick="evSheet('${k}','h:${id}')">${ri('move')}<div>Mover, cambiar la hora o saltar<small>Se refleja en la agenda, en Hoy y en tus estadísticas</small></div></button>
     <button class="row-btn" onclick="dayPlanSheet('${id}')">${ri('note')}<div>Cambiar el plan de este día<small>Qué hacer exactamente solo este día</small></div></button>
     <button class="row-btn" onclick="openDetail('${id}')">${ri('chart')}<div>Progreso, guía y plan completo<small>Rachas, mapa de calor y todas las sesiones</small></div></button>
-    <button class="row-btn" onclick="openEditor('${id}')">${ri('edit')}<div>Editar hábito</div></button>`);
+    <button class="row-btn" onclick="openEditor('${id}')">${ri('edit')}<div>Editar hábito</div></button>
+    <button class="row-btn danger" onclick="deleteH('${id}')">${ri('trash')}<div>Eliminar hábito<small>Lo quita de todos los días, con su historial. Puedes deshacerlo</small></div></button>`);
 }
 /* Apuntar: tiempo o cantidad, progreso (métricas) y nota en una sola hoja */
 function logSheet(id,k){
@@ -1899,6 +1901,7 @@ function evSheet(k,id){
     <div class="sub">${longDate(k)}${ev.start?` · ${fmtT(tm(ev.start))}–${fmtT(tm(ev.end))}`:''} · ${kindLbl}</div>
     <div>${badges}${status}</div>
     ${ev.detail?`<p class="hint">${esc(ev.detail)}</p>`:''}
+    ${h?`<button class="row-btn danger" style="margin-top:10px" onclick="deleteH('${h.id}')">${ri('trash')}<div>Eliminar hábito<small>De todos los días, con su historial. Puedes deshacerlo</small></div></button>`:''}
     ${ev.notime&&!ev.cancelled?`<p class="hint">Este hábito no tiene hora: sale en la franja «Sin hora».</p><button class="btn ghost" style="width:100%" onclick="openEditor('${ev.habit}')">🕗 Ponerle hora</button>`:''}
     ${plan&&plan.text?`<div class="hc-plan" style="margin-top:12px">${plan.tag?`<div class="pl-tag">${esc(plan.tag)}</div>`:''}${fmtPlan(plan.text)}</div>`:''}
     ${h&&!ev.cancelled?`<div class="btns"><button class="btn ghost" onclick="closeSheet();go('hoy')">Ver en Hoy</button>${k<=todayK()&&h.type!=='time'?`<button class="btn pri" onclick="act('${h.id}','${k}');evSheet('${k}','${id}')">${isDone(h,k)?'Desmarcar':'Marcar hecho'}</button>`:''}</div>`:''}
@@ -2151,7 +2154,8 @@ function edR(){
     ${dps.length?`<label class="lbl">Planes de fechas concretas</label>${dps.map(k=>`<div class="dp-item"><div><b>${longDate(k)}</b>${esc(p.dates[k])}</div><button class="x" style="width:34px;height:34px" onclick="delete D.plan.dates['${k}'];edR()">✕</button></div>`).join('')}`:''}
 
     ${D._tplEdit!=null?'':`<label class="chk"><input type="checkbox" ${D._saveTpl?'checked':''} onchange="D._saveTpl=this.checked"> Guardar también como plantilla (para crear otro igual más adelante)</label>`}
-    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="edSave()">${D._tplEdit!=null?'Guardar plantilla':D._new?'Crear hábito':'Guardar'}</button></div>`;
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="edSave()">${D._tplEdit!=null?'Guardar plantilla':D._new?'Crear hábito':'Guardar'}</button></div>
+    ${!D._new&&D._tplEdit==null&&getH(D.id)?`<button class="btn danger" style="width:100%;margin-top:10px" onclick="deleteH('${D.id}')">🗑️ Eliminar hábito</button>`:''}`;
 }
 function edType(v){
   D.type=v;
