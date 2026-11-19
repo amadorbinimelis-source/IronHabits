@@ -35,8 +35,16 @@ async def main():
         check(labels.index("¿A qué hora?") <= 1, f"«¿A qué hora?» justo después del nombre {labels[:3]}")
         await pg.locator("#sheetBody input").first.fill("Leer")
         await pg.locator("#sheetBody .btn.pri").last.tap(); await pg.wait_for_timeout(400)
+        check(await pg.evaluate("!S.habits.some(h=>h.name==='Leer')") and "Elige cuándo" in await pg.inner_text("#toast"), "sin elegir «¿Cuándo?» no deja crearlo (siempre lo pregunta)")
+        await pg.locator("#sheetBody .seg button", has_text="Se repite").tap(); await pg.wait_for_timeout(150)
+        check(await pg.evaluate("D.schedule.mode") == "daily" and "Cada día" in await pg.inner_text("#sheetBody"), "«Se repite» muestra cada cuánto (por defecto, cada día)")
+        await pg.locator("#sheetBody .seg button", has_text="Solo el").tap(); await pg.wait_for_timeout(150)
+        await pg.locator("#sheetBody .btn.pri").last.tap(); await pg.wait_for_timeout(400)
+        r = await pg.evaluate("(()=>{const h=S.habits.find(h=>h.name==='Leer');return [dayHabits(todayK()).includes(h),dayHabits(addDays(todayK(),1)).includes(h)]})()")
+        check(r == [True, False], f"«Solo el …»: sale hoy y mañana no {r}")
         await pg.evaluate("openEditor(null,{blank:true})"); await pg.wait_for_timeout(300)
         await pg.locator("#sheetBody input").first.fill("Meditar")
+        await pg.locator("#sheetBody .seg button", has_text="Se repite").tap(); await pg.wait_for_timeout(150)
         await pg.locator("#sheetBody .seg button", has_text="Con hora").tap(); await pg.wait_for_timeout(200)
         await pg.locator("#edTs").fill("17:00"); await pg.locator("#edTs").dispatch_event("change"); await pg.wait_for_timeout(150)
         await pg.locator("#edTe").fill("17:40"); await pg.locator("#edTe").dispatch_event("change"); await pg.wait_for_timeout(150)
@@ -58,7 +66,7 @@ async def main():
         k2 = await pg.evaluate("addDays(todayK(),2)")
         await pg.evaluate(f"go('hoy');sel='{k2}';openEditor(null,{{blank:true}})"); await pg.wait_for_timeout(300)
         await pg.locator("#sheetBody input").first.fill("Dentista")
-        await pg.locator("#sheetBody .seg button", has_text="Un solo día").tap(); await pg.wait_for_timeout(150)
+        await pg.locator("#sheetBody .seg button", has_text="Solo el").tap(); await pg.wait_for_timeout(150)
         await pg.locator("#sheetBody .btn.pri").last.tap(); await pg.wait_for_timeout(300)
         r = await pg.evaluate(f"(()=>{{const h=S.habits.find(h=>h.name==='Dentista');return [h.start,h.schedule.mode,h.schedule.dates,dayHabits('{k2}').includes(h),dayHabits(todayK()).includes(h),dayHabits(addDays('{k2}',1)).includes(h)]}})()")
         check(r[0] == k2 and r[3] and not r[4] and not r[5], f"«Un solo día» creado mirando otro día: solo ese día {r}")
@@ -66,6 +74,7 @@ async def main():
         # ── Bug 3: plantillas
         await pg.evaluate("sel=todayK();openEditor(null,{tpl:S.templates.find(t=>t.name==='Francés')})"); await pg.wait_for_timeout(300)
         await pg.locator("#sheetBody input").first.fill("Francés 2")
+        await pg.locator("#sheetBody .seg button", has_text="Se repite").tap(); await pg.wait_for_timeout(150)
         await pg.locator("#sheetBody .btn.pri").last.tap(); await pg.wait_for_timeout(300)
         r = await pg.evaluate("(()=>{const a=getH('fr'),b=S.habits.find(h=>h.name==='Francés 2');return [b.type,b.steps.map(s=>s.text),b.steps.every(s=>!a.steps.some(x=>x.id===s.id)),!!(b.plan.program&&Object.keys(b.plan.program).length)]})()")
         check(r[0] == "checklist" and len(r[1]) == 3 and r[2], f"Francés desde plantilla: 3 pasos con ids propios {r[1]}")
@@ -85,7 +94,7 @@ async def main():
         r = await pg.evaluate(f"[S.templates[{i}].steps.length,getH('fr').steps.length,S.habits.find(h=>h.name==='Francés 2').steps.length]")
         check(r == [4, 3, 3], f"editar los pasos de la plantilla no cambia los hábitos ya creados {r}")
         # guardar como plantilla al crear
-        await pg.evaluate("openEditor(null,{blank:true});D.name='Estirar';D.type='checklist';D.steps=[{id:uid(),text:'Cuello'},{id:uid(),text:'Espalda'}];D._saveTpl=true;edSave()"); await pg.wait_for_timeout(300)
+        await pg.evaluate("openEditor(null,{blank:true});D.name='Estirar';D.type='checklist';D.steps=[{id:uid(),text:'Cuello'},{id:uid(),text:'Espalda'}];edWhen('repeat');D._saveTpl=true;edSave()"); await pg.wait_for_timeout(300)
         check(await pg.evaluate("S.templates.some(t=>t.name==='Estirar'&&t.steps.length===2)"), "«Guardar también como plantilla»")
 
         # ── Bug 4: tiempo libre
@@ -105,7 +114,7 @@ async def main():
         r = await pg.evaluate("[...document.querySelectorAll('[data-colk=\"'+todayK()+'\"] .agw-ev.narrow')].map(e=>e.textContent.trim())")
         check(len(r) >= 2 and all(len(x) <= 9 for x in r), f"en la semana, lo que comparte columna se ve con icono y hora, sin texto cortado {r}")
 
-        check(await pg.evaluate("APP_VERSION") >= "1.24", "versión 1.24")
+        check(await pg.evaluate("APP_VERSION") >= "1.24", "versión 1.24 o posterior")
         check(not errs, f"sin errores de JS {errs[:3]}")
         await b.close()
 

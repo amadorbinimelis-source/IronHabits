@@ -2,6 +2,9 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.24.1 · 19 nov 2026
+- Al crear un hábito, «¿Cuándo?» es obligatorio: «Solo el [día]» o «Se repite» (y entonces cada cuánto). Antes venía marcado «Cada día» y un hábito pensado para un día salía todos los días.
+
 ## v1.24 · 19 nov 2026
 Arreglos de hábitos y agenda (causas, no parches):
 - Bug 1 · Hábitos nuevos sin hora no salían en la agenda: `dayEvents()` descarta lo que no tiene hora. Ahora la vista Día tiene la franja «Sin hora» y la Semana una fila «sin hora» por día. Nueva frecuencia «Un solo día»; si creas el hábito mirando otro día, empieza ese día.

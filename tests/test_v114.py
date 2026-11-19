@@ -24,7 +24,7 @@ async def main():
         await pg.locator("#sheetBody .seg button", has_text="Con hora").click(); await pg.wait_for_timeout(200)
         r = await pg.evaluate("!!document.querySelector('#edTs')")
         check(r, "el editor de un hábito nuevo tiene campo de hora")
-        await pg.evaluate("D.time={start:'21:30',dur:30};edSave()"); await pg.wait_for_timeout(300)
+        await pg.evaluate("edWhen('repeat');D.time={start:'21:30',dur:30};edSave()"); await pg.wait_for_timeout(300)
         r = await pg.evaluate("""(()=>{const h=S.habits.find(h=>h.name==='Leer');const t=todayK();const ev=dayEvents(t).find(e=>e.id==='h:'+h.id);
           return {ev:ev&&ev.start+'-'+ev.end,mom:momentFor(h,t),ics:buildICS(t,t,false).text.includes('Leer')}})()""")
         check(r["ev"] == "21:30-22:00" and r["mom"] == "noche" and r["ics"], f"con hora sale en la agenda, en su franja y en el calendario {r}")

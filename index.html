@@ -770,6 +770,7 @@ html[data-theme=light] .hc-act{color:#fff}
 .tpl-ic{font-size:1.4rem;width:32px;text-align:center}
 .tpl-tx{flex:1;min-width:0}.tpl-tx small{display:block;color:var(--muted);font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tpl-row .btn{width:auto;padding:0 12px;min-height:44px}
+.ed-need{color:var(--warn)}
 .chip.qt.on{background:color-mix(in srgb,var(--acc) 22%,var(--card));border-color:var(--acc)}
 </style>
 </head>
@@ -843,8 +844,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.24';
+const APP_VERSION='1.24.1';
 const CHANGELOG=[
+  ['1.24.1','19 nov 2026',['Al crear un hábito siempre te pregunta «¿Cuándo?»: solo ese día o se repite (y cada cuánto). Ya no se crea «cada día» sin darte cuenta']],
   ['1.24','19 nov 2026',['🕗 Hora del hábito arriba del todo: «Sin hora / Con hora», inicio y fin','🗓️ Los hábitos sin hora también salen en la agenda (franja «Sin hora» del día y fila en la semana)','📋 Plantillas: al crear un hábito eliges «En blanco» o una plantilla (Francés con sus 3 pasos, Inglés, Fuerza…). Se editan en Ajustes › Plantillas','«Un solo día» en la frecuencia; si lo creas mirando otro día, empieza ese día','Tiempo libre: un hábito encima se ve entero y el libre se recorta alrededor; lo que se solapa de verdad se ve lado a lado']],
   ['1.23.1','19 nov 2026',['Tutorial: al escribir los minutos, el teclado ya no descoloca el bocadillo; al pasar a «Guardar» se cierra el teclado para que veas el botón']],
   ['1.23','19 nov 2026',['🧭 Tutorial nuevo: aprendes usando la app de verdad. Cada paso señala un botón y avanza cuando lo pulsas','Con un hábito de prueba: al acabar o saltarlo, tus datos quedan exactamente como estaban','Si lo dejas a medias, al volver te deja continuar o saltarlo','En Ajustes › Tutorial lo repites entero o solo una sección; y la primera vez que entras en una sección nueva, un mini-tour de 3 pasos']],
@@ -2079,7 +2081,8 @@ function openEditor(id,opt={}){
   if(opt.tplEdit!=null){const t=S.templates[opt.tplEdit];if(!t)return;D=habitFromTpl(t,day);D._tplEdit=opt.tplEdit;D._new=false;}
   else if(opt.tpl){D=habitFromTpl(opt.tpl,day);D._new=true;D._fromTpl=opt.tpl.name;}
   else{D=JSON.parse(JSON.stringify(h||blankHabit()));D._new=!h;if(!h)D.start=day;}
-  D._day=sel;
+  D._day=sel;D._sched0=JSON.parse(JSON.stringify(D.schedule));
+  D._when=D._new?null:(edOnce()?'once':'repeat'); // al crear, siempre se pregunta: ¿solo ese día o se repite?
   D.schedule=Object.assign({days:[1,2,3,4,5],times:3,n:2,dates:[]},D.schedule);
   D.plan=Object.assign({mode:'none',weekly:{},cycle:['',''],dates:{},program:{}},D.plan);
   if(!D.plan.cycle.length)D.plan.cycle=['',''];
@@ -2119,6 +2122,7 @@ function edR(){
     <label class="lbl">Nombre</label><input value="${esc(D.name)}" placeholder="Ej.: Boxeo, Francés, Leer…" oninput="D.name=this.value">
     ${D._fromTpl?`<p class="hint" style="margin-top:6px">📋 Desde la plantilla «${esc(D._fromTpl)}»: es una copia, cámbiala como quieras.</p>`:''}
     ${edTimeHTML()}
+    ${edWhenHTML()}
     <label class="lbl">Descripción (opcional)</label><input value="${esc(D.desc||'')}" placeholder="Por qué lo haces, detalles…" oninput="D.desc=this.value">
 
     <label class="lbl">Icono</label>
@@ -2134,11 +2138,10 @@ function edR(){
     <label class="lbl">Momento del día</label>
     ${seg(MOMENTS.map(([v,l])=>[v,l.replace('En cualquier momento','Cualquiera').replace('Por la ','')]),D.moment,'edMoment')}
 
-    <label class="lbl">Frecuencia</label>
-    ${seg([['once','Un solo día'],['daily','Cada día'],['weekdays','Días concretos'],['xweek','X por semana'],['everyN','Cada N días'],['dates','Fechas sueltas']],edOnce()?'once':s.mode,'edSched')}
-    ${edOnce()?`<p class="hint">Solo el ${longDate(s.dates[0])}. Cambia el día en «Empieza el».</p>`:''}
+    ${D._when==='repeat'||D._tplEdit!=null?`<label class="lbl">Cada cuánto se repite</label>
+    ${seg([['daily','Cada día'],['weekdays','Días concretos'],['xweek','X por semana'],['everyN','Cada N días'],['dates','Fechas sueltas']],s.mode,'edSched')}
     ${schedExtra}
-    ${D._tplEdit!=null?'':`<label class="lbl">${edOnce()?'Día':'Empieza el'}</label><input type="date" value="${D.start}" onchange="D.start=this.value||todayK();if(edOnce())D.schedule.dates=[D.start];edR()">`}
+    ${D._tplEdit!=null?'':`<label class="lbl">Empieza el</label><input type="date" value="${D.start}" onchange="D.start=this.value||todayK();edR()">`}`:''}
 
     <label class="lbl">Plan detallado</label>
     ${seg([['none','Sin plan'],['weekly','Por día de la semana'],['cycle','Rotación de sesiones']],p.mode,'edPlan')}
@@ -2159,6 +2162,20 @@ function edType(v){
 }
 function edMoment(v){D.moment=v;edR();}
 function edSched(v){if(v==='once'){D.schedule.mode='dates';D.schedule.dates=[D.start];}else{D.schedule.mode=v;if(v==='dates'&&!D.schedule.dates.length)D.schedule.dates=[D.start];}edR();}
+/* ¿Cuándo? Siempre se pregunta al crear: solo un día o se repite */
+function edWhenHTML(){
+  if(D._tplEdit!=null)return '';
+  const day=D._when==='once'?D.start:(D._day||todayK());
+  return `<label class="lbl" id="edWhen">¿Cuándo?</label>
+    <div class="seg"><button class="${D._when==='once'?'on':''}" onclick="edWhen('once')">Solo el ${shortDate(day)}</button><button class="${D._when==='repeat'?'on':''}" onclick="edWhen('repeat')">Se repite</button></div>
+    ${D._when==='once'?`<div class="two" style="margin-top:10px;align-items:center"><span class="hint" style="margin:0">Día</span><input type="date" value="${D.start}" onchange="if(this.value){D.start=this.value;D.schedule.dates=[this.value];edR();}"></div>`
+      :D._when?'':`<p class="hint ed-need">Elige una opción para poder crearlo.</p>`}`;
+}
+function edWhen(v){
+  if(v==='once'){const day=D._when==='once'?D.start:(D._day||todayK());D._when='once';D.start=day;D.schedule={...D.schedule,mode:'dates',dates:[day]};}
+  else{if(D._when!=='repeat'){const s0=D._sched0||{};D.schedule=JSON.parse(JSON.stringify(s0.mode==='dates'&&s0.dates&&s0.dates.length<=1?{...s0,mode:'daily',dates:[]}:s0));if(!D.schedule.mode)D.schedule.mode='daily';if(D.start<todayK())D.start=todayK();}D._when='repeat';}
+  edR();
+}
 function edOnce(){const s=D.schedule;return s.mode==='dates'&&s.dates.length===1&&s.dates[0]===D.start;}
 /* Hora del hábito: arriba del todo, con «Sin hora / Con hora», inicio y fin (o duración rápida) */
 function edTimeHTML(){
@@ -2205,6 +2222,7 @@ function edDelDate(k){D.schedule.dates=D.schedule.dates.filter(x=>x!==k);edR();}
 function edSave(){
   D.name=(D.name||'').trim();
   if(!D.name)return toast('Ponle un nombre');
+  if(D._tplEdit==null&&!D._when){const w=$('#edWhen');if(w)w.scrollIntoView({block:'center',behavior:'smooth'});return toast('Elige cuándo: solo ese día o se repite');}
   if(!D.emoji)D.emoji='•';
   if(D.type==='count'||D.type==='time'){if(!(D.target>0))return toast('El objetivo tiene que ser mayor que 0');}
   else D.target=1;
@@ -2219,9 +2237,9 @@ function edSave(){
   for(const d in p.weekly)if(!String(p.weekly[d]).trim())delete p.weekly[d];
   if(p.mode==='cycle'&&!p.cycle.some(c=>c.trim()))p.mode='none';
   if(D.time&&!D.time.start)delete D.time;
-  if(D._tplEdit!=null){const i=D._tplEdit,old=S.templates[i];pushUndo();S.templates[i]={...tplFrom(D),tid:old.tid};D=null;save();closeSheet();tplSheet();return toast('Plantilla guardada',[undoAct()]);}
+  if(D._tplEdit!=null){delete D._when;delete D._sched0;const i=D._tplEdit,old=S.templates[i];pushUndo();S.templates[i]={...tplFrom(D),tid:old.tid};D=null;save();closeSheet();tplSheet();return toast('Plantilla guardada',[undoAct()]);}
   if(D._saveTpl){S.templates=S.templates||[];const t=tplFrom(D),j=S.templates.findIndex(x=>x.name.toLowerCase()===t.name.toLowerCase());if(j>=0)S.templates[j]={...t,tid:S.templates[j].tid};else S.templates.push(t);}
-  for(const k of ['_saveTpl','_fromTpl','_tplEdit','_day'])delete D[k];
+  for(const k of ['_saveTpl','_fromTpl','_tplEdit','_day','_when','_sched0'])delete D[k];
   const isNew=D._new;delete D._new;
   if(!isNew&&S.packs&&Object.keys(S.packs).length)D.userEdited=true; // la próxima actualización del plan respeta tus cambios
   let before=null;if(!isNew){const i=S.habits.findIndex(h=>h.id===D.id);before=JSON.parse(JSON.stringify(S.habits[i]));S.habits[i]=D;}else S.habits.push(D);
