@@ -2,6 +2,15 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.24 · 19 nov 2026
+Arreglos de hábitos y agenda (causas, no parches):
+- Bug 1 · Hábitos nuevos sin hora no salían en la agenda: `dayEvents()` descarta lo que no tiene hora. Ahora la vista Día tiene la franja «Sin hora» y la Semana una fila «sin hora» por día. Nueva frecuencia «Un solo día»; si creas el hábito mirando otro día, empieza ese día.
+- Bug 2 · Hora: el campo existía pero estaba enterrado y sin fin. Ahora «¿A qué hora?» va tras el nombre: «Sin hora / Con hora», inicio, fin y duraciones rápidas. Un hábito sin hora tiene «Ponerle hora» desde la agenda.
+- Bug 3 · Plantillas (nuevo): al pulsar + eliges «En blanco», tus plantillas, uno de tus hábitos o un ejemplo. Se crea una copia con ids de pasos propios (el programa día a día no se copia). «Guardar también como plantilla» y Ajustes › Plantillas para editarlas o borrarlas.
+- Bug 4 · Tiempo libre: `layout()` lo trataba como un evento y partía la columna. Ahora es hueco de fondo que se recorta alrededor de lo demás (`freeParts()`); los solapes reales se ven lado a lado y, en la semana, con icono y hora sin texto cortado.
+- Datos: esquema v4 (migración: `S.templates` desde tus hábitos actuales; no toca hábitos ni registros).
+- Pruebas: `tests/test_v124.py`.
+
 ## v1.23.1 · 19 nov 2026
 - Tutorial: con el teclado abierto el bocadillo se coloca en la parte visible de la pantalla (el iPhone desplaza la vista); al pasar a cualquier paso que no sea escribir se cierra el teclado, así «Guardar» queda a la vista.
 

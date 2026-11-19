@@ -755,6 +755,22 @@ html[data-theme=light] .hc-act{color:#fff}
 .tour-secs{display:flex;flex-wrap:wrap;gap:8px;margin:-2px 0 10px}
 .tour-secs .chip{min-height:44px;padding:0 14px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-size:var(--fs-sm);font-weight:600;color:var(--text)}
 @media (prefers-reduced-motion:reduce){#tour .tr-hole{animation:none;transition:none}#tour .tr-tip{transition:none}}
+
+/* Agenda: hábitos sin hora y bloques estrechos */
+.ag-notime{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px}
+.ag-nt-l{font-size:var(--fs-xs,.7rem);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.ag-nt{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--border);border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--card));font-size:.8rem;font-weight:600;color:var(--text)}
+.ag-nt.done{opacity:.55}
+.agw-nt-l{font-size:.6rem;color:var(--muted);text-align:center;line-height:1.1;align-self:center}
+.agw-nt{min-height:44px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px;font-size:.85rem;border-bottom:1px solid var(--border);background:transparent}
+.agw-nt .done{opacity:.4}.agw-nt small{font-size:.6rem;color:var(--muted)}
+.agw-ev.narrow{padding:2px 1px;text-align:center}.agw-ev.narrow b{white-space:nowrap}
+.ag-ev.libre{z-index:0}.ag-ev:not(.libre){z-index:1}
+.tpl-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.tpl-ic{font-size:1.4rem;width:32px;text-align:center}
+.tpl-tx{flex:1;min-width:0}.tpl-tx small{display:block;color:var(--muted);font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpl-row .btn{width:auto;padding:0 12px;min-height:44px}
+.chip.qt.on{background:color-mix(in srgb,var(--acc) 22%,var(--card));border-color:var(--acc)}
 </style>
 </head>
 <body>
@@ -827,8 +843,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.23.1';
+const APP_VERSION='1.24';
 const CHANGELOG=[
+  ['1.24','19 nov 2026',['🕗 Hora del hábito arriba del todo: «Sin hora / Con hora», inicio y fin','🗓️ Los hábitos sin hora también salen en la agenda (franja «Sin hora» del día y fila en la semana)','📋 Plantillas: al crear un hábito eliges «En blanco» o una plantilla (Francés con sus 3 pasos, Inglés, Fuerza…). Se editan en Ajustes › Plantillas','«Un solo día» en la frecuencia; si lo creas mirando otro día, empieza ese día','Tiempo libre: un hábito encima se ve entero y el libre se recorta alrededor; lo que se solapa de verdad se ve lado a lado']],
   ['1.23.1','19 nov 2026',['Tutorial: al escribir los minutos, el teclado ya no descoloca el bocadillo; al pasar a «Guardar» se cierra el teclado para que veas el botón']],
   ['1.23','19 nov 2026',['🧭 Tutorial nuevo: aprendes usando la app de verdad. Cada paso señala un botón y avanza cuando lo pulsas','Con un hábito de prueba: al acabar o saltarlo, tus datos quedan exactamente como estaban','Si lo dejas a medias, al volver te deja continuar o saltarlo','En Ajustes › Tutorial lo repites entero o solo una sección; y la primera vez que entras en una sección nueva, un mini-tour de 3 pasos']],
   ['1.22','19 nov 2026',['🔊 Sonido y vibración al avanzar: cada paso suena una nota más aguda y vibra un poco; al completar el hábito, un acorde de campana y vibración larga; al completar el día, uno más grande','Arreglado: el iPhone no vibraba','Se puede quitar el sonido en Ajustes › Apariencia']],
@@ -921,7 +938,7 @@ const ICON_HUE={sun:'var(--warn)',sunset:'var(--brand)',moon:'#A5B4FC',clock:'va
 function ri(n){return `<span class="ri" style="--ic:${ICON_HUE[n]||'var(--acc)'}">${ic(n)}</span>`;}
 
 /* ═════════════ ESTADO ═════════════ */
-const SCHEMA=3;
+const SCHEMA=4;
 const PLAN_KEY='ironhabits_plan_v1'; // (antiguo) el plan vivía en localStorage; ahora va en IndexedDB
 /* El plan (agenda y programas, lo pesado) se guarda en IndexedDB, que no tiene el límite de ~5 MB de localStorage.
    En memoria se guarda una copia (PLANCACHE) para que load() siga siendo inmediato. */
@@ -939,13 +956,58 @@ async function initPlan(){
     const P=await planIDB('readonly');if(P){PLANCACHE=P;mergePlanInto(S);}
   }catch(e){}
 }
-const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[],touch:{}};
+const DEF={v:1,schema:SCHEMA,habits:[],logs:{},notes:{},settings:{accent:'#22C55E'},timer:null,agenda:{},agendaBase:{},agendaUntil:'',classesKnownUntil:'',pauses:[],minDays:{},reviews:{},checkins:{},mocks:[],touch:{},templates:[]};
 // Migraciones: cada versión del esquema añade lo que falta sin tocar los registros.
+/* ═════════════ PLANTILLAS DE HÁBITOS ═════════════
+   Una plantilla guarda cómo es un hábito (nombre, icono, color, tipo, pasos, duración, hora, momento, frecuencia y plan
+   semanal o por rotación), sin fechas ni registros. Al crear un hábito desde una plantilla se hace una COPIA con ids
+   nuevos para los pasos: tachar pasos en un día no toca la plantilla ni otros hábitos. El programa día a día de tu
+   plan (p. ej. la isla de cada semana de Francés) no se copia: va ligado a las fechas de ese hábito. */
+function tplFrom(h){
+  const sc=h.schedule||{},pl=h.plan||{};
+  let schedule={mode:sc.mode||'daily',days:[...(sc.days||[1,2,3,4,5])],times:sc.times||3,n:sc.n||2,dates:[]};
+  if(schedule.mode==='dates'){ // los hábitos del plan van por fechas: se convierten en sus días de la semana habituales
+    const dws=[...new Set((sc.dates||[]).slice(0,28).map(k=>pk(k).getDay()))].sort();
+    schedule=dws.length&&dws.length<7?{...schedule,mode:'weekdays',days:dws}:{...schedule,mode:'daily'};
+  }
+  const t={tid:h.tid||uid(),name:h.name,emoji:h.emoji,color:h.color,desc:h.desc||'',type:h.type,target:h.target,unit:h.unit||'',step:h.step||1,
+    steps:(h.steps||[]).map(x=>x.text).filter(Boolean),moment:h.moment||'any',schedule,
+    plan:{mode:['weekly','cycle'].includes(pl.mode)?pl.mode:'none',weekly:{...(pl.weekly||{})},cycle:[...(pl.cycle||['',''])]}};
+  if(h.time&&h.time.start)t.time={start:h.time.start,dur:h.time.dur||30};
+  else try{ // hábitos del plan: su hora habitual es la de su bloque en la agenda
+    const ab=S.agendaBase||{},ks=Object.keys(ab).filter(k=>k>=todayK()).sort();
+    for(const k of ks){const e=ab[k].find(x=>x.id==='h:'+h.id);if(e){t.time={start:e.start,dur:tm(e.end)-tm(e.start)};break;}}
+  }catch(e){} // (durante la migración aún no hay agenda cargada)
+  if(h.metrics&&h.metrics.length)t.metrics=JSON.parse(JSON.stringify(h.metrics));
+  return t;
+}
+function habitFromTpl(t,start){
+  const h=mk({name:t.name,emoji:t.emoji,color:t.color,desc:t.desc,type:t.type,target:t.target,unit:t.unit,step:t.step,steps:t.steps||[],moment:t.moment,
+    schedule:JSON.parse(JSON.stringify(t.schedule||{})),plan:JSON.parse(JSON.stringify(t.plan||{}))});
+  if(t.time)h.time={...t.time};if(t.metrics)h.metrics=JSON.parse(JSON.stringify(t.metrics));
+  if(start)h.start=start;
+  return h;
+}
+const EXAMPLES=()=>[ // ejemplos de serie (también se pueden usar como plantilla)
+  {name:'Rutina de mañana',emoji:'☀️',color:'#F59E0B',type:'checklist',moment:'manana',steps:['Vaso de agua','Hacer la cama','Movilidad 5 min','Revisar el plan del día']},
+  {name:'Gimnasio',emoji:'🏋️',color:'#A855F7',type:'check',moment:'manana',schedule:{mode:'xweek',times:3},
+    plan:{mode:'cycle',cycle:['Empuje\n- Press banca 4×8\n- Press militar 3×10\n- Fondos 3×máx','Tirón\n- Dominadas 4×6\n- Remo con barra 4×8\n- Curl bíceps 3×12','Pierna\n- Sentadilla 4×6\n- Peso muerto rumano 3×8\n- Zancadas 3×10 por pierna']}},
+  {name:'Boxeo',emoji:'🥊',color:'#EF4444',type:'time',target:60,moment:'tarde',schedule:{mode:'weekdays',days:[1,3,5]},
+    plan:{mode:'weekly',weekly:{1:'Técnica\n- Comba 10 min\n- 6 rounds de sombra\n- 4 rounds de saco: combinaciones 1-2-3',3:'Sparring ligero\n- Calentamiento 15 min\n- 4 rounds de sparring\n- Core 10 min',5:'Físico\n- 5 rounds de saco a intervalos 30/30\n- Burpees y saltos\n- Movilidad de hombro'}}},
+  {name:'Estudio',emoji:'📚',color:'#22C55E',type:'time',target:60,moment:'tarde',schedule:{mode:'weekdays',days:[1,2,3,4,5]}},
+  {name:'Francés',emoji:'🇫🇷',color:'#3B82F6',type:'check',moment:'noche',desc:'Lección diaria de Duolingo'},
+  {name:'Inglés',emoji:'🇬🇧',color:'#14B8A6',type:'time',target:20,moment:'noche'},
+  {name:'Agua',emoji:'💧',color:'#06B6D4',type:'count',target:8,unit:'vasos'},
+];
+function exampleTpls(){return EXAMPLES().map(e=>tplFrom(mk(e)));}
 function migrate(s){
   s.schema=s.schema||1;
   if(s.schema<2){s.agenda=s.agenda||{};s.agendaBase=s.agendaBase||{};s.agendaUntil=s.agendaUntil||'';s.schema=2;}
   s.checkins=s.checkins||{};s.mocks=s.mocks||[];
   if(s.schema<3){s.pauses=s.pauses||[];s.minDays=s.minDays||{};s.reviews=s.reviews||{};s._needPlanSave=true;s.schema=3;}
+  // v4: plantillas de hábitos. Se crean a partir de tus hábitos actuales (Francés con sus pasos, Inglés, Fuerza…); no se toca nada más
+  if(s.schema<4){s.templates=(s.habits||[]).filter(h=>!h.archived&&!h.example&&!h.tutorial).map(tplFrom);s.schema=4;}
+  if(!Array.isArray(s.templates))s.templates=[];
   return s;
 }
 function load(){
@@ -1737,7 +1799,8 @@ function renderAgenda(){
   renderWeek('#agWeek');
   const body=$('#agBody');
   const seg=`<div class="ag-bar"><div class="seg">${[['day','Día'],['3','3 días'],['week','Semana']].map(([v,l])=>`<button class="${agView===v?'on':''}" onclick="agView='${v}';renderAgenda()">${l}</button>`).join('')}</div></div>`;
-  const evs=dayEvents(k);
+  const evs=dayEvents(k),nt=noTimeHabits(k);
+  if(!evs.length&&agView==='day'&&nt.length){body.innerHTML=seg+noTimeHTML(k,nt)+`<div class="card empty"><p>Sin agenda cargada para este día.</p></div>`;return;}
   if(!evs.length&&agView==='day'){
     const until=S.agendaUntil;
     body.innerHTML=seg+`<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda para este día</h3><p>${until&&k>until?`La agenda está hecha hasta el ${shortDate(until)}. Pásame el horario del 2.º cuatrimestre y la alargo.`:'Todavía no hay agenda cargada. Se carga sola con el plan.'}</p></div>`;
@@ -1747,7 +1810,10 @@ function renderAgenda(){
   const PX=1.1,H=(AG1-AG0)*PX;
   let html=`<div class="ag-day" style="height:${H+10}px">`;
   for(let m=AG0,i=0;m<AG1;m+=60,i++)html+=`<div class="ag-hour ${i%2?'alt':''}" style="top:${(m-AG0)*PX}px;height:${Math.min(60,AG1-m)*PX}px"><span>${pad((m/60)%24)}:00</span></div>`;
-  for(const e of layout(evs.map(e=>({...e})))){
+  // Tiempo libre = hueco de fondo: se recorta alrededor de lo demás y no quita ancho a nada
+  for(const f of freeParts(evs)){const s=Math.max(f.s,AG0),en=Math.min(f.e,AG1);if(en-s<10)continue;const top=(s-AG0)*PX,h=(en-s)*PX-2;
+    html+=`<button class="ag-ev libre ${h<34?'short':''}" style="--c:${evColor(f.ev)};top:${top}px;height:${h}px;width:calc(100% - 44px);left:44px" onclick="evSheet('${k}','${f.ev.id}')"><b>· ${esc(f.ev.title)}</b><small>${fmtT(s)}–${fmtT(en)}</small></button>`;}
+  for(const e of layout(evs.filter(e=>e.kind!=='libre').map(e=>({...e})))){
     const s=Math.max(tm(e.start),AG0),en=Math.min(tm(e.end),AG1),top=(s-AG0)*PX,h=Math.max(16,(en-s)*PX-2);
     const w=`calc((100% - 44px) / ${e._lanes})`,left=`calc(44px + (100% - 44px) / ${e._lanes} * ${e._lane})`;
     const hb=e.habit?getH(e.habit):null,done=hb&&isDone(hb,k);
@@ -1758,8 +1824,25 @@ function renderAgenda(){
   }
   if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();if(m>=AG0&&m<=AG1)html+=`<div class="ag-now" style="top:${(m-AG0)*PX}px"></div>`;}
   html+=`</div>`;
-  body.innerHTML=seg+classesNote(k)+html;
+  body.innerHTML=seg+classesNote(k)+noTimeHTML(k,nt)+html;
   if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();setTimeout(()=>{const y=$('#agBody').getBoundingClientRect().top+window.scrollY+(m-AG0)*PX-160;if(m>AG0)window.scrollTo({top:Math.max(0,y),behavior:'smooth'});},60);}
+}
+/* Hábitos del día sin hora: no tienen bloque, pero salen en la agenda (franja «Sin hora») */
+function noTimeHabits(k){const ev=dayEvents(k);return dayHabits(k).filter(h=>!ev.some(e=>e.habit===h.id));}
+function noTimeHTML(k,nt){
+  if(!nt.length)return '';
+  return `<div class="ag-notime"><span class="ag-nt-l">Sin hora</span>${nt.map(h=>`<button class="ag-nt ${isDone(h,k)?'done':''}" style="--c:${h.color}" onclick="evSheet('${k}','h:${h.id}')">${esc(h.emoji)} ${esc(h.name)}${isDone(h,k)?' ✓':''}</button>`).join('')}</div>`;
+}
+// Partes del tiempo libre que quedan tras quitar lo que de verdad ocupa (libre 18–21 + hábito 19–20 → 18–19 y 20–21)
+function freeParts(evs){
+  const busy=evs.filter(e=>e.kind!=='libre'&&!e.cancelled).map(e=>[tm(e.start),tm(e.end)]).sort((a,b)=>a[0]-b[0]);
+  const out=[];
+  for(const ev of evs.filter(e=>e.kind==='libre')){
+    let parts=[[tm(ev.start),tm(ev.end)]];
+    for(const[a,b]of busy)parts=parts.flatMap(([s,e])=>b<=s||a>=e?[[s,e]]:[[s,Math.min(a,e)],[Math.max(b,s),e]].filter(([x,y])=>y-x>0));
+    for(const[s,e]of parts)out.push({ev,s,e});
+  }
+  return out;
 }
 const WEEK_SHORT={'h:fr':'Francés','h:en':'Inglés','h:estudio':'Estudio','h:dx':'Dx diferencial','h:fuerza':'Fuerza','h:boxeo':'Boxeo',futbol:'Fútbol (fisio)',partido:'Partido (fisio)',mimi:'Tirada con Mimi',comida:'Comida',cena:'Cena'};
 function weekRelevant(e){ // en la semana solo lo importante; el detalle está en la vista Día
@@ -1778,6 +1861,8 @@ function weekGrid(n=7){
   const lines=`background-image:linear-gradient(to bottom,var(--border) 1px,transparent 1px);background-size:100% ${HP}px`;
   let html=`<div class="agw-wrap" id="agwWrap"><div class="agw" style="${n===3?'grid-template-columns:40px repeat(3,1fr);min-width:0':''}"><div class="agw-hd" style="cursor:default"></div>`;
   days.forEach(k=>{html+=`<div class="agw-hd ${k===t?'today':''} ${k===sel?'sel':''}" onclick="sel='${k}';agView='day';renderAgenda()"><b>${DOW_N[dow(k)].slice(0,3)}</b><span>${pk(k).getDate()}</span></div>`;});
+  const nts=days.map(k=>noTimeHabits(k));
+  if(nts.some(x=>x.length)){html+=`<div class="agw-nt-l">Sin<br>hora</div>`;days.forEach((k,i)=>{const L=nts[i];html+=`<button class="agw-nt" onclick="sel='${k}';agView='day';renderAgenda()" aria-label="${L.length} sin hora el ${longDate(k)}">${L.slice(0,4).map(h=>`<span class="${isDone(h,k)?'done':''}">${esc(h.emoji)}</span>`).join('')}${L.length>4?`<small>+${L.length-4}</small>`:''}</button>`;});}
   html+=`<div class="agw-hrs" style="height:${H}px">`;
   for(let h=h0+1;h<h1;h++)html+=`<span style="top:${(h-h0)*HP}px">${pad(h)}:00</span>`;
   html+=`</div>`;
@@ -1787,7 +1872,8 @@ function weekGrid(n=7){
       const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60),top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
       const w=100/e._lanes,title=WEEK_SHORT[e.id]||e.title.replace(/ · /,' ');
       const hb=e.habit?getH(e.habit):null,ok=hb&&isDone(hb,k)?' ✓':'';
-      html+=`<button class="agw-ev ${e.cancelled?'cancel':''}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 2px);width:calc(${w}% - 4px);right:auto" onclick="evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,h0*60,h1*60)}><b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}</small>`:''}</button>`;
+      const narrow=e._lanes>1,lbl=narrow?`<b>${evIcon(e)}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`:`<b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`;
+      html+=`<button class="agw-ev ${e.cancelled?'cancel':''} ${narrow?'narrow':''}" title="${esc(e.title)} ${fmtT(tm(e.start))}–${fmtT(tm(e.end))}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 1px);width:calc(${w}% - 2px);right:auto" onclick="evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,h0*60,h1*60)}>${lbl}</button>`;
     }
     html+=`</div>`;
   });
@@ -1797,7 +1883,7 @@ function weekGrid(n=7){
 }
 function evSheet(k,id){
   let ev=dayEvents(k).find(e=>e.id===id);
-  if(!ev&&id.startsWith('h:')){const h=getH(id.slice(2));if(!h)return;const o=agOv(k,id);ev={id,title:h.name,kind:'habito',habit:h.id,start:'',end:'',cancelled:!!(o&&(o.cancel||o.moveTo)),reason:o&&o.reason};}
+  if(!ev&&id.startsWith('h:')){const h=getH(id.slice(2));if(!h)return;const o=agOv(k,id);ev={id,title:h.name,kind:'habito',habit:h.id,start:'',end:'',notime:!hasBase(h)&&!(h.time&&h.time.start),cancelled:!!(o&&(o.cancel||o.moveTo)),reason:o&&o.reason};}
   if(!ev)return;
   const h=ev.habit?getH(ev.habit):null,o=agOv(k,id)||{},mi=h?agOv(k,'in:'+h.id):null;
   const kindLbl=ev.kind==='habito'?'Hábito':KIND[ev.kind][0];
@@ -1811,6 +1897,7 @@ function evSheet(k,id){
     <div class="sub">${longDate(k)}${ev.start?` · ${fmtT(tm(ev.start))}–${fmtT(tm(ev.end))}`:''} · ${kindLbl}</div>
     <div>${badges}${status}</div>
     ${ev.detail?`<p class="hint">${esc(ev.detail)}</p>`:''}
+    ${ev.notime&&!ev.cancelled?`<p class="hint">Este hábito no tiene hora: sale en la franja «Sin hora».</p><button class="btn ghost" style="width:100%" onclick="openEditor('${ev.habit}')">🕗 Ponerle hora</button>`:''}
     ${plan&&plan.text?`<div class="hc-plan" style="margin-top:12px">${plan.tag?`<div class="pl-tag">${esc(plan.tag)}</div>`:''}${fmtPlan(plan.text)}</div>`:''}
     ${h&&!ev.cancelled?`<div class="btns"><button class="btn ghost" onclick="closeSheet();go('hoy')">Ver en Hoy</button>${k<=todayK()&&h.type!=='time'?`<button class="btn pri" onclick="act('${h.id}','${k}');evSheet('${k}','${id}')">${isDone(h,k)?'Desmarcar':'Marcar hecho'}</button>`:''}</div>`:''}
     ${ev.cancelled?`<div class="btns"><button class="btn pri" onclick="evRestore('${k}','${id}')">↺ Restaurar</button></div>`:`
@@ -1985,9 +2072,14 @@ function blankHabit(){
     schedule:{mode:'daily',days:[1,2,3,4,5],times:3,n:2,dates:[]},
     plan:{mode:'none',weekly:{},cycle:['',''],dates:{},program:{}}};
 }
-function openEditor(id){
+function openEditor(id,opt={}){
+  if(!id&&!opt.blank&&!opt.tpl&&opt.tplEdit==null)return tplPicker();
   const h=id?getH(id):null;
-  D=JSON.parse(JSON.stringify(h||blankHabit()));D._new=!h;
+  const day=sel>todayK()?sel:todayK(); // si lo creas mirando otro día, empieza ese día
+  if(opt.tplEdit!=null){const t=S.templates[opt.tplEdit];if(!t)return;D=habitFromTpl(t,day);D._tplEdit=opt.tplEdit;D._new=false;}
+  else if(opt.tpl){D=habitFromTpl(opt.tpl,day);D._new=true;D._fromTpl=opt.tpl.name;}
+  else{D=JSON.parse(JSON.stringify(h||blankHabit()));D._new=!h;if(!h)D.start=day;}
+  D._day=sel;
   D.schedule=Object.assign({days:[1,2,3,4,5],times:3,n:2,dates:[]},D.schedule);
   D.plan=Object.assign({mode:'none',weekly:{},cycle:['',''],dates:{},program:{}},D.plan);
   if(!D.plan.cycle.length)D.plan.cycle=['',''];
@@ -2023,8 +2115,10 @@ function edR(){
   const dps=Object.keys(p.dates||{}).sort();
 
   $('#sheetBody').innerHTML=`
-    <div class="sheet-title">${D._new?'Nuevo hábito':'Editar hábito'}</div>
+    <div class="sheet-title">${D._tplEdit!=null?'Editar plantilla':D._new?'Nuevo hábito':'Editar hábito'}</div>
     <label class="lbl">Nombre</label><input value="${esc(D.name)}" placeholder="Ej.: Boxeo, Francés, Leer…" oninput="D.name=this.value">
+    ${D._fromTpl?`<p class="hint" style="margin-top:6px">📋 Desde la plantilla «${esc(D._fromTpl)}»: es una copia, cámbiala como quieras.</p>`:''}
+    ${edTimeHTML()}
     <label class="lbl">Descripción (opcional)</label><input value="${esc(D.desc||'')}" placeholder="Por qué lo haces, detalles…" oninput="D.desc=this.value">
 
     <label class="lbl">Icono</label>
@@ -2037,17 +2131,14 @@ function edR(){
     <div class="types">${TYPES.map(([v,l,d])=>`<button class="${D.type===v?'on':''}" onclick="edType('${v}')"><b>${l}</b><small>${d}</small></button>`).join('')}</div>
     ${typeExtra}
 
-    ${hasBase(D)?`<label class="lbl">Hora</label><p class="hint" style="margin-top:0">La hora de este hábito viene de tu agenda: cámbiala tocando o arrastrando su bloque en Agenda.</p>`:`<label class="lbl">Hora (opcional)</label>
-    <div class="two"><input type="time" aria-label="Hora de inicio" value="${D.time&&D.time.start||''}" onchange="D.time=this.value?{start:this.value,dur:(D.time&&D.time.dur)||30}:null;edR()">
-      <select aria-label="Duración" ${D.time?'':'disabled'} onchange="if(D.time)D.time.dur=+this.value">${[10,15,20,30,45,60,75,90,120].map(m=>`<option value="${m}" ${((D.time&&D.time.dur)||30)===m?'selected':''}>${fmtDur(m)}</option>`).join('')}</select></div>
-    <p class="hint">Con hora, sale en la agenda, en «Ahora / Después» y en el calendario suscrito, y se coloca solo en su franja.</p>`}
     <label class="lbl">Momento del día</label>
     ${seg(MOMENTS.map(([v,l])=>[v,l.replace('En cualquier momento','Cualquiera').replace('Por la ','')]),D.moment,'edMoment')}
 
     <label class="lbl">Frecuencia</label>
-    ${seg([['daily','Cada día'],['weekdays','Días concretos'],['xweek','X por semana'],['everyN','Cada N días'],['dates','Fechas sueltas']],s.mode,'edSched')}
+    ${seg([['once','Un solo día'],['daily','Cada día'],['weekdays','Días concretos'],['xweek','X por semana'],['everyN','Cada N días'],['dates','Fechas sueltas']],edOnce()?'once':s.mode,'edSched')}
+    ${edOnce()?`<p class="hint">Solo el ${longDate(s.dates[0])}. Cambia el día en «Empieza el».</p>`:''}
     ${schedExtra}
-    <label class="lbl">Empieza el</label><input type="date" value="${D.start}" onchange="D.start=this.value||todayK()">
+    ${D._tplEdit!=null?'':`<label class="lbl">${edOnce()?'Día':'Empieza el'}</label><input type="date" value="${D.start}" onchange="D.start=this.value||todayK();if(edOnce())D.schedule.dates=[D.start];edR()">`}
 
     <label class="lbl">Plan detallado</label>
     ${seg([['none','Sin plan'],['weekly','Por día de la semana'],['cycle','Rotación de sesiones']],p.mode,'edPlan')}
@@ -2056,7 +2147,8 @@ function edR(){
     <div style="margin-top:10px">${planExtra}</div>
     ${dps.length?`<label class="lbl">Planes de fechas concretas</label>${dps.map(k=>`<div class="dp-item"><div><b>${longDate(k)}</b>${esc(p.dates[k])}</div><button class="x" style="width:34px;height:34px" onclick="delete D.plan.dates['${k}'];edR()">✕</button></div>`).join('')}`:''}
 
-    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="edSave()">${D._new?'Crear hábito':'Guardar'}</button></div>`;
+    ${D._tplEdit!=null?'':`<label class="chk"><input type="checkbox" ${D._saveTpl?'checked':''} onchange="D._saveTpl=this.checked"> Guardar también como plantilla (para crear otro igual más adelante)</label>`}
+    <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="edSave()">${D._tplEdit!=null?'Guardar plantilla':D._new?'Crear hábito':'Guardar'}</button></div>`;
 }
 function edType(v){
   D.type=v;
@@ -2066,7 +2158,46 @@ function edType(v){
   edR();
 }
 function edMoment(v){D.moment=v;edR();}
-function edSched(v){D.schedule.mode=v;edR();}
+function edSched(v){if(v==='once'){D.schedule.mode='dates';D.schedule.dates=[D.start];}else{D.schedule.mode=v;if(v==='dates'&&!D.schedule.dates.length)D.schedule.dates=[D.start];}edR();}
+function edOnce(){const s=D.schedule;return s.mode==='dates'&&s.dates.length===1&&s.dates[0]===D.start;}
+/* Hora del hábito: arriba del todo, con «Sin hora / Con hora», inicio y fin (o duración rápida) */
+function edTimeHTML(){
+  if(hasBase(D))return `<label class="lbl">Hora</label><p class="hint" style="margin-top:0">La hora de este hábito viene de tu agenda: cámbiala tocando o arrastrando su bloque en Agenda.</p>`;
+  const t=D.time,end=t?fmtT(tm(t.start)+(t.dur||30)):'';
+  return `<label class="lbl">¿A qué hora?</label>
+    <div class="seg"><button class="${t?'':'on'}" onclick="D.time=null;edR()">Sin hora</button><button class="${t?'on':''}" onclick="if(!D.time)D.time={start:'${fmtT(Math.min(22*60,Math.ceil((new Date().getHours()*60+new Date().getMinutes()+30)/30)*30))}',dur:30};edR()">Con hora</button></div>
+    ${t?`<div class="two" style="margin-top:10px"><div><label class="lbl" style="margin-top:0">Empieza</label><input type="time" id="edTs" value="${t.start}" onchange="if(this.value){D.time.start=this.value;edR();}"></div>
+      <div><label class="lbl" style="margin-top:0">Termina</label><input type="time" id="edTe" value="${end}" onchange="edEnd(this.value)"></div></div>
+      <div class="chips">${[15,30,45,60,90].map(m=>`<button class="chip qt ${t.dur===m?'on':''}" onclick="D.time.dur=${m};edR()">${fmtDur(m)}</button>`).join('')}</div>
+      <p class="hint">Sale en su franja de la agenda (día y semana), en «Ahora / Después» y en los avisos.</p>`
+    :`<p class="hint" style="margin-top:6px">Sin hora sale en Hoy y en la agenda, en la franja «Sin hora» del día.</p>`}`;
+}
+function edEnd(v){if(!v||!D.time)return;let d=tm(v)-tm(D.time.start);if(d<=0)d+=24*60;if(d>16*60)return toast('Revisa la hora de fin');D.time.dur=d;edR();}
+/* Elegir plantilla al crear un hábito */
+function tplPicker(){
+  const mine=S.templates||[],same=(a,b)=>a.name.trim().toLowerCase()===b.name.trim().toLowerCase();
+  const own=S.habits.filter(h=>!h.archived&&!h.tutorial&&!mine.some(m=>same(m,h))).map(tplFrom); // tus hábitos actuales, también sirven de plantilla
+  const ex=exampleTpls().filter(e=>![...mine,...own].some(m=>same(m,e)));
+  const row=(t,act,sub)=>`<button class="row-btn" onclick="${act}"><span class="ri" style="font-size:20px;--ic:${t.color}">${esc(t.emoji)}</span><div>${esc(t.name)}<small>${sub}</small></div></button>`;
+  const info=t=>[t.steps.length?`${t.steps.length} pasos`:TYPES.find(x=>x[0]===t.type)?.[1]||'',t.time?`${t.time.start} · ${fmtDur(t.time.dur)}`:'',t.plan&&t.plan.mode!=='none'?'con plan':''].filter(Boolean).join(' · ');
+  window._tplList=[...mine,...own,...ex];
+  openSheet(`<div class="sheet-title">Nuevo hábito</div><div class="sub mb12">Empieza en blanco o desde una plantilla (se crea una copia)</div>
+    <button class="row-btn" onclick="openEditor(null,{blank:true})">${ri('edit')}<div>En blanco<small>Lo configuras tú desde cero</small></div></button>
+    ${mine.length?`<div class="sec">Tus plantillas</div>${mine.map((t,i)=>row(t,`openEditor(null,{tpl:_tplList[${i}]})`,info(t))).join('')}`:''}
+    ${own.length?`<div class="sec">Copiar uno de tus hábitos</div>${own.map((t,i)=>row(t,`openEditor(null,{tpl:_tplList[${mine.length+i}]})`,info(t))).join('')}`:''}
+    ${ex.length?`<div class="sec">Ejemplos</div>${ex.map((t,i)=>row(t,`openEditor(null,{tpl:_tplList[${mine.length+own.length+i}]})`,info(t))).join('')}`:''}
+    <p class="hint">Tus plantillas se editan en Ajustes › Plantillas.</p>`);
+}
+/* Ajustes › Plantillas: editar pasos y demás, o borrar */
+function tplSheet(){
+  const L=S.templates||[];
+  openSheet(`<div class="sheet-title">📋 Plantillas</div><div class="sub mb12">Al crear un hábito puedes partir de una de estas. Cambiarlas no toca los hábitos que ya creaste.</div>
+    ${L.map((t,i)=>`<div class="tpl-row"><span class="tpl-ic">${esc(t.emoji)}</span><div class="tpl-tx"><b>${esc(t.name)}</b><small>${t.steps.length?esc(t.steps.join(' · ')):''}</small></div>
+      <button class="btn ghost" onclick="openEditor(null,{tplEdit:${i}})">Editar</button><button class="btn danger" aria-label="Borrar ${esc(t.name)}" onclick="tplDel(${i})">✕</button></div>`).join('')||'<p class="hint">Aún no tienes plantillas. Al crear o editar un hábito, marca «Guardar también como plantilla».</p>'}
+    <button class="btn ghost mt8" style="width:100%" onclick="openEditor(null,{blank:true});D._saveTpl=true;edR()">+ Nueva plantilla</button>`);
+}
+async function tplDel(i){const t=S.templates[i];if(!t)return;if(!await ask(`Se borra la plantilla «${t.name}». Los hábitos creados con ella no cambian.`,'Borrar',true))return tplSheet();
+  pushUndo();S.templates.splice(i,1);save();tplSheet();toast('Plantilla borrada',[undoAct()]);}
 function edPlan(v){D.plan.mode=v;edR();}
 function edDay(d){const a=D.schedule.days;D.schedule.days=a.includes(d)?a.filter(x=>x!==d):[...a,d];edR();}
 function edAddDate(){const v=$('#edDateIn').value;if(!v)return;if(!D.schedule.dates.includes(v))D.schedule.dates.push(v);edR();}
@@ -2088,6 +2219,9 @@ function edSave(){
   for(const d in p.weekly)if(!String(p.weekly[d]).trim())delete p.weekly[d];
   if(p.mode==='cycle'&&!p.cycle.some(c=>c.trim()))p.mode='none';
   if(D.time&&!D.time.start)delete D.time;
+  if(D._tplEdit!=null){const i=D._tplEdit,old=S.templates[i];pushUndo();S.templates[i]={...tplFrom(D),tid:old.tid};D=null;save();closeSheet();tplSheet();return toast('Plantilla guardada',[undoAct()]);}
+  if(D._saveTpl){S.templates=S.templates||[];const t=tplFrom(D),j=S.templates.findIndex(x=>x.name.toLowerCase()===t.name.toLowerCase());if(j>=0)S.templates[j]={...t,tid:S.templates[j].tid};else S.templates.push(t);}
+  for(const k of ['_saveTpl','_fromTpl','_tplEdit','_day'])delete D[k];
   const isNew=D._new;delete D._new;
   if(!isNew&&S.packs&&Object.keys(S.packs).length)D.userEdited=true; // la próxima actualización del plan respeta tus cambios
   let before=null;if(!isNew){const i=S.habits.findIndex(h=>h.id===D.id);before=JSON.parse(JSON.stringify(S.habits[i]));S.habits[i]=D;}else S.habits.push(D);
@@ -2166,6 +2300,7 @@ function renderSet(){
     <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'dark')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
     <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
     <label class="chk card" style="justify-content:space-between"><span>🔊 Sonido al completar<small class="hint" style="display:block">Una nota en cada paso y otra al acabar. Con el iPhone en silencio no suena</small></span><input type="checkbox" switch ${S.settings.sound===false?'':'checked'} onchange="S.settings.sound=this.checked;save();if(this.checked)fxStep(.5)"></label>
+    <button class="row-btn" onclick="tplSheet()">${ri('note')}<div>Plantillas de hábitos<small>${(S.templates||[]).length} plantillas · edita sus pasos o bórralas</small></div></button>
     <button class="row-btn" onclick="sortSheet()">${ri('move')}<div>Ordenar tus hábitos<small>Arrástralos para cambiar el orden</small></div></button>
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
@@ -2292,17 +2427,7 @@ function mk(o){
   return h;
 }
 function loadExamples(){
-  const ex=[
-    mk({name:'Rutina de mañana',emoji:'☀️',color:'#F59E0B',type:'checklist',moment:'manana',steps:['Vaso de agua','Hacer la cama','Movilidad 5 min','Revisar el plan del día']}),
-    mk({name:'Gimnasio',emoji:'🏋️',color:'#A855F7',type:'check',moment:'manana',schedule:{mode:'xweek',times:3},
-      plan:{mode:'cycle',cycle:['Empuje\n- Press banca 4×8\n- Press militar 3×10\n- Fondos 3×máx','Tirón\n- Dominadas 4×6\n- Remo con barra 4×8\n- Curl bíceps 3×12','Pierna\n- Sentadilla 4×6\n- Peso muerto rumano 3×8\n- Zancadas 3×10 por pierna']}}),
-    mk({name:'Boxeo',emoji:'🥊',color:'#EF4444',type:'time',target:60,moment:'tarde',schedule:{mode:'weekdays',days:[1,3,5]},
-      plan:{mode:'weekly',weekly:{1:'Técnica\n- Comba 10 min\n- 6 rounds de sombra\n- 4 rounds de saco: combinaciones 1-2-3',3:'Sparring ligero\n- Calentamiento 15 min\n- 4 rounds de sparring\n- Core 10 min',5:'Físico\n- 5 rounds de saco a intervalos 30/30\n- Burpees y saltos\n- Movilidad de hombro'}}}),
-    mk({name:'Estudio',emoji:'📚',color:'#22C55E',type:'time',target:60,moment:'tarde',schedule:{mode:'weekdays',days:[1,2,3,4,5]}}),
-    mk({name:'Francés',emoji:'🇫🇷',color:'#3B82F6',type:'check',moment:'noche',desc:'Lección diaria de Duolingo'}),
-    mk({name:'Inglés',emoji:'🇬🇧',color:'#14B8A6',type:'time',target:20,moment:'noche'}),
-    mk({name:'Agua',emoji:'💧',color:'#06B6D4',type:'count',target:8,unit:'vasos'}),
-  ];
+  const ex=EXAMPLES().map(mk);
   // No duplicar: si ya tienes un hábito con ese nombre (p. ej. Boxeo o Francés del plan), ese ejemplo no se añade
   const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const have=S.habits.map(h=>norm(h.name));

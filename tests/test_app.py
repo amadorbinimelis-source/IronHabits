@@ -18,7 +18,7 @@ async def main():
         await pg.evaluate(f"localStorage.setItem('rutina_v1', {json.dumps(json.dumps(old))})")
         await pg.reload(); await pg.wait_for_timeout(1500)
         st = await pg.evaluate("({schema:S.schema, note:S.notes['2026-11-10'], hasAg:!!S.agendaBase['2026-11-23'], packs:S.packs})")
-        check(st["schema"] == 3, "migración: esquema pasa a 3")
+        check(st["schema"] >= 3, "migración: esquema actualizado (3 o posterior)")
         check(st["note"] == "hola", "migración: conserva las notas antiguas")
         check(st["hasAg"], "plan.json carga la agenda")
         # 2. Agenda del lunes 23

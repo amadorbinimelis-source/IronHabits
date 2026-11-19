@@ -19,9 +19,10 @@ async def main():
         await pg.evaluate("S.logs={};S.checkins={'2026-11-23':{sleep:4,energy:4}};save();sel=todayK();go('hoy')")
 
         # Hora en el editor (hábito propio, sin agenda del plan)
-        await pg.evaluate("openEditor()"); await pg.wait_for_timeout(300)
+        await pg.evaluate("openEditor(null,{blank:true})"); await pg.wait_for_timeout(300)
         await pg.fill("#sheetBody input[placeholder^='Ej.: Boxeo']", "Leer")
-        r = await pg.evaluate("!!document.querySelector('#sheetBody input[aria-label=\"Hora de inicio\"]')")
+        await pg.locator("#sheetBody .seg button", has_text="Con hora").click(); await pg.wait_for_timeout(200)
+        r = await pg.evaluate("!!document.querySelector('#edTs')")
         check(r, "el editor de un hábito nuevo tiene campo de hora")
         await pg.evaluate("D.time={start:'21:30',dur:30};edSave()"); await pg.wait_for_timeout(300)
         r = await pg.evaluate("""(()=>{const h=S.habits.find(h=>h.name==='Leer');const t=todayK();const ev=dayEvents(t).find(e=>e.id==='h:'+h.id);
