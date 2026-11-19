@@ -2,6 +2,15 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.20 · 19 nov 2026 · Reevaluación, trozo 4: funciones nuevas
+- Recolocar (`overdue`, `proposeSlot`, `freeSlotStrict`, `replanSheet`): aviso en Hoy y botón en la franja atrasada; propone el primer hueco libre (primero esta semana); para lo diario, saltar y compensar.
+- Modo «Empezar» (`focusMode`): pantalla completa con anillo-cronómetro, plan y pasos; Wake Lock; «Terminar» marca y guarda minutos.
+- Disposición del día (`readiness`): 40 % sueño, 40 % energía, 20 % carga (ACWR); chip en la cabecera del día y «¿Día flojo?» si < 45.
+- Comodín de racha en `streaks`: +1 por semana con el total cumplido (máx. 2), se gasta en un fallo; días salvados en azul hielo (`--ice`).
+- Resumen del mes (`monthSheet`, `monthImage` en canvas 1080×1350, `shareMonth`); aviso los 3 primeros días del mes.
+- Tema claro / sistema (`setTheme`, `data-theme`, `--acc-raw`, variables del mapa de calor); ordenar arrastrando (`sortSheet`); exportar CSV (`exportCSV`).
+- Guía actualizada. Tests: `tests/test_v120.py`.
+
 ## v1.19 · 19 nov 2026 · Reevaluación, trozo 3: marca IronHabits
 - Iconos «IH» (`icon-180/192/512.png`, `icon-maskable-512.png`, `favicon.png`) y 12 pantallas de arranque de iOS (`splash/`), generados con anillo vacío para enlazar con la animación.
 - Pantalla de arranque animada (`#boot`): el anillo se llena por etapas (código, plan cargado, listo) y se desvanece; máx. 3 s, no bloquea toques, respeta reduced motion.

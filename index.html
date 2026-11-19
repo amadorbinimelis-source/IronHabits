@@ -669,6 +669,54 @@ nav button svg{width:24px;height:24px}
 .boot-name{position:absolute;left:0;right:0;top:calc(40% + min(18vw,110px) + 6.8vw);text-align:center;color:#F4F4F6;font:900 7.5vw/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
 @media (min-width:600px){.boot-name{font-size:44px}}
 @media (prefers-reduced-motion:reduce){#bootRing{transition:none}}
+
+/* ═════════════ v1.20 · Tema claro ═════════════ */
+:root{--acc:var(--acc-raw,#22C55E);--heat-off:#121217;--heat-empty:#18181E;--heat-miss:#24242C;--grid-alt:rgba(255,255,255,.018);--grid-dash:rgba(255,255,255,.05)}
+html[data-theme=light]{color-scheme:light;
+  --bg:#F5F5F7;--bg2:#FAFAFB;--card:#FFFFFF;--card2:#F1F1F4;--card3:#E8E8ED;--border:#E2E2E8;--border2:#D2D2DA;
+  --text:#15151A;--muted:#5C5C68;--dim:#6E6E7A;
+  --acc:color-mix(in srgb,var(--acc-raw,#22C55E) 70%,#000);--brand:#EA580C;--brand-press:#C2410C;
+  --e1:0 1px 2px rgba(20,20,30,.07);--e2:0 12px 32px rgba(20,20,30,.16),0 2px 6px rgba(20,20,30,.08);
+  --heat-off:#F0F0F3;--heat-empty:#E9E9EE;--heat-miss:#D7D7DF;--grid-alt:rgba(0,0,0,.025);--grid-dash:rgba(0,0,0,.06)}
+html[data-theme=light] nav{background:color-mix(in srgb,var(--bg) 88%,transparent)}
+html[data-theme=light] .ov{background:rgba(20,20,30,.35)}
+html[data-theme=light] .ag-ev.sueno{background:color-mix(in srgb,#94A3B8 25%,var(--bg))}
+html[data-theme=light] .celebrate{background:rgba(255,255,255,.3)}
+html[data-theme=light] .hc-act{color:#fff}
+.ag-hour.alt{background:var(--grid-alt)}.ag-hour::after{border-top-color:var(--grid-dash)}
+/* Ordenar */
+.so-row{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s3);margin-bottom:var(--s2);background:var(--card2);border:1px solid var(--border);border-radius:var(--r-md);touch-action:none;position:relative}
+.so-row b{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.so-row.on{z-index:5;box-shadow:var(--e2);border-color:var(--acc);transition:none}
+.so-h{width:44px;height:44px;font-size:22px;color:var(--muted);cursor:grab;touch-action:none}
+
+/* ═════════════ v1.20 · Funciones nuevas ═════════════ */
+:root{--ice:#7DD3FC}html[data-theme=light]{--ice:#38BDF8}
+.freeze{display:flex;gap:var(--s3);align-items:flex-start;background:color-mix(in srgb,var(--ice) 10%,var(--card2));border:1px solid color-mix(in srgb,var(--ice) 35%,var(--border));border-radius:var(--r-md);padding:var(--s3);margin:0 0 var(--s3)}
+.freeze span{font-size:22px}.freeze b{display:block;font-size:var(--fs-body)}.freeze small{color:var(--muted);font-size:var(--fs-sm);line-height:1.45}
+.rd-chip{display:inline-flex;align-items:center;min-height:28px;padding:0 8px;border-radius:999px;font-weight:700;font-family:var(--num);position:relative}
+.rd-chip::after{content:'';position:absolute;inset:-8px -4px}
+.rd-hi{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--acc)}.rd-mid{background:color-mix(in srgb,var(--info) 18%,transparent);color:var(--info)}.rd-lo{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.min-btn.suggest{border-color:var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);animation:pulseW 2s ease-in-out 3}
+@keyframes pulseW{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--warn) 18%,transparent)}}
+.sec-act{margin:-12px 0 -12px auto;min-height:44px;padding:0 var(--s3);border-radius:999px;background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);font-size:var(--fs-sm);font-weight:700;letter-spacing:0;text-transform:none}
+.sec-late::after{display:none}
+.start-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin-top:var(--s2);border-radius:var(--r-md);background:color-mix(in srgb,var(--hc) 16%,var(--card2));color:var(--text);font-weight:700;font-size:var(--fs-sm);border:1px solid color-mix(in srgb,var(--hc) 40%,var(--border))}
+.rp-row{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) 0;border-bottom:1px solid var(--border)}
+.rp-row div{flex:1;min-width:0}.rp-row b{display:block;font-size:var(--fs-body)}.rp-row small{font-size:var(--fs-sm);color:var(--muted)}
+.rp-b{min-height:44px;min-width:44px;padding:0 var(--s3);border-radius:var(--r-md);background:var(--card2);border:1px solid var(--border);font-weight:600;font-size:var(--fs-sm)}
+.rp-b.ok{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+#focus{position:fixed;inset:0;z-index:450;background:var(--bg);display:none;flex-direction:column;padding:calc(env(safe-area-inset-top) + 8px) var(--s4) calc(env(safe-area-inset-bottom) + var(--s3))}
+#focus.on{display:flex;animation:fade var(--t) var(--ease)}
+.fo-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:var(--fs-sm);font-weight:600}
+.fo-x{width:44px;height:44px;border-radius:50%;background:var(--card2);border:1px solid var(--border);font-weight:700}
+.fo-hd{text-align:center;margin:var(--s3) 0}
+.fo-ring{position:relative;width:220px;height:220px;margin:0 auto}.fo-ring svg{position:absolute;inset:0}
+.fo-ring div{position:absolute;inset:0;display:grid;place-content:center}
+.fo-ring b{font-family:var(--num);font-size:52px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.fo-ring small{color:var(--muted);font-size:var(--fs-sm)}
+.fo-name{font-size:var(--fs-h2);font-weight:700;margin-top:var(--s3)}.fo-tag{color:var(--hc);font-size:var(--fs-sm);font-weight:700;margin-top:var(--s1)}
+.fo-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:var(--s2) 0}
+.fo-ft{display:flex;gap:var(--s2)}.fo-ft .btn{flex:1}
 </style>
 </head>
 <body>
@@ -741,8 +789,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.19';
+const APP_VERSION='1.20';
 const CHANGELOG=[
+  ['1.20','19 nov 2026',['🔁 Recolocar en un toque: lo que se te pasa, al primer hueco libre (y sigue contando en la semana)','▶ Modo «Empezar»: pantalla completa con cronómetro, plan y pasos; la pantalla no se apaga','⚡ Disposición del día: sueño, energía y carga en un número; si está baja, te propone el Día flojo','🧊 Comodín de racha: gana uno cada semana que llegas al total; protege un día fallado','📅 Resumen del mes con imagen para compartir','Tema claro u «como el iPhone», ordenar hábitos arrastrando y exportar a CSV']],
   ['1.19','19 nov 2026',['💪 Nueva identidad IronHabits: icono «IH» y pantalla de arranque con el anillo que se llena mientras carga','🔶 Color de marca naranja para el botón +, las rachas y la celebración','Números redondeados e iconos dibujados en franjas y avisos','Tu plan se guarda en un espacio más grande del móvil (IndexedDB), sin límite de 5 MB','Nueva dirección: amadorbinimelis-source.github.io/IronHabits']],
   ['1.18','19 nov 2026',['🧠 Hoy se ordena según la hora: lo que toca ahora va primero','Lo pendiente de antes sigue ahí, marcado como «aún pendiente»','✅ Lo que ya has hecho baja a «Hechos hoy», plegado al final','«Después» te enseña el siguiente hábito u obligación (sin comidas ni trayectos)','Cuenta atrás más clara y botón «Volver a hoy» cuando miras otro día']],
   ['1.17','19 nov 2026',['🛟 Eliminar, archivar o editar un hábito ahora se puede deshacer, y antes se guarda una copia automática','Copias automáticas: la primera y la última de cada día','Todos los botones (Restaurar, Quitar, filas del plan…) son fáciles de tocar','Una tarjeta deslizada ya no se cierra sola','Plan actualizado: arreglada una instrucción antigua de la guía de Inglés']],
@@ -1047,16 +1096,19 @@ function streaks(h){
     }
     return{cur:run,best,unit:'sem'};
   }
+  const c=wcache(),ck='st'+h.id;if(c.has(ck))return c.get(ck);
   const first=Object.keys(S.logs).filter(d=>hasLog(h,d)).sort()[0];
-  let k=first&&first<h.start?first:h.start,run=0,best=0,guard=0;
+  // Comodín de racha: cada semana que llegas al total ganas uno (máx. 2); un día fallado gasta uno y la racha no se rompe
+  let k=first&&first<h.start?first:h.start,run=0,best=0,guard=0,freeze=0;const frozen=[];
   while(k<=t&&guard++<4000){
     if(showOnBase(h,k)){
       if(isDone(h,k)){run++;if(run>best)best=run;}
-      else if(k!==t&&missCounts(h,k))run=0;
+      else if(k!==t&&missCounts(h,k)){if(freeze>0&&run>0){freeze--;frozen.push(k);}else run=0;}
     }
+    if(dow(k)===0&&k<t&&weekMet(h,k))freeze=Math.min(2,freeze+1);
     k=addDays(k,1);
   }
-  return{cur:run,best,unit:'d'};
+  const r={cur:run,best,unit:'d',freeze,frozen};c.set(ck,r);return r;
 }
 function habitRate(h,days=30){
   const t=todayK();
@@ -1204,10 +1256,10 @@ function renderHoy(){
   let html='';
   if(k===t){const sp=spotlight(k);html+=sp.main;setBell(sp.rest);}else setBell([]);
   // 2 · Cabecera compacta del día
-  const pct=hs.length?done/hs.length:0;
+  const pct=hs.length?done/hs.length:0,rd=k===t?readiness(k):null,low=rd&&rd.score<45&&!minOn;
   html+=`<div class="dayhead"><span class="dh-ring">${ring(pct,40,5,'var(--acc)')}</span>
-    <div class="dh-t"><b>${fut?`${hs.length} programado${hs.length===1?'':'s'}`:hs.length?(done===hs.length?'Día completo 🔥':`${done} de ${hs.length} hechos`):'Día libre'}</b><small>${fut?'Así se presenta el día':hs.length&&done<hs.length?`Te falta${hs.length-done===1?'':'n'} ${hs.length-done}`:hs.length?'¡Bien hecho!':'No hay nada programado'}</small></div>
-    ${k!==t?`<button class="back-today" onclick="pick('${t}')">Volver a hoy</button>`:hs.length?`<button class="min-btn ${minOn?'on':''}" onclick="toggleMinDay('${k}')" aria-pressed="${minOn}">🪫 ${minOn?'Día flojo activado':'Día flojo'}</button>`:''}</div>`;
+    <div class="dh-t"><b>${fut?`${hs.length} programado${hs.length===1?'':'s'}`:hs.length?(done===hs.length?'Día completo 🔥':`${done} de ${hs.length} hechos`):'Día libre'}</b><small>${fut?'Así se presenta el día':hs.length&&done<hs.length?`Te falta${hs.length-done===1?'':'n'} ${hs.length-done}`:hs.length?'¡Bien hecho!':'No hay nada programado'}${rd?` · <button class="rd-chip rd-${rd.level}" onclick="readinessSheet()">⚡ ${rd.score}</button>`:''}</small></div>
+    ${k!==t?`<button class="back-today" onclick="pick('${t}')">Volver a hoy</button>`:hs.length?`<button class="min-btn ${minOn?'on':''} ${low?'suggest':''}" onclick="toggleMinDay('${k}')" aria-pressed="${minOn}">🪫 ${minOn?'Día flojo activado':low?'¿Día flojo?':'Día flojo'}</button>`:''}</div>`;
   if(k===t)html+=countdownRow();
   if(minOn)html+=`<p class="hint" style="margin:0 4px 8px">Cada hábito muestra su versión corta. Hazla y cuenta para la racha.</p>`;
   // 3 · Hábitos por franjas
@@ -1239,7 +1291,7 @@ function habitSections(hs,k){
   for(const{m,past}of seq){
     const g=pend.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));if(!g.length)continue;
     const label=MOMENTS.find(x=>x[0]===m)[1];
-    html+=`<div class="sec ${past?'sec-late':''}"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[m]]}">${ic(MOMENT_IC[m])}</span>${label}${past?' · aún pendiente':''}</div>`+g.map(h=>hcHTML(h,k)).join('');
+    html+=`<div class="sec ${past?'sec-late':''}"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[m]]}">${ic(MOMENT_IC[m])}</span>${label}${past?' · aún pendiente':''}${past&&overdue(k).length?`<button class="sec-act" onclick="replanSheet()">Recolocar</button>`:''}</div>`+g.map(h=>hcHTML(h,k)).join('');
   }
   if(!pend.length&&done.length&&k<=t)html+=`<div class="all-done">🔥 Todo hecho${isToday?' hoy':''}. ¡Bien!</div>`;
   if(done.length){
@@ -1260,6 +1312,8 @@ function noticeList(k){
   const wd=dow(t),ws=weekStartK(t),rk=wd===0?ws:addDays(ws,-7);
   if((wd===0||wd===1)&&!(S.reviews||{})[rk])add(2,`<button class="banner" onclick="reviewSheet('${rk}')">${ri('review')}<div><b>Revisión semanal · 2 min</b><small>Mira cómo ha ido la semana y qué viene</small></div><span class="go">Abrir ›</span></button>`);
   const ag=S.agendaUntil;if(ag&&diffDays(t,ag)<=14&&diffDays(t,ag)>=0)add(2,`<div class="banner warn">${ri('calplus')}<div><b>La agenda acaba el ${shortDate(ag)}</b><small>Pídeme el plan siguiente para no quedarte sin agenda.</small></div></div>`);
+  const od=overdue(t);if(od.length)add(2,`<button class="banner" onclick="replanSheet()">${ri('move')}<div><b>${od.length} pendiente${od.length===1?'':'s'} de hoy</b><small>Recolócalo${od.length===1?'':'s'} en el primer hueco libre en 1 toque</small></div><span class="go">Recolocar ›</span></button>`);
+  if(+t.slice(8)<=3){const pm=addDays(t.slice(0,7)+'-01',-1).slice(0,7);if(Object.keys(S.logs).some(k=>k.startsWith(pm)))add(3,`<button class="banner" onclick="monthSheet('${pm}')">${ri('calendar')}<div><b>Tu resumen de ${MONTHS[+pm.slice(5,7)-1].toLowerCase()}</b><small>Cómo te fue el mes pasado, con imagen para compartir</small></div><span class="go">Ver ›</span></button>`);}
   const le=S.settings.lastExport,hasData=Object.keys(S.logs).length>3;
   if(!(cc&&cc.gistId)&&hasData&&(!le||diffDays(le,t)>=7))add(3,`<button class="banner warn" onclick="backupSheet()">${ri('upload')}<div><b>Guarda una copia fuera del móvil</b><small>${le?`La última fue hace ${diffDays(le,t)} días`:'Aún no has hecho ninguna'} · o conecta la nube y se hace sola</small></div><span class="go">Hacer ›</span></button>`);
   return out.sort((a,b)=>a.prio-b.prio);
@@ -1316,6 +1370,7 @@ function hcHTML(h,k){
   const pl=minOn?{text:h.minimal,tag:'Versión mínima'}:planFor(h,k);
   const open=cardOpen(h,k,done);
   const plan=pl&&open?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`:'';
+  const start=open&&!done&&k===todayK()&&!(S.minDays||{})[k]?`<button class="start-btn" onclick="focusMode('${h.id}')">▶ Empezar${h.type==='time'?'':' con cronómetro'}</button>`:'';
   const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
   const more=pl&&!open?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">Ver plan del día ▾</button>`:'';
   const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
@@ -1326,7 +1381,7 @@ function hcHTML(h,k){
     <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div>
       <button class="hc-info" onclick="${pl?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(pl&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
       <button class="hc-menu" onclick="cardMenu('${h.id}')" aria-label="Opciones de ${esc(h.name)}"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
-      <div class="hc-ctl">${ctl}</div></div>${plan}${minBtns}${steps}${more}</div></div>`;
+      <div class="hc-ctl">${ctl}</div></div>${plan}${start}${minBtns}${steps}${more}</div></div>`;
 }
 function linkLabel(u){
   if(/youtube\.com|youtu\.be/.test(u))return '▶ Buscar en YouTube';
@@ -1710,21 +1765,23 @@ function evRestore(k,id){
 /* ═════════════ HÁBITOS ═════════════ */
 function weeksSince(k0,max,min=8){const t=todayK();if(!k0||k0>t)return min;return Math.max(min,Math.min(max,Math.floor(diffDays(weekStartK(k0),weekStartK(t))/7)+1));}
 function heatCells(h,weeks,big){
+  const fz=new Set(h.schedule.mode==='xweek'?[]:streaks(h).frozen||[]);
   const t=todayK(),start=addDays(weekStartK(t),-7*(weeks-1));let cells='';
   for(let d=0;d<7;d++)for(let w=0;w<weeks;w++){
-    const k=addDays(start,7*w+d);cells+=`<i style="background:${cellColor(h,k,t)}"></i>`;
+    const k=addDays(start,7*w+d);cells+=`<i style="background:${cellColor(h,k,t,fz)}"${fz.has(k)?' title="Comodín"':''}></i>`;
   }
   let months='';
   if(big){let prev=-1;for(let w=0;w<weeks;w++){const m=pk(addDays(start,7*w)).getMonth();months+=`<span>${m!==prev?MES[m]:''}</span>`;prev=m;}}
   return{cells,months};
 }
-function cellColor(h,k,t){
+function cellColor(h,k,t,fz){
   if(k>t)return 'transparent';
-  if(k<h.start)return '#121217';
+  if(fz&&fz.has(k))return 'var(--ice)';
+  if(k<h.start)return 'var(--heat-off)';
   const p=progress(h,k);
   if(p>=1)return h.color;
   if(p>0)return hexA(h.color,'66');
-  return showOnBase(h,k)?'#24242C':'#18181E';
+  return showOnBase(h,k)?'var(--heat-miss)':'var(--heat-empty)';
 }
 function renderHab(){
   const act=S.habits.filter(h=>!h.archived),arch=S.habits.filter(h=>h.archived);
@@ -1763,6 +1820,7 @@ function openDetail(id){
       <div><b>${r===null?'—':Math.round(r*100)+'%'}</b><span>30 días</span></div>
       <div><b>${tot}</b><span>Total</span></div>
     </div>
+    ${h.schedule.mode==='xweek'?'':`<div class="freeze"><span>🧊</span><div><b>${st.freeze} comodín${st.freeze===1?'':'es'} de racha${st.frozen&&st.frozen.length?` · ${st.frozen.length} usado${st.frozen.length===1?'':'s'}`:''}</b><small>Ganas uno cada semana que llegas al total (máx. 2). Si fallas un día, se gasta solo y la racha no se rompe. En el mapa, en azul hielo.</small></div></div>`}
     <div class="hm-wrap" id="hmWrap"><div class="hm-months" style="grid-template-columns:repeat(${W},13px)">${hm.months}</div>
       <div class="hm-big" style="grid-template-columns:repeat(${W},13px)">${hm.cells}</div></div>
     ${weekHistBlock(h)}
@@ -1944,7 +2002,7 @@ function renderStats(){
   const acc=S.settings.accent||'#22C55E';
   for(let d=0;d<7;d++)for(let w=0;w<W;w++){
     const k=addDays(start,7*w+d);let bg='transparent';
-    if(k<=t){const s=dayStats(k);if(!s.total)bg='#18181E';else{const v=s.done/s.total;bg=v===0?'#24242C':v<.34?acc+'55':v<.67?acc+'99':v<1?acc+'CC':acc;}}
+    if(k<=t){const s=dayStats(k);if(!s.total)bg='var(--heat-empty)';else{const v=s.done/s.total;bg=v===0?'var(--heat-miss)':v<.34?acc+'55':v<.67?acc+'99':v<1?acc+'CC':acc;}}
     cells+=`<i style="background:${bg}"></i>`;
   }
 
@@ -1957,6 +2015,7 @@ function renderStats(){
       <div class="kpi kpi-streak"><b>${bestS&&bestS.cur?`${ic('flame')}${bestS.cur}`:'—'}</b><span>${bestS&&bestS.cur?esc(bestS.h.emoji+' '+bestS.h.name):'Mejor racha actual'}</span></div>
     </div>
     <button class="banner" onclick="reviewSheet()">${ri('review')}<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
+    <button class="banner" onclick="monthSheet()">${ri('calendar')}<div><b>Resumen de ${MONTHS[new Date().getMonth()].toLowerCase()}</b><small>Tu mes en números, con imagen para compartir</small></div><span class="go">Ver ›</span></button>
     <!--MAS-->
     <div class="sec">Cumplimiento por semana</div>
     <div class="card"><div class="bars">${bars}</div></div>
@@ -1983,7 +2042,9 @@ function renderSet(){
     <button class="row-btn" onclick="pauseSheet()">${ri('pause')}<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
     <div class="sec">Apariencia</div>
-    <div class="card"><div class="hint" style="margin:0 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
+    <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'dark')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
+    <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
+    <button class="row-btn" onclick="sortSheet()">${ri('move')}<div>Ordenar tus hábitos<small>Arrástralos para cambiar el orden</small></div></button>
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
     <div class="sec">Otros</div>
@@ -1999,7 +2060,16 @@ function calMoreSheet(){openSheet(`<div class="sheet-title">Calendario y avisos<
     <button class="row-btn" onclick="icsSheet()">${ri('calendar')}<div>Exportar unas semanas a mano<small>Un archivo .ics para importarlo una vez (no se actualiza solo)</small></div></button>
     <button class="row-btn" onclick="toggleNotif().then(()=>calMoreSheet())">${ri('message')}<div>Avisos con la app abierta: ${S.settings.notif?'activados':'desactivados'}<small>Solo funcionan con la app en pantalla: el iPhone la para al salir</small></div></button>`);}
 function setAccent(c){S.settings.accent=c;applyAccent();save();renderSet();}
-function applyAccent(){document.documentElement.style.setProperty('--acc',S.settings.accent||'#22C55E');}
+function applyAccent(){const r=document.documentElement.style;r.removeProperty('--acc');r.setProperty('--acc-raw',S.settings.accent||'#22C55E');applyTheme();}
+/* Tema: oscuro, claro o el del sistema */
+const THEMES=[['dark','Oscuro'],['light','Claro'],['auto','Como el iPhone']];
+const _mqDark=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+function themeNow(){const t=S.settings.theme||'dark';return t==='auto'?(_mqDark&&!_mqDark.matches?'light':'dark'):t;}
+function applyTheme(){const t=themeNow();document.documentElement.dataset.theme=t;
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#F5F5F7':'#0B0B0F';
+  const cs=document.querySelector('meta[name=color-scheme]');if(cs)cs.content=t;}
+if(_mqDark&&_mqDark.addEventListener)_mqDark.addEventListener('change',()=>{if((S.settings.theme||'dark')==='auto'){applyTheme();render();}});
+function setTheme(t){S.settings.theme=t;applyTheme();save();renderSet();}
 function backupJSON(){if(S.timer)stopTimer(true);const o={...S,exportedAt:new Date().toISOString()};delete o._needPlanSave;return JSON.stringify(o);}
 function markExport(){S.settings.lastExport=todayK();save();}
 function downloadFile(name,text,type){const blob=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
@@ -2012,7 +2082,8 @@ function backupSheet(){
   openSheet(`<div class="sheet-title">💾 Exportar o importar</div><p class="hint">Guarda una copia fuera del móvil (Drive, iCloud, correo…) o tráela desde otro. ${cloudCfg()&&cloudCfg().gistId?'Con la nube conectada ya se guarda sola; esto es por si quieres un archivo.':'Si conectas la nube, se guarda sola.'}</p>
     <button class="row-btn" onclick="shareBackup()">${ri('upload')}<div>Guardar una copia<small>Elige Drive, Archivos, WhatsApp a ti mismo… (o se descarga)</small></div></button>
     <button class="row-btn" onclick="closeSheet();$('#importIn').click()">${ri('download')}<div>Importar copia o plan<small>Copia (.json): sustituye todo · Plan (plan.json): añade hábitos y conserva tus registros</small></div></button>
-    <button class="row-btn" onclick="copyBackup()">${ri('copy')}<div>Copiar como texto<small>Por si no puedes guardar archivos</small></div></button>`);
+    <button class="row-btn" onclick="copyBackup()">${ri('copy')}<div>Copiar como texto<small>Por si no puedes guardar archivos</small></div></button>
+    <button class="row-btn" onclick="exportCSV()">${ri('chart')}<div>Exportar tus registros (CSV)<small>Para abrirlos en Excel, Numbers o Google Sheets</small></div></button>`);
 }
 async function shareBackup(){const ok=await shareFile(`ironhabits-backup-${todayK()}.json`,backupJSON(),'application/json','Copia de IronHabits');if(ok){markExport();closeSheet();toast('Copia guardada 💾');}}
 async function copyBackup(){try{await navigator.clipboard.writeText(backupJSON());markExport();toast('Copia copiada al portapapeles');}catch(e){openSheet(`<div class="sheet-title">Copia en texto</div><p class="hint">Selecciona todo y cópialo.</p><textarea rows="10" onclick="this.select()">${esc(backupJSON())}</textarea>`);markExport();}}
@@ -2190,21 +2261,21 @@ const GUIDE=[
   {ic:'✅',t:'Marcar un hábito',intro:'Cada hábito tiene un botón redondo a la derecha. Funciona según su tipo:',
    items:['<b>Sí / No</b>: un toque y hecho.','<b>Cantidad</b> (vasos, páginas…): cada toque suma; aparece <b>−</b> para restar.','<b>Tiempo</b>: ▶ pone en marcha el cronómetro y ❚❚ lo para. Sigue contando aunque cierres la app, te avisa al llegar al objetivo y, si cambias de pestaña, lo ves en una píldora abajo.','<b>Checklist</b>: marca cada paso dentro de la tarjeta, o toca el botón redondo para marcarlos todos.','Para desmarcar, vuelve a tocar. Después de cada acción sale un aviso abajo con <b>Deshacer</b>.','Al completar todo lo del día, ¡celebración! 🎉']},
   {ic:'📋',t:'El plan de cada día',intro:'Lo que hace distinta a IronHabits: cada hábito te dice <b>exactamente qué hacer ese día</b>.',
-   items:['Toca el <b>nombre</b> del hábito para ver u ocultar su plan. Los pendientes salen abiertos y los hechos, cerrados.','Arriba del plan, una etiqueta te dice qué sesión es (p. ej. «Pierna B», «Semana 3 · Speaking»).','Los enlaces abren la web, el vídeo o el ejercicio directamente.','Si un día quieres hacer otra cosa: <b>⋯ › Cambiar el plan de este día</b>. Solo cambia ese día.','Para ver todas las sesiones hasta tu meta (con buscador): <b>⋯ › Progreso, guía y plan completo › Ver todo el plan</b>.','La <b>Guía</b> de cada hábito explica qué material, apps o libros necesitas.']},
+   items:['Toca el <b>nombre</b> del hábito para ver u ocultar su plan. Los pendientes salen abiertos y los hechos, cerrados.','<b>▶ Empezar</b>: abre el modo concentración a pantalla completa con cronómetro, el plan y los pasos; la pantalla no se apaga. Al terminar, «✓ Terminar» lo marca y guarda el tiempo.','Arriba del plan, una etiqueta te dice qué sesión es (p. ej. «Pierna B», «Semana 3 · Speaking»).','Los enlaces abren la web, el vídeo o el ejercicio directamente.','Si un día quieres hacer otra cosa: <b>⋯ › Cambiar el plan de este día</b>. Solo cambia ese día.','Para ver todas las sesiones hasta tu meta (con buscador): <b>⋯ › Progreso, guía y plan completo › Ver todo el plan</b>.','La <b>Guía</b> de cada hábito explica qué material, apps o libros necesitas.']},
   {ic:'⋯',t:'El menú de cada hábito',intro:'El botón <b>⋯</b> de cada tarjeta abre 5 opciones:',
    items:['<b>Apuntar lo que has hecho</b>: tiempo real, cantidad, tu progreso (muscle-ups, pino, islas, notas…) y cómo ha ido. Si haces más o menos tiempo del previsto, cuenta para tu total semanal.','<b>Mover, cambiar la hora o saltar</b>: lo mismo que tocar su bloque en la Agenda.','<b>Cambiar el plan de este día</b>.','<b>Progreso, guía y plan completo</b>: rachas, mapa de calor, historial de semanas, métricas con gráfica, meta y todas las sesiones.','<b>Editar hábito</b>: nombre, icono, color, frecuencia, hora…']},
   {ic:'👈',t:'Mover, saltar y sesiones extra',intro:'La vida cambia y el plan se adapta:',
-   items:['<b>Desliza un hábito a la izquierda</b>: aparecen <b>Mañana</b> (lo pasa al día siguiente buscando un hueco libre) y <b>Saltar</b> (no se hace ese día).','Desde <b>⋯ › Mover…</b> puedes elegir cualquier día y hora, o saltar con un motivo (lesión, viaje, no hay clase…).','Lo saltado o movido aparece abajo en Hoy con <b>Restaurar</b>.','<b>➕ Añadir sesión extra</b> (al final de Hoy): haz un hábito un día que no te toca. Si lo haces, suma a su progreso; si al final no lo haces, no es fallo.','Algo ya hecho no se puede mover: ya cuenta.']},
+   items:['<b>Desliza un hábito a la izquierda</b>: aparecen <b>Mañana</b> (lo pasa al día siguiente buscando un hueco libre) y <b>Saltar</b> (no se hace ese día).','<b>🔁 Recolocar</b>: si se te pasa la hora de algo, Hoy te avisa y te propone el primer hueco libre (primero esta semana, para que siga contando). Un toque y listo.','Desde <b>⋯ › Mover…</b> puedes elegir cualquier día y hora, o saltar con un motivo (lesión, viaje, no hay clase…).','Lo saltado o movido aparece abajo en Hoy con <b>Restaurar</b>.','<b>➕ Añadir sesión extra</b> (al final de Hoy): haz un hábito un día que no te toca. Si lo haces, suma a su progreso; si al final no lo haces, no es fallo.','Algo ya hecho no se puede mover: ya cuenta.']},
   {ic:'📊',t:'Total semanal y rachas',intro:'La regla más importante: <b>lo que cuenta es la semana</b>, como los kilómetros semanales de Runna.',
-   items:['Cada hábito tiene un <b>total semanal</b> (los minutos de sus sesiones de lunes a domingo). Lo ves en Hoy, en «Esta semana».','Si un día no puedes y <b>lo compensas otro día</b> (p. ej. 1 h 30 de francés el martes), llegas al total y ese día <b>no cuenta como fallo</b>.','Un día que tocaba y no hiciste solo es fallo si la semana termina sin llegar al total.','Saltar un día no baja el objetivo (lo puedes compensar); una <b>pausa</b> sí lo baja.','<b>Racha 🔥</b>: días seguidos cumpliendo (o semanas, en los hábitos de «X veces por semana»).','Todo lo que haces suma, aunque lo hayas movido, cambiado de hora o hecho en un día extra.']},
+   items:['Cada hábito tiene un <b>total semanal</b> (los minutos de sus sesiones de lunes a domingo). Lo ves en Hoy, en «Esta semana».','Si un día no puedes y <b>lo compensas otro día</b> (p. ej. 1 h 30 de francés el martes), llegas al total y ese día <b>no cuenta como fallo</b>.','Un día que tocaba y no hiciste solo es fallo si la semana termina sin llegar al total.','Saltar un día no baja el objetivo (lo puedes compensar); una <b>pausa</b> sí lo baja.','<b>Racha 🔥</b>: días seguidos cumpliendo (o semanas, en los hábitos de «X veces por semana»).','<b>🧊 Comodín de racha</b>: cada semana que llegas al total ganas uno (máx. 2). Si fallas un día, se gasta solo y la racha sigue. En el mapa de calor sale en azul hielo.','Todo lo que haces suma, aunque lo hayas movido, cambiado de hora o hecho en un día extra.']},
   {ic:'🪫',t:'Día flojo y pausas',intro:'Para los días malos y las épocas complicadas:',
    items:['<b>Día flojo</b> (en el resumen de Hoy): cada hábito pasa a su <b>versión mínima</b> (p. ej. 10 min). Hazla, pulsa «Versión mínima hecha» y cuenta para la racha.','Mejor una versión mínima que romper la racha: es la forma de no perder el hábito.','<b>Pausas</b> (Ajustes › Pausar hábitos): vacaciones, lesión o exámenes. Eliges fechas, motivo y qué hábitos. Esos días no cuentan como fallo ni rompen rachas.','Puedes quitar una pausa cuando quieras.']},
   {ic:'🕗',t:'La Agenda',intro:'Tu día completo, hora a hora: clases, fútbol, partido, comidas, trayectos, sueño, tiempo libre y hábitos.',
    items:['Elige vista: <b>Día</b>, <b>3 días</b> o <b>Semana</b>. La línea roja marca la hora actual.','<b>Toca un bloque</b> para ver su plan, marcarlo hecho, cambiar la hora, pasarlo a mañana, moverlo a otro día o saltarlo.','<b>Mantén pulsado un bloque y arrástralo</b> para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva).','En <b>Semana</b> y <b>3 días</b>, arrástralo de lado para pasarlo a otro día.','Si anulas una clase, el entreno de fuerza de ese día pasa a la sesión completa.','Si algo se solapa, te avisa. Todo se puede deshacer.']},
   {ic:'⚡',t:'Cómo estás y carga de entreno',intro:'IronHabits aprende de ti:',
-   items:['<b>¿Cómo estás hoy?</b>: por la mañana puntúa del 1 al 5 cómo has dormido y tu energía. Tras unos días, en Progreso ves cuánto cumples según cómo estás y qué día de la semana rindes más.','<b>RPE</b>: al terminar fuerza o boxeo, toca «💪 RPE» en el aviso y di lo duro que ha sido (1–10).','<b>Carga de entreno</b> = RPE × minutos. La app compara tus últimos 7 días con la media de las 4 semanas anteriores (ratio agudo:crónico).','Zonas: baja, óptima (0,8–1,3), ojo y riesgo (más de 1,5). Si te pasas, te avisa en Hoy para que bajes unos días. Necesita 3 semanas de datos.']},
+   items:['<b>¿Cómo estás hoy?</b>: por la mañana puntúa del 1 al 5 cómo has dormido y tu energía. Tras unos días, en Progreso ves cuánto cumples según cómo estás y qué día de la semana rindes más.','<b>RPE</b>: al terminar fuerza o boxeo, toca «💪 RPE» en el aviso y di lo duro que ha sido (1–10).','<b>Carga de entreno</b> = RPE × minutos. La app compara tus últimos 7 días con la media de las 4 semanas anteriores (ratio agudo:crónico).','Zonas: baja, óptima (0,8–1,3), ojo y riesgo (más de 1,5). Si te pasas, te avisa en Hoy para que bajes unos días. Necesita 3 semanas de datos.','<b>⚡ Disposición del día</b> (0–100): junta sueño, energía y carga. Sale junto a tu resumen del día; si está por debajo de 45, te propone el Día flojo.']},
   {ic:'📈',t:'Progreso',intro:'Todo lo que has hecho, en una pestaña:',
-   items:['Arriba: hoy, últimos 7 y 30 días, y tu mejor racha.','<b>Revisión de la semana</b> (te la recuerda el domingo o lunes): qué fue bien, qué falló, qué viene, carga, sueño y notas. Con <b>«Copiar resumen para Claude»</b> me lo pegas y ajustamos el plan.','<b>Tus hábitos</b>: cada uno con su mapa de calor y su %. Tócalo para el detalle (rachas, métricas con gráfica, total por semanas, meta y plan completo). Ahí también puedes archivarlo, ordenarlo o eliminarlo.','Gráficas: cumplimiento por semana, carga de entreno, sueño y energía, y el mapa de calor global.','<b>Simulacros B2</b>: en el detalle de Inglés (o al apuntar Inglés) pones tus puntos y te da la nota en la escala oficial de Cambridge y tu parte más floja.']},
+   items:['Arriba: hoy, últimos 7 y 30 días, y tu mejor racha.','<b>Revisión de la semana</b> (te la recuerda el domingo o lunes): qué fue bien, qué falló, qué viene, carga, sueño y notas. Con <b>«Copiar resumen para Claude»</b> me lo pegas y ajustamos el plan.','<b>Tus hábitos</b>: cada uno con su mapa de calor y su %. Tócalo para el detalle (rachas, métricas con gráfica, total por semanas, meta y plan completo). Ahí también puedes archivarlo, ordenarlo o eliminarlo.','Gráficas: cumplimiento por semana, carga de entreno, sueño y energía, y el mapa de calor global.','<b>📅 Resumen del mes</b>: cumplimiento, días completos, horas por hábito y una <b>imagen para compartir</b>. Los primeros días de cada mes te lo recuerda.','<b>Simulacros B2</b>: en el detalle de Inglés (o al apuntar Inglés) pones tus puntos y te da la nota en la escala oficial de Cambridge y tu parte más floja.']},
   {ic:'✏️',t:'Crear y editar hábitos',intro:'Con el botón <b>+</b> creas uno nuevo:',
    items:['<b>Tipo</b>: sí/no, cantidad, tiempo o checklist.','<b>Hora (opcional)</b>: así sale en la agenda, en «Ahora / Después» y en el calendario.','<b>Frecuencia</b>: cada día, días concretos, X veces por semana, cada N días o fechas sueltas.','<b>Plan detallado</b>: qué hacer cada día de la semana, o una rotación de sesiones (A → B → C…) que avanza cada vez que lo completas, así no pierdes ninguna.','Los hábitos de tu plan se actualizan solos cuando te preparo un plan nuevo, conservando tus registros y tus cambios.']},
   {ic:'🔔',t:'Avisos y calendario del iPhone',intro:'Para que el móvil te avise aunque no abras la app:',
@@ -2212,7 +2283,7 @@ const GUIDE=[
   {ic:'☁️',t:'Tus datos están a salvo',intro:'Todo se guarda solo:',
    items:['<b>En el móvil</b>, con <b>copias automáticas</b>: una al día (últimos 7 días) y otra antes de cada cambio grande. Se restauran en Ajustes › Copias automáticas.','<b>Nube</b> (Ajustes › Tus datos): se guarda en tu GitHub privado a los pocos segundos de cada cambio. Recuperas todo en otro móvil u ordenador; si hay cambios en los dos, te pregunta cuáles quedarte.','<b>Exportar o importar</b>: un archivo de copia para Drive, Archivos o WhatsApp.','<b>Borrar datos</b>: solo tus registros (el plan se queda) o todo y volver al plan inicial. Siempre se guarda antes una copia.','Tenla <b>instalada en la pantalla de inicio</b>: así el iPhone no borra nada aunque pasen días sin abrirla.']},
   {ic:'📝',t:'Notas y trucos',intro:'Pequeñas cosas que ayudan mucho:',
-   items:['<b>Nota del día</b> al final de Hoy: sensaciones, molestias, qué ajustar. Se guarda sola.','<b>Tus notas</b> (final de Hoy o Ajustes): todas juntas, las del día y las de cada hábito, con buscador («rodilla», «cansado»…). Toca una para ir a ese día.','Navega a días futuros para ver cómo se presenta el día y a días pasados para apuntar algo que olvidaste.','Todos los avisos de abajo tienen <b>Deshacer</b> unos segundos.','<b>Apariencia</b>: cambia el color de acento en Ajustes.']},
+   items:['<b>Nota del día</b> al final de Hoy: sensaciones, molestias, qué ajustar. Se guarda sola.','<b>Tus notas</b> (final de Hoy o Ajustes): todas juntas, las del día y las de cada hábito, con buscador («rodilla», «cansado»…). Toca una para ir a ese día.','Navega a días futuros para ver cómo se presenta el día y a días pasados para apuntar algo que olvidaste.','Todos los avisos de abajo tienen <b>Deshacer</b> unos segundos.','<b>Apariencia</b> (Ajustes): tema oscuro, claro o como el iPhone, color de acento y <b>ordenar tus hábitos arrastrándolos</b>.','<b>Exportar CSV</b> (Ajustes › Exportar o importar): todos tus registros para Excel, Numbers o Google Sheets.']},
   {ic:'🚀',t:'Tu rutina ideal en 4 pasos',intro:'Cómo sacarle el máximo cada día:',
    items:['<b>Al despertar</b>: responde «¿Cómo estás hoy?» y mira la tarjeta de arriba.','<b>Durante el día</b>: abre cada hábito, sigue su plan y márcalo al terminar (RPE en los entrenos).','<b>Si algo se tuerce</b>: desliza para pasarlo a mañana, usa el Día flojo o compénsalo otro día de la semana.','<b>El domingo</b>: haz la revisión semanal y cópiamela para ajustar el plan.','Ya está. Puedes volver a esta guía en <b>Ajustes › Guía de la app</b>. ¡A por ello! 💪']},
 ];
@@ -2232,6 +2303,179 @@ function guideIndex(){
 }
 function guideSeen(){if((S.settings.guideV||0)<GUIDE_V){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();}}
 function welcomeDone(){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();closeSheet();}
+
+/* ═════════════ ORDENAR ARRASTRANDO ═════════════ */
+function sortSheet(){
+  const hs=S.habits.filter(h=>!h.archived);
+  openSheet(`<div class="sheet-title">Ordenar tus hábitos</div><div class="sub mb12">Mantén el dedo en ≡ y arrastra. El orden se usa en Progreso y en cada franja de Hoy cuando no hay hora.</div>
+    <div id="sortList">${hs.map(h=>`<div class="so-row" data-id="${h.id}"><span class="hc-ico sm">${esc(h.emoji)}</span><b>${esc(h.name)}</b><button class="so-h" aria-label="Arrastrar ${esc(h.name)}">≡</button></div>`).join('')}</div>
+    <div class="btns"><button class="btn pri" onclick="closeSheet()">Hecho</button></div>`);
+  const L=$('#sortList');let drag=null,y0=0,before=null;
+  L.addEventListener('pointerdown',e=>{const hd=e.target.closest('.so-h');if(!hd)return;e.preventDefault();drag=hd.closest('.so-row');y0=e.clientY;before=S.habits.map(h=>h.id);drag.classList.add('on');hd.setPointerCapture(e.pointerId);buzz();});
+  L.addEventListener('pointermove',e=>{if(!drag)return;e.preventDefault();const dy=e.clientY-y0;drag.style.transform=`translateY(${dy}px)`;
+    const rows=[...L.children],i=rows.indexOf(drag),r=drag.getBoundingClientRect(),mid=r.top+r.height/2;
+    const nx=rows[i+1],pv=rows[i-1];
+    if(nx&&mid>nx.getBoundingClientRect().top+nx.offsetHeight/2){L.insertBefore(nx,drag);y0+=nx.offsetHeight;drag.style.transform=`translateY(${e.clientY-y0}px)`;}
+    else if(pv&&mid<pv.getBoundingClientRect().top+pv.offsetHeight/2){L.insertBefore(drag,pv);y0-=pv.offsetHeight;drag.style.transform=`translateY(${e.clientY-y0}px)`;}});
+  const end=()=>{if(!drag)return;drag.classList.remove('on');drag.style.transform='';drag=null;
+    const ids=[...L.children].map(r=>r.dataset.id),arch=S.habits.filter(h=>h.archived);
+    const nw=[...ids.map(id=>getH(id)),...arch];if(nw.map(h=>h.id).join()===S.habits.map(h=>h.id).join())return;
+    const prev=before;S.habits=nw;save();render();
+    toast('Orden guardado',[['Deshacer',()=>{S.habits=prev.map(id=>getH(id)).filter(Boolean);save();render();}]]);};
+  L.addEventListener('pointerup',end);L.addEventListener('pointercancel',end);
+}
+
+/* ═════════════ EXPORTAR CSV ═════════════ */
+function exportCSV(){
+  const q=v=>{v=String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const rows=[['fecha','hábito','hecho','minutos','valor','pasos hechos','pasos totales','nota','progreso']];
+  for(const k of Object.keys(S.logs).sort())for(const id in S.logs[k]){const h=getH(id),e=S.logs[k][id];if(!h||!e)continue;
+    rows.push([k,h.name,isDone(h,k)?'sí':'no',Math.round(minsOf(h,k)),h.type==='count'||h.type==='time'?e.v||0:'',(e.steps||[]).length,h.type==='checklist'?h.steps.length:'',e.note||'',
+      e.m?Object.entries(e.m).map(([mid,v])=>{const mt=(h.metrics||[]).find(x=>x.id===mid);return `${mt?mt.label:mid}: ${v}`;}).join(' | '):'']);}
+  for(const k of Object.keys(S.notes).sort())if(S.notes[k])rows.push([k,'(nota del día)','','','','','',S.notes[k],'']);
+  const txt='﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n'); // ; y BOM: Excel en español lo abre bien
+  shareFile(`ironhabits-registros-${todayK()}.csv`,txt,'text/csv','Registros de IronHabits').then(ok=>{if(ok){closeSheet();toast(`${rows.length-1} filas exportadas`);}});
+}
+
+/* ═════════════ DISPOSICIÓN DEL DÍA ═════════════
+   Sueño y energía del check-in (40 % + 40 %) y carga de entreno (20 %): 0–100. Si sale baja, Hoy propone el Día flojo. */
+function readiness(k){
+  const c=(S.checkins||{})[k];if(!c||!c.sleep||!c.energy)return null;
+  const aw=acwr(k),r=aw.enough?aw.r:null,ld=r==null||r<=1.3?1:r<=1.5?.5:0;
+  const score=Math.round(((c.sleep-1)/4*.4+(c.energy-1)/4*.4+ld*.2)*100);
+  const level=score>=70?'hi':score>=45?'mid':'lo';
+  const msg=level==='hi'?'Buen día para apretar 💪':level==='mid'?'Día normal: sigue el plan':'Día para ir suave: prueba el Día flojo';
+  return{score,level,msg,sleep:c.sleep,energy:c.energy,acwr:r};
+}
+function readinessSheet(){
+  const k=todayK(),r=readiness(k);if(!r)return;
+  openSheet(`<div class="sheet-title">⚡ Disposición de hoy: ${r.score}</div><div class="sub mb12">${r.msg}</div>
+    <div class="rv-row">😴 Sueño<span class="p">${r.sleep}/5</span></div><div class="rv-row">⚡ Energía<span class="p">${r.energy}/5</span></div>
+    <div class="rv-row">💪 Carga de entreno<span class="p">${r.acwr==null?'sin datos aún':r.acwr.toFixed(2)+' · '+acwrZone(r.acwr)[0]}</span></div>
+    <p class="hint">Se calcula con tu check-in (sueño y energía, 40 % cada uno) y la carga de entreno (20 %). Por debajo de 45 te propongo el Día flojo; de 70 para arriba, buen día para apretar.</p>
+    ${r.level==='lo'&&!(S.minDays||{})[k]?`<div class="btns"><button class="btn pri" onclick="closeSheet();toggleMinDay('${k}')">🪫 Activar Día flojo</button></div>`:''}
+    <div class="btns" style="margin-top:8px"><button class="btn ghost" onclick="closeSheet();S.checkins[todayK()]={};save();render()">Repetir el check-in</button></div>`);
+}
+
+/* ═════════════ RECOLOCAR LO PENDIENTE (en un toque) ═════════════
+   Lo de hoy que ya debería estar hecho y no lo está: te propongo el primer hueco libre en los próximos días
+   (primero esta semana, para que siga contando en tu total semanal). */
+function freeSlotStrict(k,dur,pref){
+  const busy=dayEvents(k).filter(e=>!e.cancelled&&e.kind!=='libre').map(e=>[tm(e.start),tm(e.end)]);
+  const fits=s=>s>=7*60&&s+dur<=22*60+30&&!busy.some(([a,b])=>s<b&&s+dur>a);
+  if(fits(pref))return pref;for(let d=15;d<=15*60;d+=15){if(fits(pref+d))return pref+d;if(fits(pref-d))return pref-d;}return null;
+}
+function overdue(k){
+  const t=todayK();if(k!==t)return [];const now=new Date().getHours()*60+new Date().getMinutes();
+  return dayHabits(k).filter(h=>!isDone(h,k)&&!isExtra(h,k)&&(()=>{const x=habitTime(h,k);return x&&x.end?tm(x.end)<=now:now>=21*60;})());
+}
+function proposeSlot(h,k){
+  const dur=Math.max(15,Math.round(evDur(h,k)||30)),x=habitTime(h,k),pref=x&&x.start?tm(x.start):18*60;
+  const days=[...Array(7)].map((_,i)=>addDays(k,i+1));
+  const order=[...days.filter(d=>weekStartK(d)===weekStartK(k)),...days.filter(d=>weekStartK(d)!==weekStartK(k))];
+  for(const d of order){if(showOn(h,d))continue;const st=freeSlotStrict(d,dur,pref);if(st!=null)return{day:d,start:st,dur};}
+  return null;
+}
+// Si no hay día al que moverlo es porque ya toca todos los días: se salta y se compensa sumando tiempo otro día (total semanal)
+function noSlotWhy(h,k){const days=[...Array(7)].map((_,i)=>addDays(k,i+1));return days.every(d=>showOn(h,d))?'Toca cada día: sáltalo hoy y compensa sumando tiempo otro día de la semana':'No encuentro hueco libre en 7 días';}
+function moveToSlot(k,hid,day,start,dur){
+  agSet(k,'h:'+hid,{moveTo:day});agSet(day,'in:'+hid,{from:k,start:fmtT(start),end:fmtT(start+dur)});
+  if(S.timer&&S.timer.hid===hid&&S.timer.k===k)S.timer=null;
+}
+function replanSheet(){
+  const k=todayK(),list=overdue(k).map(h=>({h,p:proposeSlot(h,k)}));
+  if(!list.length){closeSheet();return toast('No tienes nada pendiente de antes 🙌');}
+  window._replan=list;
+  openSheet(`<div class="sheet-title">🔁 Recolocar lo pendiente</div><div class="sub mb12">Lo de hoy que no ha dado tiempo. Te propongo el primer hueco libre${list.some(x=>x.p&&weekStartK(x.p.day)===weekStartK(k))?' (esta semana, así sigue contando en tu total)':''}.</div>
+    ${list.map((x,i)=>`<div class="rp-row"><span class="hc-ico sm" style="--hc:${x.h.color}">${esc(x.h.emoji)}</span><div><b>${esc(x.h.name)}</b><small>${x.p?`→ ${DOW_N[dow(x.p.day)].toLowerCase()} ${shortDate(x.p.day)} · ${fmtT(x.p.start)}–${fmtT(x.p.start+x.p.dur)}`:noSlotWhy(x.h,todayK())}</small></div>
+      ${x.p?`<button class="rp-b ok" onclick="replanOne(${i})">Mover</button>`:''}<button class="rp-b" onclick="replanSkip(${i})">Saltar</button></div>`).join('')}
+    ${list.filter(x=>x.p).length>1?`<div class="btns"><button class="btn pri" onclick="replanAll()">Recolocar todo</button></div>`:''}
+    <p class="hint">¿Prefieres otro día u hora? Toca el hábito en Hoy › ⋯ › Mover. Todo se puede deshacer.</p>`);
+}
+function replanOne(i){const x=window._replan[i];if(!x||!x.p)return;pushUndo();moveToSlot(todayK(),x.h.id,x.p.day,x.p.start,x.p.dur);save();render();toast(`${x.h.name} → ${DOW_N[dow(x.p.day)].toLowerCase()} ${fmtT(x.p.start)}`,[undoAct()]);replanSheet();}
+function replanSkip(i){const x=window._replan[i];if(!x)return;pushUndo();agSet(todayK(),'h:'+x.h.id,{cancel:true,reason:'Saltado'});save();render();toast(`${x.h.name}: saltado`,[undoAct()]);replanSheet();}
+function replanAll(){pushUndo();let n=0;for(const x of window._replan){if(!x.p)continue;const p=proposeSlot(x.h,todayK());if(!p)continue;moveToSlot(todayK(),x.h.id,p.day,p.start,p.dur);n++;}
+  save();closeSheet();render();toast(`${n} recolocado${n===1?'':'s'}`,[undoAct()]);}
+
+/* ═════════════ MODO «EMPEZAR» ═════════════
+   Pantalla completa con el cronómetro, el plan y los pasos de la sesión. Mantiene la pantalla encendida. */
+let _focus=null,_wake=null,_focT=null;
+async function focusMode(id){
+  const h=getH(id),k=todayK();if(!h)return;sel=k;closeSheet();
+  if(h.type==='time'&&!(S.timer&&S.timer.hid===id))toggleTimer(h,k);
+  else if(h.type!=='time'&&!(S.focus&&S.focus.hid===id)){S.focus={hid:id,k,t0:Date.now()};save();}
+  _focus=id;try{if(navigator.wakeLock)_wake=await navigator.wakeLock.request('screen');}catch(e){}
+  let el=$('#focus');if(!el){el=document.createElement('div');el.id='focus';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');document.body.appendChild(el);}
+  renderFocus();el.classList.add('on');lockScroll(true);clearInterval(_focT);_focT=setInterval(tickFocus,1000);
+}
+function focusElapsed(h){const k=todayK();if(h.type==='time'){const T=S.timer;return ((entry(h,k)||{}).v||0)*60000+(T&&T.hid===h.id?Date.now()-T.t0:0);}return S.focus&&S.focus.hid===h.id?Date.now()-S.focus.t0:0;}
+function renderFocus(){
+  const h=getH(_focus),k=todayK();if(!h)return closeFocus();const e=entry(h,k)||{},pl=planFor(h,k),ms=focusElapsed(h);
+  const tgt=h.type==='time'?(h.target||0)*60000:evDur(h,k)*60000,p=tgt?Math.min(1,ms/tgt):0;
+  $('#focus').innerHTML=`<div class="fo-top"><button class="fo-x" onclick="closeFocus()" aria-label="Salir">✕</button><span>Modo concentración</span><span></span></div>
+    <div class="fo-hd" style="--hc:${h.color}"><div class="fo-ring">${ring(p,220,10,h.color)}<div><b id="foClock">${fmtClock(ms)}</b><small>${tgt?'de '+fmtDur(tgt/60000):'en marcha'}</small></div></div>
+      <div class="fo-name">${esc(h.emoji)} ${esc(h.name)}</div>${pl&&pl.tag?`<div class="fo-tag">${esc(pl.tag)}</div>`:''}</div>
+    <div class="fo-body" style="--hc:${h.color}">${h.type==='checklist'?`<div class="steps">${h.steps.map(st=>{const on=(e.steps||[]).includes(st.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${st.id}');renderFocus()"><span class="sb">${on?ic('check',3.2):''}</span>${esc(st.text)}</button>`;}).join('')}</div>`:''}
+      ${pl&&pl.text?`<div class="hc-plan">${fmtPlan(pl.text)}</div>`:''}</div>
+    <div class="fo-ft"><button class="btn ghost" onclick="closeFocus()">Salir</button><button class="btn pri" onclick="finishFocus()">✓ Terminar</button></div>`;
+}
+function tickFocus(){const h=getH(_focus);if(!h)return;const el=$('#foClock');if(el)el.textContent=fmtClock(focusElapsed(h));}
+function closeFocus(){clearInterval(_focT);const el=$('#focus');if(el)el.classList.remove('on');lockScroll(false);try{_wake&&_wake.release();}catch(e){}_wake=null;_focus=null;render();}
+function finishFocus(){
+  const h=getH(_focus),k=todayK();if(!h)return closeFocus();const mins=Math.round(focusElapsed(h)/60000);
+  if(h.type==='time'){if(S.timer&&S.timer.hid===h.id)stopTimer(true);}
+  else{pushUndo();const was=isDone(h,k),e=ens(h,k);
+    if(h.type==='check')e.v=1;else if(h.type==='count')e.v=Math.max(e.v||0,h.target||1);else e.steps=h.steps.map(x=>x.id);
+    if(mins>=1&&e.mins==null)e.mins=mins;S.focus=null;closeFocus();return commit(h,k,was);}
+  S.focus=null;closeFocus();
+}
+
+/* ═════════════ RESUMEN DEL MES (con imagen para compartir) ═════════════ */
+function monthSummary(ym){
+  const t=todayK(),first=ym+'-01',days=[];for(let k=first;k.slice(0,7)===ym&&k<=t;k=addDays(k,1))days.push(k);
+  let D=0,N=0,full=0,run=0,bestRun=0;const per={};
+  for(const k of days){const st=dayStats(k);D+=st.done;N+=st.total;if(st.total&&st.done===st.total){full++;run++;bestRun=Math.max(bestRun,run);}else if(st.total)run=0;
+    for(const h of S.habits){if(!S.logs[k]||!S.logs[k][h.id])continue;const p=per[h.id]=per[h.id]||{h,n:0,mins:0};if(isDone(h,k))p.n++;p.mins+=minsOf(h,k);}}
+  const ci=days.map(k=>(S.checkins||{})[k]).filter(c=>c&&c.sleep&&c.energy);
+  const avg=f=>ci.length?(ci.reduce((a,c)=>a+c[f],0)/ci.length).toFixed(1):null;
+  const notes=days.filter(k=>S.notes[k]).length,load=loadRange(first,days[days.length-1]||first).L;
+  const habits=Object.values(per).filter(p=>p.n||p.mins).sort((a,b)=>b.mins-a.mins);
+  return{ym,days,pct:N?Math.round(D/N*100):0,D,N,full,bestRun,habits,hours:Math.round(habits.reduce((a,p)=>a+p.mins,0)/6)/10,sleep:avg('sleep'),energy:avg('energy'),notes,load:Math.round(load)};
+}
+function ymLabel(ym){return `${MONTHS[+ym.slice(5,7)-1]} ${ym.slice(0,4)}`;}
+function monthSheet(ym){
+  ym=ym||todayK().slice(0,7);const m=monthSummary(ym),prev=addDays(ym+'-01',-1).slice(0,7),next=addDays(ym+'-28',7).slice(0,7),canNext=next<=todayK().slice(0,7);
+  window._month=m;
+  openSheet(`<div class="sheet-title">📅 Resumen de ${ymLabel(ym).toLowerCase()}</div>
+    <div class="seg" style="margin:4px 0 12px"><button onclick="monthSheet('${prev}')">‹ ${MONTHS[+prev.slice(5,7)-1]}</button>${canNext?`<button onclick="monthSheet('${next}')">${MONTHS[+next.slice(5,7)-1]} ›</button>`:''}</div>
+    ${m.N?`<div class="kpis"><div class="kpi"><b>${m.pct}%</b><span>Cumplido (${m.D}/${m.N})</span></div><div class="kpi"><b>${m.full}</b><span>Días completos</span></div><div class="kpi"><b>${m.hours} h</b><span>De trabajo en tus hábitos</span></div><div class="kpi"><b>${m.bestRun}</b><span>Mejor racha de días completos</span></div></div>
+    <div class="sec">Por hábito</div><div class="card">${m.habits.map(p=>`<div class="rv-row">${esc(p.h.emoji)} ${esc(p.h.name)}<span class="p" style="color:${p.h.color}">${p.n} · ${fmtDur(p.mins)}</span></div>`).join('')||'<p class="hint">Sin registros.</p>'}</div>
+    ${m.sleep?`<div class="rv-row">😴 Sueño medio<span class="p">${m.sleep}/5</span></div><div class="rv-row">⚡ Energía media<span class="p">${m.energy}/5</span></div>`:''}
+    ${m.load?`<div class="rv-row">💪 Carga de entreno<span class="p">${m.load}</span></div>`:''}
+    <div class="btns"><button class="btn pri" onclick="shareMonth()">📤 Compartir imagen</button></div>`:'<p class="hint">Todavía no hay registros este mes.</p>'}`);
+}
+function monthImage(m){
+  const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1A120C');g.addColorStop(.35,'#0B0B0F');g.addColorStop(1,'#0B0B0F');x.fillStyle=g;x.fillRect(0,0,W,H);
+  const F='-apple-system,"SF Pro Display",Inter,system-ui,sans-serif',R='ui-rounded,"SF Pro Rounded",'+F;
+  // anillo de la marca con el % del mes
+  const cx=W/2,cy=330,r=190,a0=-Math.PI/2;x.lineWidth=34;x.lineCap='round';x.strokeStyle='#26262F';x.beginPath();x.arc(cx,cy,r,0,Math.PI*2);x.stroke();
+  const gr=x.createLinearGradient(cx+r,cy-r,cx-r,cy+r);gr.addColorStop(0,'#F97316');gr.addColorStop(1,'#22C55E');x.strokeStyle=gr;x.beginPath();x.arc(cx,cy,r,a0,a0+Math.PI*2*Math.max(.01,m.pct/100));x.stroke();
+  x.fillStyle='#F4F4F6';x.textAlign='center';x.textBaseline='middle';x.font=`800 120px ${R}`;x.fillText(m.pct+'%',cx,cy-6);x.font=`600 34px ${F}`;x.fillStyle='#A3A3AE';x.fillText('cumplido',cx,cy+80);
+  x.fillStyle='#F4F4F6';x.font=`800 64px ${F}`;x.fillText(ymLabel(m.ym),cx,640);
+  const stats=[[m.full,'días completos'],[m.hours+' h','de trabajo'],[m.bestRun,'mejor racha']];
+  stats.forEach(([v,l],i)=>{const sx=180+i*360;x.fillStyle='#F97316';x.font=`800 76px ${R}`;x.fillText(String(v),sx,760);x.fillStyle='#A3A3AE';x.font=`500 30px ${F}`;x.fillText(l,sx,820);});
+  let y=890;x.textAlign='left';x.textBaseline='middle';const mx=Math.max(1,...m.habits.map(p=>p.mins));
+  for(const p of m.habits.slice(0,5)){x.fillStyle='#F4F4F6';x.font=`600 34px ${F}`;x.fillText(`${p.h.emoji} ${p.h.name}`.slice(0,26),90,y);x.textAlign='right';x.fillStyle='#A3A3AE';x.font=`500 30px ${R}`;x.fillText(fmtDur(p.mins),W-90,y);x.textAlign='left';
+    x.fillStyle='#26262F';x.fillRect(90,y+32,W-180,12);x.fillStyle=p.h.color;x.fillRect(90,y+32,(W-180)*p.mins/mx,12);y+=80;}
+  x.textAlign='center';x.fillStyle='#F4F4F6';x.font=`900 40px ${F}`;x.fillText('IronHabits',cx,H-70);
+  return new Promise(res=>c.toBlob(res,'image/png'));
+}
+async function shareMonth(){
+  const m=window._month;if(!m)return;const blob=await monthImage(m),name=`ironhabits-${m.ym}.png`;
+  try{const f=new File([blob],name,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Mi mes en IronHabits'});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast('Imagen guardada 📤');
+}
 
 /* ═════════════ AHORA / SIGUIENTE ═════════════ */
 function nowCard(k){
