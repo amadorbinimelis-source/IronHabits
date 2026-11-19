@@ -13,7 +13,7 @@ SMALL = """(sel)=>[...document.querySelectorAll(sel+' button,'+sel+' a,'+sel+' i
   .map(e=>(e.className||e.tagName)+' '+Math.round(e.getBoundingClientRect().width)+'x'+Math.round(e.getBoundingClientRect().height))"""
 SHEETS = {"menú": "cardMenu('fr')", "apuntar": "logSheet('fuerza',todayK())", "mover": "evSheet(todayK(),'h:fr')", "detalle": "openDetail('en')",
           "plan completo": "fullPlan('fr')", "revisión": "reviewSheet()", "pausa": "pauseSheet()", "nube": "cloudSheet()", "copias": "snapSheet()",
-          "simulacro": "mockSheet()", "notas": "NQ='';notesSheet()", "cuenta atrás": "countdownSheet()", "guía": "welcomeSheet(3)", "índice": "guideIndex()",
+          "simulacro": "mockSheet()", "notas": "NQ='';notesSheet()", "cuenta atrás": "countdownSheet()",
           "avisos": "S.checkins={};S.reviews={};render();noticesSheet()", "exportar ics": "icsSheet()", "suscribir": "subscribeSheet()", "más calendario": "calMoreSheet()",
           "copia": "backupSheet()", "borrar": "wipe()", "extra": "extraSheet(todayK())", "plan del día": "sel=todayK();dayPlanSheet('fr')",
           "editor": "openEditor('fr')", "rpe": "rpeSheet('boxeo',todayK())", "novedades": "historySheet()"}

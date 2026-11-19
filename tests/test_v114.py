@@ -63,18 +63,6 @@ async def main():
         check("rodilla" in t and "sparring" not in t, "el buscador de notas filtra")
         await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(300)
 
-        # Guía completa: todas las pantallas, índice y sin botones pequeños
-        n = await pg.evaluate("GUIDE.length")
-        await pg.evaluate("welcomeSheet(0)"); await pg.wait_for_timeout(300)
-        for i in range(n - 1): await pg.locator("#sheetBody .btn.pri").click(); await pg.wait_for_timeout(120)
-        t = await pg.inner_text("#sheetBody")
-        await pg.locator("#sheetBody .btn.pri").click(); await pg.wait_for_timeout(400)
-        check(n >= 14 and f"{n} / {n}" in t and not await pg.evaluate("$('#sheet').classList.contains('on')") and await pg.evaluate("S.settings.guideV===GUIDE_V"), f"guía completa de {n} pantallas")
-        await pg.evaluate("guideIndex()"); await pg.wait_for_timeout(300)
-        check(await pg.evaluate("document.querySelectorAll('#sheetBody .row-btn').length") == n, "índice de la guía con todos los temas")
-        await pg.locator("#sheetBody .row-btn").nth(8).click(); await pg.wait_for_timeout(300)
-        check("La Agenda" in await pg.inner_text("#sheetBody"), "desde el índice se salta a un tema")
-        await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(300)
         check(not errs, f"sin errores de JavaScript {errs[:2]}")
         await b.close()
 

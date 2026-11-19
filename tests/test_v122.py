@@ -46,7 +46,7 @@ async def main():
         check("Sonido al completar" in await pg.inner_text("#setBody"), "interruptor «Sonido al completar» en Ajustes")
         ap = await pg.evaluate("getComputedStyle(document.querySelector('#hapticSw input')).webkitAppearance||getComputedStyle(document.querySelector('#hapticSw input')).appearance")
         check(ap != "none", f"el interruptor oculto de vibración del iPhone mantiene su aspecto nativo ({ap})")
-        check(await pg.evaluate("APP_VERSION") == "1.22", "versión 1.22")
+        check(await pg.evaluate("APP_VERSION") >= "1.22", "versión 1.22 o posterior")
         check(not errs, f"sin errores de JS {errs[:2]}")
         await b.close()
 

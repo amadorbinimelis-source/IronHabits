@@ -2,6 +2,15 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.23 · 19 nov 2026
+- 🧭 Tutorial interactivo guiado (sustituye a la guía de 16 pantallas de texto): cada paso señala un elemento real con un foco (overlay con hueco, borde que late) y un bocadillo que se coloca solo; avanza cuando haces la acción (tocar, escribir, deslizar, hacer scroll). Solo 3 pasos informativos de 27.
+- Recorre Hoy, Agenda, Progreso y Ajustes; para cambiar de sección pulsas tú la pestaña. Lo demás está bloqueado y, si tocas fuera, el objetivo tiembla.
+- Datos de prueba: «🧪 Hábito de prueba» con historial de ejemplo. Antes se copia el estado; nube, avisos y copias automáticas en pausa; al acabar o saltar se restaura exactamente.
+- «Paso N/27» y «Saltar» (con confirmación) siempre visibles. Si cierras la app a medias, al volver: continuar (desde el principio de esa sección) o saltar.
+- Ajustes › Tutorial: entero o por sección. Mini-tour de 2–4 pasos la primera vez que entras en una sección no vista.
+- Motor genérico + guion de datos (`TOUR_STEPS`, `TOUR_MINI`); estado aparte en `ironhabits_tour`. Espera a elementos que tardan (y salta el paso si no aparecen en 4 s), recoloca en cada fotograma (scroll, giro, teclado).
+- Pruebas: `tests/test_v123.py` recorre el tutorial entero tocando los elementos de verdad.
+
 ## v1.22 · 19 nov 2026
 - 🔊 Sonido y vibración al avanzar: cada paso de un hábito (o cada + en los de cantidad) suena una nota de marimba que sube un poco al sonar, en escala pentatónica y más aguda cuanto más cerca de la meta, con un toque de vibración (dos al final). Al completar el hábito, dos notas de campana con acorde de fondo y vibración larga; al completar el día, un arpegio más grande.
 - Sonidos sintetizados con Web Audio (sin archivos), con compresor y reverberación corta para que suenen naturales; respetan el modo silencio del iPhone. Interruptor en Ajustes › Apariencia.

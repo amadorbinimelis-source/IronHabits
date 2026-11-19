@@ -615,15 +615,9 @@ nav button svg{width:24px;height:24px}
 .note-it{display:block;width:100%;text-align:left;padding:var(--s3) 0;border-bottom:1px solid var(--border);min-height:44px}
 .note-it span{font-size:var(--fs-xs);color:var(--muted)}.note-it span b{color:var(--text);font-weight:600}
 .note-it p{font-size:var(--fs-body);margin-top:var(--s1);white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.welcome{text-align:center;padding:var(--s2) 0}
-.welcome p{color:var(--muted);font-size:var(--fs-body);line-height:1.55;margin:var(--s3) 0}
-.welcome p b{color:var(--text)}
 .wl-ic{font-size:52px;margin:var(--s2) 0 var(--s3)}
 .wl-dots{display:flex;justify-content:center;gap:6px;margin:var(--s4) 0 0}
 .wl-dots i{width:7px;height:7px;border-radius:50%;background:var(--border2)}.wl-dots i.on{background:var(--acc);width:20px;border-radius:99px}
-.gd-top{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);font-weight:600;padding-right:48px}
-.gd-idx{min-height:44px;padding:0 var(--s3);border-radius:999px;background:var(--card2);border:1px solid var(--border);font-size:var(--fs-sm);font-weight:600;color:var(--text)}
-.gd-bar{height:4px;border-radius:99px;background:var(--card2);margin:var(--s2) 0 var(--s3);overflow:hidden}.gd-bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width var(--t) var(--ease)}
 .gd-list{text-align:left;margin:var(--s2) 0 0;padding:0;list-style:none}
 .gd-list li{position:relative;padding:var(--s2) 0 var(--s2) var(--s5);border-top:1px solid var(--border);font-size:var(--fs-body);line-height:1.5;color:var(--muted)}
 .gd-list li b{color:var(--text)}
@@ -726,6 +720,41 @@ html[data-theme=light] .hc-act{color:#fff}
 .fo-name{font-size:var(--fs-h2);font-weight:700;margin-top:var(--s3)}.fo-tag{color:var(--hc);font-size:var(--fs-sm);font-weight:700;margin-top:var(--s1)}
 .fo-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:var(--s2) 0}
 .fo-ft{display:flex;gap:var(--s2)}.fo-ft .btn{flex:1}
+
+/* Tutorial interactivo */
+#tour{position:fixed;inset:0;z-index:900;pointer-events:none}
+#tour .tr-hole{position:fixed;box-shadow:0 0 0 200vmax rgba(0,0,0,.72);border-radius:14px;outline:2px solid var(--brand);outline-offset:2px;
+  transition:left .35s var(--ease),top .35s var(--ease),width .35s var(--ease),height .35s var(--ease),border-radius .35s;animation:trPulse 1.6s ease-in-out infinite;pointer-events:none}
+#tour.center .tr-hole{outline:none;animation:none}
+#tour .tr-hole.nudge{animation:trShake .42s ease}
+@keyframes trPulse{0%,100%{outline-color:var(--brand);outline-offset:2px}50%{outline-color:rgba(249,115,22,.35);outline-offset:6px}}
+@keyframes trShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+#tour .tr-blk{position:fixed;pointer-events:auto;touch-action:none}
+#tour .tr-cover{position:fixed;pointer-events:none}
+#tour.info .tr-cover{pointer-events:auto}
+#tour .tr-tip{position:fixed;pointer-events:auto;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:14px 16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);transition:left .3s var(--ease),top .3s var(--ease);opacity:0;transform:translateY(6px) scale(.98)}
+#tour .tr-tip.in{opacity:1;transform:none;transition:left .3s var(--ease),top .3s var(--ease),opacity .25s,transform .25s}
+#tour.out{opacity:0;transition:opacity .25s}
+#tour .tr-arr{position:absolute;width:14px;height:14px;background:var(--card2);border:1px solid var(--border);transform:translate(-50%,-50%) rotate(45deg);display:none}
+#tour .tr-tip[data-side=down] .tr-arr{display:block;top:0;border-right:0;border-bottom:0}
+#tour .tr-tip[data-side=up] .tr-arr{display:block;top:100%;border-left:0;border-top:0}
+#tour .tr-tip[data-side=right] .tr-arr{display:block;left:0;border-top:0;border-right:0}
+#tour .tr-tip[data-side=left] .tr-arr{display:block;left:100%;border-bottom:0;border-left:0}
+#tour .tr-body{position:relative}
+#tour .tr-head{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);font-weight:600;margin:-6px -6px 0 0}
+#tour .tr-skip{min-height:44px;min-width:44px;padding:0 10px;color:var(--muted);font-weight:600;font-size:var(--fs-sm)}
+#tour .tr-bar{height:4px;border-radius:99px;background:var(--border);margin:2px 0 10px;overflow:hidden}
+#tour .tr-bar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .35s var(--ease)}
+#tour .tr-txt{font-size:var(--fs-body);line-height:1.45}
+#tour .tr-ok{width:100%;margin-top:12px}
+#tour .btns{margin-top:12px}
+#tour .tr-fin{font-size:2.2rem;text-align:center;margin-bottom:6px}
+#tour .tr-sum{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:var(--fs-sm);line-height:1.5}
+#tour .tr-sum b{color:var(--text)}
+.tour-secs{display:flex;flex-wrap:wrap;gap:8px;margin:-2px 0 10px}
+.tour-secs .chip{min-height:44px;padding:0 14px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-size:var(--fs-sm);font-weight:600;color:var(--text)}
+@media (prefers-reduced-motion:reduce){#tour .tr-hole{animation:none;transition:none}#tour .tr-tip{transition:none}}
 </style>
 </head>
 <body>
@@ -798,8 +827,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.22';
+const APP_VERSION='1.23';
 const CHANGELOG=[
+  ['1.23','19 nov 2026',['🧭 Tutorial nuevo: aprendes usando la app de verdad. Cada paso señala un botón y avanza cuando lo pulsas','Con un hábito de prueba: al acabar o saltarlo, tus datos quedan exactamente como estaban','Si lo dejas a medias, al volver te deja continuar o saltarlo','En Ajustes › Tutorial lo repites entero o solo una sección; y la primera vez que entras en una sección nueva, un mini-tour de 3 pasos']],
   ['1.22','19 nov 2026',['🔊 Sonido y vibración al avanzar: cada paso suena una nota más aguda y vibra un poco; al completar el hábito, un acorde de campana y vibración larga; al completar el día, uno más grande','Arreglado: el iPhone no vibraba','Se puede quitar el sonido en Ajustes › Apariencia']],
   ['1.21','19 nov 2026',['🔔 Avisos de verdad: te llegan al iPhone a su hora aunque la app esté cerrada (Ajustes › Avisos de tus hábitos)','Eliges cuánto antes, qué hábitos y si también clases y fútbol; si ya lo hiciste, movido o saltado, no avisa','☁️ La nube junta los cambios: si usas dos dispositivos, se queda lo último de cada día y de cada hábito, sin preguntarte']],
   ['1.20','19 nov 2026',['🔁 Recolocar en un toque: lo que se te pasa, al primer hueco libre (y sigue contando en la semana)','▶ Modo «Empezar»: pantalla completa con cronómetro, plan y pasos; la pantalla no se apaga','⚡ Disposición del día: sueño, energía y carga en un número; si está baja, te propone el Día flojo','🧊 Comodín de racha: gana uno cada semana que llegas al total; protege un día fallado','📅 Resumen del mes con imagen para compartir','Tema claro u «como el iPhone», ordenar hábitos arrastrando y exportar a CSV']],
@@ -1285,6 +1315,7 @@ function go(v){
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   window.scrollTo(0,0);
   render();
+  if(typeof tourMaybeMini==='function')tourMaybeMini(v);
 }
 function render(){
   if(view==='hoy')renderHoy();
@@ -2120,7 +2151,7 @@ function renderSet(){
   const acc=S.settings.accent||'#22C55E',c=cloudCfg(),[v0,d0,it0]=CHANGELOG[0];
   $('#setBody').innerHTML=`
     <div class="sec">Tus datos</div>
-    ${cloudRow()}
+    <div id="tourCloud">${cloudRow()}</div>
     <button class="row-btn" onclick="snapSheet()">${ri('archive')}<div>Copias automáticas en este móvil<small>Una al día y antes de cada cambio grande. Toca para ver o restaurar</small></div></button>
     <button class="row-btn" onclick="backupSheet()">${ri('share')}<div>Exportar o importar una copia<small>${S.settings.lastExport?`Última exportada: ${shortDate(S.settings.lastExport)}`:'Para guardarla en Drive, Archivos o pasarla a otro móvil'}</small></div></button>
     <div class="sec">Calendario y avisos</div>
@@ -2138,7 +2169,8 @@ function renderSet(){
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
     <div class="sec">Otros</div>
-    <button class="row-btn" onclick="guideIndex()">${ri('note')}<div>Guía de la app<small>Todo lo que puedes hacer, explicado por temas</small></div></button>
+    <div id="tourRow"><button class="row-btn" onclick="tourStart('full',TOUR_STEPS)">${ri('note')}<div>Tutorial interactivo<small>Aprende usando la app, paso a paso (3 min)</small></div></button>
+    <div class="chips tour-secs">${Object.entries(TOUR_SECS).map(([v,l])=>`<button class="chip" onclick="tourSection('${v}')">Solo ${l}</button>`).join('')}</div></div>
     <button class="row-btn" onclick="NQ='';notesSheet()">${ri('pen')}<div>Tus notas<small>Todas las notas del día y de cada hábito, con buscador</small></div></button>
     ${S.habits.some(h=>h.example)?`<button class="row-btn" onclick="removeExamples()">${ri('flask')}<div>Quitar los hábitos de ejemplo<small>${S.habits.filter(h=>h.example).length} ejemplos</small></div></button>`:hasPlan()?'':`<button class="row-btn" onclick="loadExamples()">${ri('flask')}<div>Añadir hábitos de ejemplo<small>Para ver cómo funcionan los distintos tipos</small></div></button>`}
     <button class="row-btn danger" onclick="wipe()">${ri('trash')}<div>Borrar datos<small>Solo tus registros, o todo y volver al plan inicial</small></div></button>
@@ -2342,57 +2374,281 @@ function notesSheet(){
     ${list.length?list.slice(0,200).map(n=>`<button class="note-it" onclick="closeSheet();pick('${n.k}');go('hoy')"><span><b>${esc(longDate(n.k))}</b> · ${esc(n.who)}</span><p>${esc(n.text)}</p></button>`).join(''):`<p class="hint">${q?'No hay notas con eso.':'Todavía no hay notas. Escríbelas al final de Hoy o al apuntar un hábito.'}</p>`}`);
 }
 
-/* ═════════════ BIENVENIDA ═════════════ */
-const GUIDE=[
-  {ic:'💪',t:'Bienvenido a IronHabits',intro:'IronHabits te dice <b>qué hacer exactamente cada día</b> para cumplir tus objetivos: entreno, idiomas, estudio y lo que añadas. No tienes que decidir nada: abres la app y lo tienes.',
-   items:['<b>Hoy</b>: lo que toca hoy, con el plan de cada hábito.','<b>Agenda</b>: tu día hora a hora (clases, fútbol, comidas, trayectos, sueño y hábitos).','<b>Progreso</b>: rachas, porcentajes, mapas de calor, revisión semanal y gráficas.','<b>Ajustes</b>: tus datos, la nube, el calendario del iPhone, pausas y apariencia.','Esta guía tiene 16 pantallas. Puedes saltar a cualquier tema con <b>Índice</b> y volver a verla cuando quieras en Ajustes › Guía de la app.']},
-  {ic:'🗓️',t:'La pantalla Hoy',intro:'De arriba abajo:',
-   items:['<b>Semana</b>: cada día con un anillo que se llena según lo que hiciste. Toca un día para verlo o desliza a los lados (o usa las flechas) para cambiar de semana. Toca el texto del centro para volver a hoy.','<b>Tarjeta destacada</b>: una sola cosa importante según la hora (cómo has dormido por la mañana, qué toca ahora y después, o el plan de mañana a partir de las 20:00).','<b>Campana 🔔</b>: el resto de avisos (revisión semanal, copia, calendario…). El número dice cuántos hay.','<b>Resumen del día</b>: cuántos llevas y el botón <b>Día flojo</b>.','<b>⏳ Cuenta atrás</b>: tus próximos exámenes y metas. Tócala para verlas todas.','Debajo, tus hábitos por franjas: <b>Por la mañana, Por la tarde, Por la noche</b>. Al final: sesión extra, saltados, total semanal y nota del día.']},
-  {ic:'✅',t:'Marcar un hábito',intro:'Cada hábito tiene un botón redondo a la derecha. Funciona según su tipo:',
-   items:['<b>Sí / No</b>: un toque y hecho.','<b>Cantidad</b> (vasos, páginas…): cada toque suma; aparece <b>−</b> para restar.','<b>Tiempo</b>: ▶ pone en marcha el cronómetro y ❚❚ lo para. Sigue contando aunque cierres la app, te avisa al llegar al objetivo y, si cambias de pestaña, lo ves en una píldora abajo.','<b>Checklist</b>: marca cada paso dentro de la tarjeta, o toca el botón redondo para marcarlos todos.','Para desmarcar, vuelve a tocar. Después de cada acción sale un aviso abajo con <b>Deshacer</b>.','Al completar todo lo del día, ¡celebración! 🎉']},
-  {ic:'📋',t:'El plan de cada día',intro:'Lo que hace distinta a IronHabits: cada hábito te dice <b>exactamente qué hacer ese día</b>.',
-   items:['Toca el <b>nombre</b> del hábito para ver u ocultar su plan. Los pendientes salen abiertos y los hechos, cerrados.','<b>▶ Empezar</b>: abre el modo concentración a pantalla completa con cronómetro, el plan y los pasos; la pantalla no se apaga. Al terminar, «✓ Terminar» lo marca y guarda el tiempo.','Arriba del plan, una etiqueta te dice qué sesión es (p. ej. «Pierna B», «Semana 3 · Speaking»).','Los enlaces abren la web, el vídeo o el ejercicio directamente.','Si un día quieres hacer otra cosa: <b>⋯ › Cambiar el plan de este día</b>. Solo cambia ese día.','Para ver todas las sesiones hasta tu meta (con buscador): <b>⋯ › Progreso, guía y plan completo › Ver todo el plan</b>.','La <b>Guía</b> de cada hábito explica qué material, apps o libros necesitas.']},
-  {ic:'⋯',t:'El menú de cada hábito',intro:'El botón <b>⋯</b> de cada tarjeta abre 5 opciones:',
-   items:['<b>Apuntar lo que has hecho</b>: tiempo real, cantidad, tu progreso (muscle-ups, pino, islas, notas…) y cómo ha ido. Si haces más o menos tiempo del previsto, cuenta para tu total semanal.','<b>Mover, cambiar la hora o saltar</b>: lo mismo que tocar su bloque en la Agenda.','<b>Cambiar el plan de este día</b>.','<b>Progreso, guía y plan completo</b>: rachas, mapa de calor, historial de semanas, métricas con gráfica, meta y todas las sesiones.','<b>Editar hábito</b>: nombre, icono, color, frecuencia, hora…']},
-  {ic:'👈',t:'Mover, saltar y sesiones extra',intro:'La vida cambia y el plan se adapta:',
-   items:['<b>Desliza un hábito a la izquierda</b>: aparecen <b>Mañana</b> (lo pasa al día siguiente buscando un hueco libre) y <b>Saltar</b> (no se hace ese día).','<b>🔁 Recolocar</b>: si se te pasa la hora de algo, Hoy te avisa y te propone el primer hueco libre (primero esta semana, para que siga contando). Un toque y listo.','Desde <b>⋯ › Mover…</b> puedes elegir cualquier día y hora, o saltar con un motivo (lesión, viaje, no hay clase…).','Lo saltado o movido aparece abajo en Hoy con <b>Restaurar</b>.','<b>➕ Añadir sesión extra</b> (al final de Hoy): haz un hábito un día que no te toca. Si lo haces, suma a su progreso; si al final no lo haces, no es fallo.','Algo ya hecho no se puede mover: ya cuenta.']},
-  {ic:'📊',t:'Total semanal y rachas',intro:'La regla más importante: <b>lo que cuenta es la semana</b>, como los kilómetros semanales de Runna.',
-   items:['Cada hábito tiene un <b>total semanal</b> (los minutos de sus sesiones de lunes a domingo). Lo ves en Hoy, en «Esta semana».','Si un día no puedes y <b>lo compensas otro día</b> (p. ej. 1 h 30 de francés el martes), llegas al total y ese día <b>no cuenta como fallo</b>.','Un día que tocaba y no hiciste solo es fallo si la semana termina sin llegar al total.','Saltar un día no baja el objetivo (lo puedes compensar); una <b>pausa</b> sí lo baja.','<b>Racha 🔥</b>: días seguidos cumpliendo (o semanas, en los hábitos de «X veces por semana»).','<b>🧊 Comodín de racha</b>: cada semana que llegas al total ganas uno (máx. 2). Si fallas un día, se gasta solo y la racha sigue. En el mapa de calor sale en azul hielo.','Todo lo que haces suma, aunque lo hayas movido, cambiado de hora o hecho en un día extra.']},
-  {ic:'🪫',t:'Día flojo y pausas',intro:'Para los días malos y las épocas complicadas:',
-   items:['<b>Día flojo</b> (en el resumen de Hoy): cada hábito pasa a su <b>versión mínima</b> (p. ej. 10 min). Hazla, pulsa «Versión mínima hecha» y cuenta para la racha.','Mejor una versión mínima que romper la racha: es la forma de no perder el hábito.','<b>Pausas</b> (Ajustes › Pausar hábitos): vacaciones, lesión o exámenes. Eliges fechas, motivo y qué hábitos. Esos días no cuentan como fallo ni rompen rachas.','Puedes quitar una pausa cuando quieras.']},
-  {ic:'🕗',t:'La Agenda',intro:'Tu día completo, hora a hora: clases, fútbol, partido, comidas, trayectos, sueño, tiempo libre y hábitos.',
-   items:['Elige vista: <b>Día</b>, <b>3 días</b> o <b>Semana</b>. La línea roja marca la hora actual.','<b>Toca un bloque</b> para ver su plan, marcarlo hecho, cambiar la hora, pasarlo a mañana, moverlo a otro día o saltarlo.','<b>Mantén pulsado un bloque y arrástralo</b> para cambiarle la hora (encaja cada 15 min y te enseña la hora nueva).','En <b>Semana</b> y <b>3 días</b>, arrástralo de lado para pasarlo a otro día.','Si anulas una clase, el entreno de fuerza de ese día pasa a la sesión completa.','Si algo se solapa, te avisa. Todo se puede deshacer.']},
-  {ic:'⚡',t:'Cómo estás y carga de entreno',intro:'IronHabits aprende de ti:',
-   items:['<b>¿Cómo estás hoy?</b>: por la mañana puntúa del 1 al 5 cómo has dormido y tu energía. Tras unos días, en Progreso ves cuánto cumples según cómo estás y qué día de la semana rindes más.','<b>RPE</b>: al terminar fuerza o boxeo, toca «💪 RPE» en el aviso y di lo duro que ha sido (1–10).','<b>Carga de entreno</b> = RPE × minutos. La app compara tus últimos 7 días con la media de las 4 semanas anteriores (ratio agudo:crónico).','Zonas: baja, óptima (0,8–1,3), ojo y riesgo (más de 1,5). Si te pasas, te avisa en Hoy para que bajes unos días. Necesita 3 semanas de datos.','<b>⚡ Disposición del día</b> (0–100): junta sueño, energía y carga. Sale junto a tu resumen del día; si está por debajo de 45, te propone el Día flojo.']},
-  {ic:'📈',t:'Progreso',intro:'Todo lo que has hecho, en una pestaña:',
-   items:['Arriba: hoy, últimos 7 y 30 días, y tu mejor racha.','<b>Revisión de la semana</b> (te la recuerda el domingo o lunes): qué fue bien, qué falló, qué viene, carga, sueño y notas. Con <b>«Copiar resumen para Claude»</b> me lo pegas y ajustamos el plan.','<b>Tus hábitos</b>: cada uno con su mapa de calor y su %. Tócalo para el detalle (rachas, métricas con gráfica, total por semanas, meta y plan completo). Ahí también puedes archivarlo, ordenarlo o eliminarlo.','Gráficas: cumplimiento por semana, carga de entreno, sueño y energía, y el mapa de calor global.','<b>📅 Resumen del mes</b>: cumplimiento, días completos, horas por hábito y una <b>imagen para compartir</b>. Los primeros días de cada mes te lo recuerda.','<b>Simulacros B2</b>: en el detalle de Inglés (o al apuntar Inglés) pones tus puntos y te da la nota en la escala oficial de Cambridge y tu parte más floja.']},
-  {ic:'✏️',t:'Crear y editar hábitos',intro:'Con el botón <b>+</b> creas uno nuevo:',
-   items:['<b>Tipo</b>: sí/no, cantidad, tiempo o checklist.','<b>Hora (opcional)</b>: así sale en la agenda, en «Ahora / Después» y en el calendario.','<b>Frecuencia</b>: cada día, días concretos, X veces por semana, cada N días o fechas sueltas.','<b>Plan detallado</b>: qué hacer cada día de la semana, o una rotación de sesiones (A → B → C…) que avanza cada vez que lo completas, así no pierdes ninguna.','Los hábitos de tu plan se actualizan solos cuando te preparo un plan nuevo, conservando tus registros y tus cambios.']},
-  {ic:'🔔',t:'Avisos y calendario del iPhone',intro:'Para que el móvil te avise aunque no abras la app:',
-   items:['<b>Ajustes › Suscribir el calendario</b>: tu agenda entra en el Calendario del iPhone (o Google) con aviso 5 minutos antes de cada cosa, también con el móvil bloqueado. Se actualiza sola.','Con la nube conectada, el calendario incluye tus cambios (lo movido, saltado o con otra hora).','Truco: pon el <b>widget del Calendario</b> en tu pantalla de inicio y verás qué toca ahora y después.','En «Más opciones» puedes exportar unas semanas a mano o activar avisos con la app abierta (solo funcionan con la app en pantalla).']},
-  {ic:'☁️',t:'Tus datos están a salvo',intro:'Todo se guarda solo:',
-   items:['<b>En el móvil</b>, con <b>copias automáticas</b>: una al día (últimos 7 días) y otra antes de cada cambio grande. Se restauran en Ajustes › Copias automáticas.','<b>Nube</b> (Ajustes › Tus datos): se guarda en tu GitHub privado a los pocos segundos de cada cambio. Recuperas todo en otro móvil u ordenador; si hay cambios en los dos, te pregunta cuáles quedarte.','<b>Exportar o importar</b>: un archivo de copia para Drive, Archivos o WhatsApp.','<b>Borrar datos</b>: solo tus registros (el plan se queda) o todo y volver al plan inicial. Siempre se guarda antes una copia.','Tenla <b>instalada en la pantalla de inicio</b>: así el iPhone no borra nada aunque pasen días sin abrirla.']},
-  {ic:'📝',t:'Notas y trucos',intro:'Pequeñas cosas que ayudan mucho:',
-   items:['<b>Nota del día</b> al final de Hoy: sensaciones, molestias, qué ajustar. Se guarda sola.','<b>Tus notas</b> (final de Hoy o Ajustes): todas juntas, las del día y las de cada hábito, con buscador («rodilla», «cansado»…). Toca una para ir a ese día.','Navega a días futuros para ver cómo se presenta el día y a días pasados para apuntar algo que olvidaste.','Todos los avisos de abajo tienen <b>Deshacer</b> unos segundos.','<b>Apariencia</b> (Ajustes): tema oscuro, claro o como el iPhone, color de acento y <b>ordenar tus hábitos arrastrándolos</b>.','<b>Exportar CSV</b> (Ajustes › Exportar o importar): todos tus registros para Excel, Numbers o Google Sheets.']},
-  {ic:'🚀',t:'Tu rutina ideal en 4 pasos',intro:'Cómo sacarle el máximo cada día:',
-   items:['<b>Al despertar</b>: responde «¿Cómo estás hoy?» y mira la tarjeta de arriba.','<b>Durante el día</b>: abre cada hábito, sigue su plan y márcalo al terminar (RPE en los entrenos).','<b>Si algo se tuerce</b>: desliza para pasarlo a mañana, usa el Día flojo o compénsalo otro día de la semana.','<b>El domingo</b>: haz la revisión semanal y cópiamela para ajustar el plan.','Ya está. Puedes volver a esta guía en <b>Ajustes › Guía de la app</b>. ¡A por ello! 💪']},
+/* ═════════════ TUTORIAL INTERACTIVO ═════════════
+   Se aprende usando la app de verdad: cada paso señala un elemento real y avanza cuando haces la acción.
+   · Motor genérico (tourStart, tourShow…) separado del guion (TOUR_STEPS y TOUR_MINI): para añadir o cambiar
+     pasos solo se toca el guion. Cada paso: {id, seccion, selector, texto, accion, validar, antes, despues, si}
+     accion: 'click' | 'input' | 'change' | 'navegar' | 'scroll' | 'gesto' | 'info'
+     validar(): el paso se completa cuando devuelve true (si no hay, con la propia acción).
+     si(): si devuelve false, el paso no se hace (p. ej. deslizar solo con pantalla táctil).
+   · Datos de prueba: antes de empezar se guarda una copia de tus datos; la nube, los avisos y las copias automáticas
+     se paran; al acabar o saltarlo se restaura la copia tal cual. Si cierras la app a medias, al volver te pregunta.
+   · Su estado (paso, completado, secciones vistas) va aparte: localStorage «ironhabits_tour». */
+const TOUR_KEY='ironhabits_tour',TOUR_SNAP='ironhabits_tour_snap';
+const TOUR_SECS={hoy:'Hoy',agenda:'Agenda',prog:'Progreso',set:'Ajustes'};
+const hasTouch=()=>'ontouchstart' in window||navigator.maxTouchPoints>0;
+const sheetOn=()=>$('#sheet').classList.contains('on');
+const tourE=()=>entry(getH('tour')||{id:'tour'},todayK())||{};
+
+/* ── GUION ── */
+const TOUR_STEPS=[
+  // Hoy
+  {id:'hola',accion:'info',texto:'👋 Vamos a aprender IronHabits usándola. He añadido un <b>🧪 Hábito de prueba</b>: lo que hagas con él se borra al acabar.'},
+  {id:'plan',seccion:'hoy',selector:'#hc-tour .hc-info',accion:'click',texto:'Toca el nombre del hábito para ver qué toca hacer hoy.',
+    antes:()=>{OPEN[todayK()+':tour']=false;render();},validar:()=>OPEN[todayK()+':tour']===true},
+  {id:'deslizar',seccion:'hoy',selector:'#hc-tour .hc-in',accion:'gesto',si:hasTouch,texto:'Desliza la tarjeta hacia la izquierda ←',
+    antes:()=>{OPEN[todayK()+':tour']=false;render();},validar:()=>!!document.querySelector('#hc-tour .hc-in.open')},
+  {id:'saltar',seccion:'hoy',selector:'#hc-tour .hc-act.skip',accion:'click',si:hasTouch,texto:'Pulsa «Saltar»: si un día no puedes, no cuenta como fallo. («Mañana» lo pasa al día siguiente.)',
+    validar:()=>{const o=agOv(todayK(),'h:tour');return !!(o&&o.cancel);}},
+  {id:'deshacer',seccion:'hoy',selector:'#toast.on button',accion:'click',si:hasTouch,texto:'Todo se puede deshacer. Pulsa «Deshacer».',
+    antes:()=>clearTimeout(_tt),validar:()=>{const o=agOv(todayK(),'h:tour');return !(o&&o.cancel);}},
+  {id:'menu',seccion:'hoy',selector:'#hc-tour .hc-menu',accion:'click',texto:'Pulsa ⋯ para ver todo lo que puedes hacer con un hábito.',validar:sheetOn},
+  {id:'apuntar',seccion:'hoy',selector:'#sheetBody .row-btn[onclick^="logSheet"]',accion:'click',texto:'Pulsa «Apuntar lo que has hecho».',validar:()=>!!$('#mnM')},
+  {id:'minutos',seccion:'hoy',selector:'#mnM',accion:'input',texto:'Escribe <b>30</b> en minutos.',validar:()=>!!$('#mnM')&&parseInt($('#mnM').value,10)===30},
+  {id:'guardar',seccion:'hoy',selector:'#sheetBody .btn.pri[onclick^="saveLog"]',accion:'click',texto:'Pulsa «Guardar». Esos 30 min suman a tu total de la semana.',validar:()=>!sheetOn()},
+  {id:'empezar',seccion:'hoy',selector:'#hc-tour .start-btn',accion:'click',texto:'Pulsa «▶ Empezar»: pantalla completa con cronómetro y el plan.',
+    antes:()=>{OPEN[todayK()+':tour']=true;render();},validar:()=>!!$('#focus.on')},
+  {id:'salir',seccion:'hoy',selector:'#focus .fo-x',accion:'click',texto:'Así te concentras sin distracciones. Pulsa ✕ para salir.',validar:()=>!$('#focus.on')},
+  {id:'paso1',seccion:'hoy',selector:'#hc-tour .step:not(.on)',accion:'click',texto:'Tacha un paso. 🔊 Escucha: cada paso suena más agudo.',
+    antes:()=>{OPEN[todayK()+':tour']=true;render();},validar:()=>(tourE().steps||[]).length>=1},
+  {id:'pasos',seccion:'hoy',selector:'#hc-tour .steps',accion:'click',texto:'Ahora tacha los que quedan para completar el hábito.',validar:()=>isDone(getH('tour'),todayK())},
+  {id:'campana',seccion:'hoy',selector:'#hoyBell:not([hidden])',accion:'info',si:()=>!$('#hoyBell').hidden,texto:'En la campana 🔔 está lo del día que no cabe arriba: revisión, pendientes, avisos…'},
+  // Agenda
+  {id:'vista',seccion:'agenda',selector:'.ag-bar .seg button[onclick*="\'3\'"]',accion:'click',texto:'Esta es tu agenda hora a hora. Cambia a la vista de 3 días.',validar:()=>agView==='3'},
+  {id:'dia',seccion:'agenda',selector:'.ag-bar .seg button[onclick*="\'day\'"]',accion:'click',texto:'Vuelve a la vista de un día.',validar:()=>agView==='day'},
+  {id:'bloque',seccion:'agenda',selector:'.ag-ev[onclick*="h:tour"]',accion:'click',texto:'Este es tu hábito de prueba en el día. Tócalo.',
+    antes:()=>{agView='day';sel=todayK();render();},validar:sheetOn},
+  {id:'bloque-x',seccion:'agenda',selector:'#sheet .sheet-x',accion:'click',texto:'Desde aquí cambias la hora, lo mueves o lo saltas. Pulsa ✕ para cerrar.',validar:()=>!sheetOn()},
+  // Progreso
+  {id:'detalle',seccion:'prog',selector:'#habBody [onclick="openDetail(\'tour\')"]',accion:'click',texto:'Toca el hábito de prueba para ver su progreso.',validar:sheetOn},
+  {id:'mapa',seccion:'prog',selector:'#sheet',accion:'scroll',texto:'Desliza hacia abajo: rachas y mapa de calor de cada día.',
+    antes:()=>{$('#sheet').scrollTop=0;},validar:()=>$('#sheet').scrollTop>120},
+  {id:'detalle-x',seccion:'prog',selector:'#sheet .sheet-x',accion:'click',texto:'Pulsa ✕ para cerrar.',validar:()=>!sheetOn()},
+  {id:'revision',seccion:'prog',selector:'#statsBody [onclick="reviewSheet()"]',accion:'click',texto:'Cada domingo, la revisión resume tu semana. Ábrela.',validar:sheetOn},
+  {id:'revision-x',seccion:'prog',selector:'#sheet .sheet-x',accion:'click',texto:'Pulsa ✕ para cerrar.',validar:()=>!sheetOn()},
+  // Ajustes
+  {id:'avisos',seccion:'set',selector:'#setBody .row-btn[onclick="pushSheet()"]',accion:'click',texto:'Aquí activas los avisos en el iPhone, aunque la app esté cerrada. Ábrelo.',validar:sheetOn},
+  {id:'avisos-x',seccion:'set',selector:'#sheet .sheet-x',accion:'click',texto:'Eliges cuánto antes y de qué hábitos. Pulsa ✕ para cerrar.',validar:()=>!sheetOn()},
+  {id:'nube',seccion:'set',selector:'#tourCloud',accion:'info',texto:'Conecta la nube para tener copia de todo y usar la app en varios dispositivos.'},
+  {id:'repetir',seccion:'set',selector:'#tourRow',accion:'info',texto:'Puedes repetir este tutorial, entero o por secciones, cuando quieras.'},
+  {id:'fin',accion:'info',fin:true,texto:'<div class="tr-fin">🎉</div><b>¡Listo!</b><ul class="tr-sum"><li><b>Hoy</b>: abre el plan, tacha pasos y apunta lo que haces.</li><li>Desliza para pasarlo a mañana; todo tiene <b>Deshacer</b>.</li><li><b>Agenda</b> y <b>Progreso</b>: tu día hora a hora, rachas y revisión.</li><li><b>Ajustes</b>: avisos, nube y este tutorial.</li></ul>',boton:'Empezar a usar IronHabits'},
 ];
-const GUIDE_V=2; // cambia cuando la guía tenga contenido nuevo: se enseña una vez al actualizar
-function welcomeSheet(i=0){
-  i=Math.max(0,Math.min(GUIDE.length-1,i));const g=GUIDE[i],last=i===GUIDE.length-1,pct=Math.round((i+1)/GUIDE.length*100);
-  openSheet(`<div class="welcome">
-    <div class="gd-top"><span>${i+1} / ${GUIDE.length}</span><button class="gd-idx" onclick="guideIndex()">☰ Índice</button></div>
-    <div class="gd-bar"><i style="width:${pct}%"></i></div>
-    <div class="wl-ic">${g.ic}</div><div class="sheet-title" style="padding:0">${g.t}</div><p>${g.intro}</p>
-    <ul class="gd-list">${g.items.map(x=>`<li>${x}</li>`).join('')}</ul>
-    <div class="btns">${i?`<button class="btn ghost" onclick="welcomeSheet(${i-1})">Atrás</button>`:`<button class="btn ghost" onclick="welcomeDone()">Saltar</button>`}<button class="btn pri" onclick="${last?'welcomeDone()':`welcomeSheet(${i+1})`}">${last?'Empezar':'Siguiente'}</button></div></div>`);
+// Mini-tour la primera vez que entras en una sección que no viste en el tutorial (pasos del guion por id)
+const TOUR_MINI={hoy:['plan','paso1','campana'],agenda:['vista','dia','bloque','bloque-x'],prog:['detalle','mapa','detalle-x'],set:['avisos','avisos-x','repetir']};
+const tourById=id=>TOUR_STEPS.find(s=>s.id===id);
+
+/* ── ESTADO Y DATOS DE PRUEBA ── */
+function tourState(){try{return JSON.parse(localStorage.getItem(TOUR_KEY))||{};}catch(e){return {};}}
+function tourSet(o){const st={...tourState(),...o};try{localStorage.setItem(TOUR_KEY,JSON.stringify(st));}catch(e){}return st;}
+function inTour(){try{return !!localStorage.getItem(TOUR_SNAP);}catch(e){return false;}}
+function tourSandbox(){
+  if(inTour())return;
+  if(S.timer)stopTimer(true);
+  localStorage.setItem(TOUR_SNAP,JSON.stringify(S,(k,v)=>HEAVY.has(k)||k==='_needPlanSave'?undefined:v)); // tal cual está ahora (sin marcar nada para la nube)
 }
-function guideIndex(){
-  openSheet(`<div class="sheet-title">📖 Guía de IronHabits</div><div class="sub mb12">Toca un tema para ir directo</div>
-    ${GUIDE.map((g,i)=>`<button class="row-btn" onclick="welcomeSheet(${i})"><span class="ri" style="font-size:18px">${g.ic}</span><div>${i+1}. ${g.t}</div></button>`).join('')}`);
+function tourPrepare(){
+  if(getH('tour'))return;
+  const n=new Date(),m=Math.min(22*60,Math.ceil((n.getHours()*60+n.getMinutes()+60)/30)*30);
+  const h=mk({name:'Hábito de prueba',emoji:'🧪',color:'#F97316',type:'checklist',steps:['Calentar','Hacer la sesión','Estirar'],
+    desc:'Plan de ejemplo: qué hacer exactamente hoy.\n- Calentar 5 min\n- Sesión principal 20 min\n- Estirar 5 min',time:{start:fmtT(m),dur:30}});
+  h.id='tour';h.tutorial=true;h.start=addDays(todayK(),-60);h.plan={mode:'cycle',cycle:[h.desc]};
+  S.habits.unshift(h);
+  for(let i=1;i<=45;i++){const k=addDays(todayK(),-i);if((i*7)%10<7)(S.logs[k]=S.logs[k]||{}).tour={v:0,steps:h.steps.map(s=>s.id)};} // historial para las gráficas
+  delete OPEN[todayK()+':tour'];save();
 }
-function guideSeen(){if((S.settings.guideV||0)<GUIDE_V){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();}}
-function welcomeDone(){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();closeSheet();}
+function tourRestore(){
+  const snap=localStorage.getItem(TOUR_SNAP);
+  if($('#focus.on'))closeFocus();
+  closeSheet();
+  if(snap){localStorage.setItem(KEY,snap);localStorage.removeItem(TOUR_SNAP);S=load();touchBaseline();dropUndo();}
+  delete OPEN[todayK()+':tour'];sel=todayK();applyAccent();render();
+}
+
+/* ── MOTOR ── */
+let TOUR=null;
+function tourStart(name,steps,at=0){
+  steps=(steps||[]).filter(Boolean);if(!steps.length||TOUR)return;
+  if($('#focus.on'))closeFocus();closeSheet();
+  tourSandbox();tourPrepare();render();
+  TOUR={name,steps,i:at,done:0};tourSet({active:name,i:at});
+  tourDom();tourShow();
+}
+function tourDom(){
+  let r=$('#tour');if(r)r.remove();
+  r=document.createElement('div');r.id='tour';
+  r.innerHTML='<div class="tr-hole"></div><div class="tr-blk"></div><div class="tr-blk"></div><div class="tr-blk"></div><div class="tr-blk"></div><div class="tr-cover"></div><div class="tr-tip" role="dialog" aria-live="polite"><i class="tr-arr"></i><div class="tr-body"></div></div>';
+  document.body.appendChild(r);
+  const stop=e=>{e.preventDefault();e.stopPropagation();if(e.type==='pointerdown'||e.type==='touchstart')tourNudge();};
+  r.querySelectorAll('.tr-blk,.tr-cover').forEach(b=>['pointerdown','touchstart','touchmove','mousedown','click','wheel'].forEach(t=>b.addEventListener(t,stop,{passive:false})));
+  tourLoop();
+}
+function tourNudge(){const h=$('#tour .tr-hole');if(!h)return;h.classList.remove('nudge');void h.offsetWidth;h.classList.add('nudge');buzz();}
+const tourCur=()=>TOUR&&(TOUR.nav||TOUR.steps[TOUR.i]);
+function tourTarget(s){
+  if(!s||!s.selector)return null;
+  for(const el of document.querySelectorAll(s.selector)){const r=el.getBoundingClientRect();if(r.width&&r.height)return el;}
+  return null;
+}
+function tourShow(){
+  if(!TOUR)return;
+  const s=TOUR.steps[TOUR.i];TOUR.nav=null;TOUR.acted=false;TOUR.pending=false;
+  if(!s)return tourEnd(true);
+  if(s.si&&!s.si())return tourNext(true);
+  // Navegación obligatoria: si el paso es de otra sección, primero pulsas tú la pestaña
+  if(s.seccion&&view!==s.seccion){
+    if(sheetOn())closeSheet();
+    TOUR.nav={id:'nav-'+s.seccion,selector:`nav button[data-v="${s.seccion}"]`,accion:'navegar',texto:`Pulsa «${TOUR_SECS[s.seccion]}» abajo para ir a esa sección.`,validar:()=>view===s.seccion};
+    return tourPaint();
+  }
+  if(s.antes&&TOUR.prepared!==TOUR.i){TOUR.prepared=TOUR.i;try{s.antes();}catch(e){}}
+  if(!s.selector)return tourPaint();
+  // Esperar a que el elemento exista (pantallas y hojas que se están abriendo); si no aparece, se salta el paso
+  const t0=Date.now(),idx=TOUR.i;
+  const wait=()=>{if(!TOUR||TOUR.i!==idx||TOUR.nav)return;const el=tourTarget(s);
+    if(el){const r=el.getBoundingClientRect(),vh=(window.visualViewport||{}).height||innerHeight;
+      if(s.selector!=='#sheet'&&(r.top<60||r.bottom>vh-90))el.scrollIntoView({block:'center',behavior:'smooth'});
+      return tourPaint();}
+    if(Date.now()-t0>4000)return tourNext(true);
+    setTimeout(wait,120);};
+  wait();
+}
+function tourPaint(){
+  const s=tourCur(),r=$('#tour');if(!s||!r)return;TOUR.pending=false;
+  const real=TOUR.steps.filter(x=>!x.fin&&(!x.si||x.si())),n=real.indexOf(TOUR.steps[TOUR.i])+1,tot=real.length;
+  const body=r.querySelector('.tr-body');
+  body.innerHTML=s.fin?`<div class="tr-txt">${s.texto}</div><button class="btn pri tr-ok" onclick="tourInfoOk()">${s.boton||'Entendido'}</button>`
+    :`<div class="tr-head"><span>Paso ${Math.max(1,n)}/${tot}</span><button class="tr-skip" onclick="tourAskSkip()">Saltar</button></div>
+     <div class="tr-bar"><i style="width:${Math.round(Math.max(1,n)/tot*100)}%"></i></div>
+     <div class="tr-txt">${s.texto}</div>${s.accion==='info'?`<button class="btn pri tr-ok" onclick="tourInfoOk()">Entendido</button>`:''}`;
+  r.classList.toggle('info',s.accion==='info');r.classList.toggle('center',!s.selector);
+  r.querySelector('.tr-tip').classList.remove('in');void r.offsetWidth;r.querySelector('.tr-tip').classList.add('in');
+  TOUR.rect=null;tourPlace(true);
+}
+function tourAskSkip(){
+  const b=$('#tour .tr-body');if(!b)return;
+  b.innerHTML=`<div class="tr-txt"><b>¿Saltar el tutorial?</b><br>Lo que hayas probado se borra y tus datos quedan como estaban.</div>
+    <div class="btns"><button class="btn ghost" onclick="tourPaint()">Seguir</button><button class="btn danger" onclick="tourEnd(false)">Saltar</button></div>`;
+  tourPlace(true);
+}
+function tourInfoOk(){tourNext();}
+function tourNext(skip){
+  if(!TOUR)return;
+  if(TOUR.pending)return;TOUR.pending=true; // hasta pintar el siguiente paso no se comprueba nada más
+  if(TOUR.nav)return setTimeout(tourShow,250);
+  const s=TOUR.steps[TOUR.i];
+  if(!skip){TOUR.done++;if(s.seccion)tourSet({seen:[...new Set([...(tourState().seen||[]),s.seccion])]});try{s.despues&&s.despues();}catch(e){}}
+  TOUR.i++;tourSet({i:TOUR.i});
+  setTimeout(tourShow,skip?0:380);
+}
+function tourEnd(done){
+  if(!TOUR)return;const name=TOUR.name;TOUR=null;
+  const r=$('#tour');if(r){r.classList.add('out');setTimeout(()=>r.remove(),250);}
+  tourRestore();
+  tourSet({active:null,i:0,...(name==='full'?{done:true,offered:true,completed:!!done}:{})});
+  if(!done)toast('Tutorial saltado · lo repites en Ajustes › Tutorial');
+  else if(name!=='full')toast('✓ Listo');
+}
+// Detección de la acción sobre el elemento real (sin simular nada): el paso se valida tras el propio gesto
+['click','input','change','scroll','touchend'].forEach(t=>document.addEventListener(t,e=>{
+  const s=tourCur();if(!s||!s.selector||s.accion==='info'||TOUR.pending)return;
+  const want={click:['click','navegar'],input:['input'],change:['change'],scroll:['scroll'],touchend:['gesto']}[t];
+  if(!want.includes(s.accion))return;
+  const tg=t==='scroll'?(e.target===document?document.scrollingElement:e.target):e.target;
+  if(!tg||!tg.closest||!(tg.closest(s.selector)||(t==='scroll'&&tg.matches&&tg.matches(s.selector))))return;
+  TOUR.acted=true;setTimeout(tourCheck,t==='click'?60:0);
+},true));
+function tourCheck(){
+  const s=tourCur();if(!s||s.accion==='info'||TOUR.checking||TOUR.pending)return;
+  const ok=s.validar?s.validar():TOUR.acted;
+  if(ok){TOUR.checking=true;setTimeout(()=>{if(TOUR){TOUR.checking=false;tourNext();}},40);}
+}
+// Recoloca el foco y el bocadillo en cada fotograma (scroll, giro, teclado, hojas que se abren…) y comprueba el paso
+function tourLoop(){
+  if(!$('#tour'))return;
+  if(TOUR){tourPlace(false);const now=Date.now();if(!TOUR.lastCheck||now-TOUR.lastCheck>200){TOUR.lastCheck=now;tourCheck();}}
+  requestAnimationFrame(tourLoop);
+}
+function tourPlace(force){
+  const r=$('#tour'),s=tourCur();if(!r||!s)return;
+  const vv=window.visualViewport,vw=vv?vv.width:innerWidth,vh=vv?vv.height+vv.offsetTop:innerHeight;
+  const el=tourTarget(s);let b;
+  if(el){const q=el.getBoundingClientRect(),p=s.selector==='#sheet'?0:6;
+    b={x:Math.max(4,q.left-p),y:Math.max(4,q.top-p),w:0,h:0};b.w=Math.min(vw-4,q.right+p)-b.x;b.h=Math.min(vh-4,q.bottom+p)-b.y;}
+  else b={x:vw/2,y:vh/2,w:0,h:0};
+  const key=[b.x,b.y,b.w,b.h,vw,vh].map(Math.round).join();
+  if(!force&&key===TOUR.rect)return;TOUR.rect=key;
+  const hole=r.querySelector('.tr-hole'),[bt,bb,bl,br]=r.querySelectorAll('.tr-blk'),cov=r.querySelector('.tr-cover');
+  const rad=el?Math.min(18,parseFloat(getComputedStyle(el).borderRadius)+4||12):0;
+  Object.assign(hole.style,{left:b.x+'px',top:b.y+'px',width:b.w+'px',height:b.h+'px',borderRadius:rad+'px'});
+  const H=Math.max(vh,innerHeight)+200;
+  Object.assign(bt.style,{left:0,top:0,width:'100%',height:b.y+'px'});
+  Object.assign(bb.style,{left:0,top:b.y+b.h+'px',width:'100%',height:Math.max(0,H-b.y-b.h)+'px'});
+  Object.assign(bl.style,{left:0,top:b.y+'px',width:b.x+'px',height:b.h+'px'});
+  Object.assign(br.style,{left:b.x+b.w+'px',top:b.y+'px',width:Math.max(0,vw-b.x-b.w)+'px',height:b.h+'px'});
+  Object.assign(cov.style,{left:b.x+'px',top:b.y+'px',width:b.w+'px',height:b.h+'px'});
+  // Bocadillo: abajo, arriba, a un lado o (si no cabe) dentro de la pantalla sin taparlo del todo
+  const tip=r.querySelector('.tr-tip'),arr=r.querySelector('.tr-arr'),M=12,G=14;
+  const w=Math.min(340,vw-2*M);tip.style.width=w+'px';const th=tip.offsetHeight;
+  let x,y,side;
+  if(!el){x=(vw-w)/2;y=(vh-th)/2;side='none';}
+  else{
+    const below=vh-(b.y+b.h)-G-M,above=b.y-G-M-(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat'))||0);
+    if(below>=th){side='down';y=b.y+b.h+G;}
+    else if(above>=th){side='up';y=b.y-G-th;}
+    else if(vw-(b.x+b.w)-G-M>=w){side='right';x=b.x+b.w+G;y=b.y+b.h/2-th/2;}
+    else if(b.x-G-M>=w){side='left';x=b.x-G-w;y=b.y+b.h/2-th/2;}
+    else{side='none';y=below>above?vh-th-M:M+20;}
+    if(x==null)x=b.x+b.w/2-w/2;
+  }
+  x=Math.max(M,Math.min(vw-M-w,x));y=Math.max(M,Math.min(vh-M-th,y));
+  Object.assign(tip.style,{left:x+'px',top:y+'px'});
+  tip.dataset.side=side;
+  if(side==='up'||side==='down')arr.style.left=Math.max(18,Math.min(w-18,b.x+b.w/2-x))+'px',arr.style.top='';
+  else if(side==='left'||side==='right')arr.style.top=Math.max(18,Math.min(th-18,b.y+b.h/2-y))+'px',arr.style.left='';
+}
+
+/* ── ENTRADAS: primera vez, continuar a medias, Ajustes y mini-tours ── */
+function tourCard(html){ // tarjeta centrada con el mismo aspecto (para ofrecer o continuar)
+  let r=$('#tour');if(r)r.remove();
+  r=document.createElement('div');r.id='tour';r.className='center info';
+  r.innerHTML=`<div class="tr-hole" style="left:50%;top:50%;width:0;height:0"></div><div class="tr-blk" style="inset:0;width:100%;height:100%"></div><div class="tr-tip in" data-side="none"><div class="tr-body">${html}</div></div>`;
+  document.body.appendChild(r);
+  const t=r.querySelector('.tr-tip'),w=Math.min(340,innerWidth-24);t.style.width=w+'px';t.style.left=(innerWidth-w)/2+'px';t.style.top=Math.max(20,(innerHeight-t.offsetHeight)/2)+'px';
+}
+function tourCardClose(){const r=$('#tour');if(r&&!TOUR)r.remove();}
+function tourOffer(){
+  tourCard(`<div class="tr-fin">🧭</div><div class="tr-txt"><b>Aprende IronHabits en 3 minutos</b><br>Usando la app de verdad, paso a paso. Con un hábito de prueba: tus datos no se tocan.</div>
+    <div class="btns"><button class="btn ghost" onclick="tourSet({offered:true});tourCardClose()">Ahora no</button><button class="btn pri" onclick="tourCardClose();tourStart('full',TOUR_STEPS)">Empezar</button></div>`);
+}
+function tourResumeAsk(){
+  const st=tourState(),name=st.active||'full';
+  tourCard(`<div class="tr-fin">⏯️</div><div class="tr-txt"><b>Tienes el tutorial a medias</b><br>¿Lo continúas donde lo dejaste o lo saltas?</div>
+    <div class="btns"><button class="btn ghost" onclick="tourCardClose();tourRestore();tourSet({active:null,i:0,offered:true${name==='full'?',done:true':''}})">Saltar</button><button class="btn pri" onclick="tourCardClose();tourResume()">Continuar</button></div>`);
+}
+function tourSteps(name){
+  if(name==='full')return TOUR_STEPS;
+  const [kind,sec]=name.split(':');
+  if(kind==='mini')return (TOUR_MINI[sec]||[]).map(tourById);
+  return TOUR_STEPS.filter(s=>s.seccion===sec); // «sec:agenda»: el tutorial de una sección
+}
+function tourResume(){
+  const st=tourState(),name=st.active||'full',steps=tourSteps(name);
+  let i=Math.min(st.i||0,steps.length-1);const sec=(steps[i]||{}).seccion;
+  while(i>0&&steps[i-1].seccion===sec)i--; // vuelve al principio de esa sección, con los datos de prueba limpios
+  tourRestore();tourStart(name,steps,i);
+}
+function tourSection(sec){tourStart('sec:'+sec,tourSteps('sec:'+sec));}
+function tourMaybeMini(v){
+  if(TOUR||navigator.webdriver||$('#tour:not(.out)'))return;const st=tourState();
+  if(!st.offered||st.active||(st.seen||[]).includes(v)||!TOUR_MINI[v])return;
+  tourSet({seen:[...new Set([...(st.seen||[]),v])]});
+  setTimeout(()=>{if(!TOUR&&view===v&&!sheetOn())tourStart('mini:'+v,tourSteps('mini:'+v));},450);
+}
+function tourBoot(){
+  if(navigator.webdriver)return;const st=tourState();
+  if(st.active||inTour())return tourResumeAsk();
+  if(!st.offered)setTimeout(()=>{if(!sheetOn()&&!TOUR)tourOffer();},700);
+}
 
 /* ═════════════ ORDENAR ARRASTRANDO ═════════════ */
 function sortSheet(){
@@ -2763,10 +3019,10 @@ function pushItems(from=new Date()){
   return out.sort((a,b)=>a.at-b.at).slice(0,200);
 }
 let _pushT=null,_pushLast='';
-function pushDirty(){if(!S.settings.push||!S.settings.push.on)return;clearTimeout(_pushT);_pushT=setTimeout(()=>pushSync(),4000);}
+function pushDirty(){if(!S.settings.push||!S.settings.push.on||inTour())return;clearTimeout(_pushT);_pushT=setTimeout(()=>pushSync(),4000);}
 async function pushSub(){const reg=await navigator.serviceWorker.ready;return reg.pushManager.getSubscription();}
 async function pushSync(force){
-  const p=pushCfg();if(!p.on||!pushSupported())return false;
+  const p=pushCfg();if(!p.on||!pushSupported()||inTour())return false;
   try{const url=await pushURL();if(!url)return false;const sub=await pushSub();
     if(!sub){p.on=false;p.err='perm';save();return false;}
     const items=pushItems(),sig=JSON.stringify([sub.endpoint,items]);
@@ -3049,7 +3305,7 @@ async function migrateSnaps(){
   }catch(e){}
 }
 let _snapT=null;
-function snapSoon(){clearTimeout(_snapT);_snapT=setTimeout(()=>writeSnap('auto').catch(()=>{}),4000);}
+function snapSoon(){if(inTour())return;clearTimeout(_snapT);_snapT=setTimeout(()=>writeSnap('auto').catch(()=>{}),4000);}
 async function safetySnap(reason){try{await writeSnap('pre',reason);}catch(e){}}
 async function snapSheet(){
   let all=[];try{all=await snapList();}catch(e){}
@@ -3102,10 +3358,10 @@ function pickGist(list,fn){return (list||[]).filter(g=>g.files&&fn(g.files)).sor
 async function newGist(tok,desc,files){return gh('/gists',{token:tok,method:'POST',body:JSON.stringify({description:desc,public:false,files})});}
 const DATA_DESC='IronHabits · tus datos (privado: no compartas este enlace)',ICS_DESC='IronHabits · calendario';
 let _cloudT=null,_cloudBusy=false,_cloudApplying=false;
-function cloudDirty(){const c=cloudCfg();if(!c||!c.gistId||_cloudApplying)return;c.dirtyAt=Date.now();cloudSave(c);clearTimeout(_cloudT);_cloudT=setTimeout(cloudPush,6000);}
+function cloudDirty(){const c=cloudCfg();if(!c||!c.gistId||_cloudApplying||inTour())return;c.dirtyAt=Date.now();cloudSave(c);clearTimeout(_cloudT);_cloudT=setTimeout(cloudPush,6000);}
 function cloudErr(e){const c2=cloudCfg();if(!c2)return;c2.err=e.status===401?'auth':'net';cloudSave(c2);if(e.status===404)cloudRediscover();}
 async function cloudPush(force,opt={}){
-  const c=cloudCfg();if(!c||!c.gistId||_cloudBusy)return;if(!force&&c.lastSync&&!cloudPending(c))return;
+  const c=cloudCfg();if(!c||!c.gistId||_cloudBusy||inTour())return;if(!force&&c.lastSync&&!cloudPending(c))return;
   _cloudBusy=true;const startedAt=Date.now();
   try{
     if(!c.names2){await cloudRename(c);Object.assign(c,cloudCfg());}
@@ -3141,7 +3397,7 @@ async function cloudApply(remote){
   const c=cloudCfg();if(c){c.lastSync=remote.savedAt;c.dirtyAt=0;c.lastPushAt=Date.now();cloudSave(c);}
 }
 async function cloudPull(){
-  const c=cloudCfg();if(!c||!c.gistId)return;
+  const c=cloudCfg();if(!c||!c.gistId||inTour())return;
   try{const rm=await cloudRemote(c);
     if(rm&&rm.savedAt&&!(c.lastSync&&rm.savedAt<=c.lastSync)){
       if(cloudPending(c)){ // cambios en los dos lados: se juntan día a día y se sube el resultado
@@ -3443,7 +3699,7 @@ setTimeout(bootDone,3000); // por si algo tarda: nunca bloquea la app
 const _planReady=initPlan();_planReady.then(()=>{render();bootProgress(.75);requestAnimationFrame(()=>setTimeout(bootDone,120));});
 render();
 askPersist();
-if((S.settings.guideV||0)<GUIDE_V&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on')){welcomeSheet(0);guideSeen();}},900);
+_planReady.then(()=>setTimeout(tourBoot,600)); // tutorial interactivo: ofrecerlo la primera vez o continuar a medias
 _planReady.then(()=>migrateSnaps()).then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon()).then(()=>pushSync(true));
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
