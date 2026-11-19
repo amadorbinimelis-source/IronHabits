@@ -637,8 +637,9 @@ nav button svg{width:24px;height:24px}
 input[type=checkbox]{width:22px;height:22px;min-height:0;padding:0;flex:none;border-radius:7px;border:2px solid var(--muted);background:transparent;display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s}
 input[type=checkbox]:checked{background:var(--acc);border-color:var(--acc)}
 input[type=checkbox]:checked::after{content:'';width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
-input[type=checkbox][switch]{width:48px;height:30px;border-radius:99px;border:none;background:var(--card2);box-shadow:inset 0 0 0 1px var(--border);position:relative;display:block}
-input[type=checkbox][switch]::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;border:none;transform:none;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:left .18s}
+#hapticSw input{-webkit-appearance:auto!important;appearance:auto!important;display:block}
+input[type=checkbox][switch]:not(#hapticSw input){width:48px;height:30px;border-radius:99px;border:none;background:var(--card2);box-shadow:inset 0 0 0 1px var(--border);position:relative;display:block}
+input[type=checkbox][switch]:not(#hapticSw input)::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;border:none;transform:none;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:left .18s}
 input[type=checkbox][switch]:checked{background:var(--acc);box-shadow:none}
 input[type=checkbox][switch]:checked::after{left:21px;transform:none;width:24px;height:24px;border:none}
 /* v1.18 · Hoy inteligente */
@@ -797,8 +798,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.21';
+const APP_VERSION='1.22';
 const CHANGELOG=[
+  ['1.22','19 nov 2026',['🔊 Sonido y vibración al avanzar: cada paso suena una nota más aguda y vibra un poco; al completar el hábito, un acorde de campana y vibración larga; al completar el día, uno más grande','Arreglado: el iPhone no vibraba','Se puede quitar el sonido en Ajustes › Apariencia']],
   ['1.21','19 nov 2026',['🔔 Avisos de verdad: te llegan al iPhone a su hora aunque la app esté cerrada (Ajustes › Avisos de tus hábitos)','Eliges cuánto antes, qué hábitos y si también clases y fútbol; si ya lo hiciste, movido o saltado, no avisa','☁️ La nube junta los cambios: si usas dos dispositivos, se queda lo último de cada día y de cada hábito, sin preguntarte']],
   ['1.20','19 nov 2026',['🔁 Recolocar en un toque: lo que se te pasa, al primer hueco libre (y sigue contando en la semana)','▶ Modo «Empezar»: pantalla completa con cronómetro, plan y pasos; la pantalla no se apaga','⚡ Disposición del día: sueño, energía y carga en un número; si está baja, te propone el Día flojo','🧊 Comodín de racha: gana uno cada semana que llegas al total; protege un día fallado','📅 Resumen del mes con imagen para compartir','Tema claro u «como el iPhone», ordenar hábitos arrastrando y exportar a CSV']],
   ['1.19','19 nov 2026',['💪 Nueva identidad IronHabits: icono «IH» y pantalla de arranque con el anillo que se llena mientras carga','🔶 Color de marca naranja para el botón +, las rachas y la celebración','Números redondeados e iconos dibujados en franjas y avisos','Tu plan se guarda en un espacio más grande del móvil (IndexedDB), sin límite de 5 MB','Nueva dirección: amadorbinimelis-source.github.io/IronHabits']],
@@ -994,6 +996,50 @@ function fmtNum(n){n=+n||0;return Number.isInteger(n)?String(n):String(Math.roun
 function fmtMin(m){m=+m||0;if(m<60)return `${fmtNum(Math.round(m*10)/10)} min`;const h=Math.floor(m/60),mm=Math.round(m%60);return `${h} h ${pad(mm)}`;}
 function fmtClock(ms){const s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;return h?`${h}:${pad(m)}:${pad(ss)}`:`${pad(m)}:${pad(ss)}`;}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+/* ═════════════ SONIDO Y VIBRACIÓN AL AVANZAR ═════════════
+   Cada paso: una nota de marimba que sube un poco al sonar, más aguda cuanto más cerca de la meta, y un toque de vibración.
+   Meta del hábito: fanfarria corta y vibración larga. Día completo: fanfarria más grande.
+   Sonidos sintetizados (sin archivos). En el iPhone respetan el modo silencio. Se quitan en Ajustes › Apariencia. */
+let _ac=null,_bus=null;
+function audio(){if(S.settings.sound===false)return null;try{_ac=_ac||new (window.AudioContext||window.webkitAudioContext)();if(_ac.state==='suspended')_ac.resume();return _ac;}catch(e){return null;}}
+/* Mezcla: compresor suave + una reverberación corta (sala pequeña) para que suene natural, no «de máquina» */
+function bus(ac){
+  if(_bus&&_bus.ac===ac)return _bus;
+  const comp=ac.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;comp.connect(ac.destination);
+  const dry=ac.createGain();dry.gain.value=.9;dry.connect(comp);
+  const rv=ac.createConvolver(),len=Math.floor(ac.sampleRate*.9),ir=ac.createBuffer(2,len,ac.sampleRate);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2);}
+  rv.buffer=ir;const wet=ac.createGain();wet.gain.value=.16;rv.connect(wet);wet.connect(comp);
+  const inp=ac.createGain();inp.connect(dry);inp.connect(rv);
+  return _bus={ac,inp};
+}
+/* Una nota con timbre de marimba/campana: varios parciales, ataque rápido y caída natural */
+function tone(ac,{t=0,f0,f1=f0,dur=.25,vol=.2,glide=.05,partials=[[1,1]]}){
+  const t0=ac.currentTime+t,out=bus(ac).inp,g=ac.createGain();
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.006);g.gain.exponentialRampToValueAtTime(.0005,t0+dur);g.connect(out);
+  for(const[m,pg]of partials){const o=ac.createOscillator(),og=ac.createGain();o.type='sine';
+    o.frequency.setValueAtTime(f0*m,t0);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(f1*m,t0+glide);
+    og.gain.setValueAtTime(pg,t0);if(m>1)og.gain.exponentialRampToValueAtTime(.0005,t0+dur*(m>3?.25:.5)); // los armónicos se apagan antes
+    o.connect(og);og.connect(g);o.start(t0);o.stop(t0+dur+.05);}
+}
+const MARIMBA=[[1,1],[4,.1],[10,.02]],BELL=[[1,1],[2.76,.16],[5.4,.05]];
+const STEP_NOTES=[523.25,587.33,659.25,783.99,880,1046.5,1174.66]; // escala pentatónica: cada paso, una nota más arriba
+function ticks(times,android){try{if(navigator.vibrate){navigator.vibrate(android);return;}}catch(e){}times.forEach(ms=>ms?setTimeout(buzz,ms):buzz());}
+function fxStep(p){ // p: progreso tras el paso (0–1)
+  const ac=audio(),f=STEP_NOTES[Math.min(STEP_NOTES.length-1,Math.max(0,Math.round(Math.min(p,1)*5)))];
+  if(ac)tone(ac,{f0:f*.86,f1:f,glide:.045,dur:.32,vol:.2,partials:MARIMBA}); // sube un poco al sonar: de grave a agudo
+  ticks(p>=.66?[0,85]:[0],p>=.66?[14,60,18]:[14]);
+}
+function fxGoal(big){
+  const ac=audio();
+  if(ac){
+    const N=big?[523.25,659.25,783.99,1046.5]:[783.99,1046.5],gap=big?.1:.11;
+    N.forEach((f,i)=>{const last=i===N.length-1;tone(ac,{t:i*gap,f0:f,dur:last?(big?1.6:1.1):.45,vol:last?.22:.17,partials:BELL});});
+    const t=(N.length-1)*gap; // acorde suave de fondo al llegar a la meta
+    (big?[261.63,329.63,392]:[392,523.25]).forEach(f=>tone(ac,{t,f0:f,dur:big?1.8:1.2,vol:.05}));
+  }
+  ticks(big?[0,70,140,210,280,400,520]:[0,70,140,210,330],big?[40,30,40,30,40,30,260]:[30,30,30,30,180]);
+}
 function buzz(){try{if(navigator.vibrate){navigator.vibrate(12);return;}const l=document.getElementById('hapticSw');if(l&&isIOS())l.click();}catch(e){}}
 let _tt;function toast(m,actions){const t=$('#toast');t.innerHTML=esc(m)+(actions||[]).map((a,i)=>`<button onclick="toastAct(${i})">${esc(a[0])}</button>`).join('');toast._a=actions||[];t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),actions&&actions.length?5000:2400);}
 function toastAct(i){const a=(toast._a||[])[i];$('#toast').classList.remove('on');if(a)a[1]();}
@@ -1447,15 +1493,16 @@ function clean(h,k){
   if(e&&!e.v&&!e.min&&!(e.mins>0)&&!(e.steps&&e.steps.length)&&!(e.m&&Object.keys(e.m).length)&&!e.note)delete L[h.id];
   if(!Object.keys(L).length)delete S.logs[k];
 }
-function commit(h,k,was){
+function commit(h,k,was,p0){
   clean(h,k);save();
-  const now=isDone(h,k);
+  const now=isDone(h,k),p1=progress(h,k);
+  if(now&&!was){const st=dayStats(k),cel=S.settings.celebrated&&S.settings.celebrated[k];if(cel||!(k===todayK()&&st.total&&st.done===st.total))fxGoal();}
+  else if(!now&&p0!=null&&p1>p0)fxStep(p1);
   const acts=[undoAct()];
   if(now&&!was&&isTrain(h))acts.push(['💪 RPE',()=>rpeSheet(h.id,k)]);
   else if(now&&!was&&h.id==='en'&&/simulacro/i.test(((planFor(h,k)||{}).tag||'')+((planFor(h,k)||{}).text||'').slice(0,120)))acts.push(['🎯 Nota',()=>mockSheet(k)]);
   else if(now&&!was&&(h.metrics||[]).length)acts.push(['📈 Registrar',()=>metricSheet(h.id,k)]);
   if(now&&!was){
-    buzz();
     const st=dayStats(k);
     toast(st.total&&st.done===st.total?(k===todayK()?'¡Todo hecho hoy! 🔥':'¡Día completo! 🔥'):`✓ ${h.name}`,acts);
   } else toast(now?'Actualizado':was?`${h.name} desmarcado`:'Guardado',acts);
@@ -1468,11 +1515,11 @@ function act(id,k=sel){ // k: el día del bloque o tarjeta que se ha tocado (por
   if(k>todayK())return toast('Ese día aún no ha llegado');
   pushUndo();
   if(h.type==='time'){if(k!==todayK())return valueSheet(id,k);return toggleTimer(h,k);}
-  const was=isDone(h,k),e=ens(h,k);
+  const was=isDone(h,k),p0=progress(h,k),e=ens(h,k);
   if(h.type==='check')e.v=e.v?0:1;
   else if(h.type==='count')e.v=r2((e.v||0)+(+h.step||1));
   else{const all=h.steps.every(s=>e.steps.includes(s.id));e.steps=all?[]:h.steps.map(s=>s.id);}
-  commit(h,k,was);
+  commit(h,k,was,p0);
 }
 function minus(id){
   const h=getH(id),k=sel;if(!h||k>todayK())return;pushUndo();
@@ -1480,9 +1527,9 @@ function minus(id){
 }
 function stepT(hid,sid){
   const h=getH(hid),k=sel;if(!h||k>todayK())return;pushUndo();
-  const was=isDone(h,k),e=ens(h,k);
+  const was=isDone(h,k),p0=progress(h,k),e=ens(h,k);
   e.steps=e.steps.includes(sid)?e.steps.filter(x=>x!==sid):[...e.steps,sid];
-  commit(h,k,was);
+  commit(h,k,was,p0);
 }
 function setNote(v){const k=sel;if(v.trim())S.notes[k]=v;else delete S.notes[k];clearTimeout(setNote._t);setNote._t=setTimeout(()=>{setNote._t=null;save();},400);}
 
@@ -2086,6 +2133,7 @@ function renderSet(){
     <div class="sec">Apariencia</div>
     <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'dark')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
     <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
+    <label class="chk card" style="justify-content:space-between"><span>🔊 Sonido al completar<small class="hint" style="display:block">Una nota en cada paso y otra al acabar. Con el iPhone en silencio no suena</small></span><input type="checkbox" switch ${S.settings.sound===false?'':'checked'} onchange="S.settings.sound=this.checked;save();if(this.checked)fxStep(.5)"></label>
     <button class="row-btn" onclick="sortSheet()">${ri('move')}<div>Ordenar tus hábitos<small>Arrástralos para cambiar el orden</small></div></button>
     <div class="sec">Novedades</div>
     <div class="card"><b>v${v0}</b> <span class="hint">· ${d0}</span><ul class="chlog">${it0.map(x=>`<li>${x}</li>`).join('')}</ul><button class="btn ghost mt8" onclick="historySheet()">Ver versiones anteriores</button></div>
@@ -2275,7 +2323,7 @@ function celebrate(k){
   const C=['#22C55E','#60A5FA','#FBBF24','#F472B6','#C084FC','#2DD4BF','#FB923C'];
   el.innerHTML=(reduce?'':Array.from({length:42},(_,i)=>`<i style="left:${Math.random()*100}%;background:${C[i%C.length]};animation-delay:${Math.random()*.35}s;animation-duration:${1.3+Math.random()*.9}s;transform:rotate(${Math.random()*360}deg)"></i>`).join(''))+
     `<div class="cel-card"><div class="cel-big">${ic('flame',1.8)}</div><b>¡Día completo!</b><small>${best&&best.cur>1?`Racha de ${best.cur} ${best.unit==='sem'?'semanas':'días'}. Sigue así.`:'Todo lo de hoy, hecho.'}</small></div>`;
-  document.body.appendChild(el);buzz();setTimeout(()=>buzz(),180);
+  document.body.appendChild(el);fxGoal(true);
   el.addEventListener('click',()=>el.remove());setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400);},2600);
 }
 

@@ -10,7 +10,7 @@ def check(c, m):
     if not c: fails.append(m)
 
 SMALL = """(sel)=>[...document.querySelectorAll(sel+' button,'+sel+' a.btn,'+sel+' input,'+sel+' select')].filter(e=>{
-  if(!e.offsetParent||e.closest('.ag-day,.agw,.hm,.hm-big,#hapticSw'))return false;const r=e.getBoundingClientRect();return r.width&&(r.width<43.5||r.height<43.5);})
+  if(!e.offsetParent||e.closest('.ag-day,.agw,.hm,.hm-big,#hapticSw'))return false;const r=(e.closest('label')||e).getBoundingClientRect(); /* una casilla dentro de su etiqueta: se toca toda la fila */return r.width&&(r.width<43.5||r.height<43.5);})
   .map(e=>(e.className||e.tagName)+' '+Math.round(e.getBoundingClientRect().width)+'x'+Math.round(e.getBoundingClientRect().height)+' «'+(e.textContent||'').trim().slice(0,14)+'»')"""
 FONTS = """(sel)=>[...document.querySelectorAll(sel+' *')].filter(e=>e.offsetParent&&!e.closest('#hapticSw')&&[...e.childNodes].some(n=>n.nodeType==3&&n.textContent.trim()))
   .map(e=>parseFloat(getComputedStyle(e).fontSize)).filter(x=>x<11)"""

@@ -122,7 +122,7 @@ async def main():
         check("¿Seguro?" not in await pg.inner_text("body"), "ya no pregunta cuál quedarse")
 
         # Versión
-        check(await pg.evaluate("APP_VERSION") == "1.21", "versión 1.21")
+        check(await pg.evaluate("APP_VERSION") >= "1.21", "versión 1.21 o posterior")
         check(not errs, f"sin errores de JS {errs[:2]}")
         await b.close()
 

@@ -2,6 +2,12 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.22 · 19 nov 2026
+- 🔊 Sonido y vibración al avanzar: cada paso de un hábito (o cada + en los de cantidad) suena una nota de marimba que sube un poco al sonar, en escala pentatónica y más aguda cuanto más cerca de la meta, con un toque de vibración (dos al final). Al completar el hábito, dos notas de campana con acorde de fondo y vibración larga; al completar el día, un arpegio más grande.
+- Sonidos sintetizados con Web Audio (sin archivos), con compresor y reverberación corta para que suenen naturales; respetan el modo silencio del iPhone. Interruptor en Ajustes › Apariencia.
+- Arreglado: el iPhone no vibraba (el estilo general de los campos le quitaba el aspecto nativo al interruptor que provoca la vibración).
+- Pruebas: `tests/test_v122.py`.
+
 ## v1.21 · 19 nov 2026
 - 🔔 Avisos push: llegan al iPhone a su hora aunque la app esté cerrada (Ajustes › Avisos de tus hábitos). Minutos antes, qué hábitos y si incluir lo fijo; no avisa de lo hecho, movido o saltado.
 - Servidor de avisos propio en Cloudflare Workers (`worker/`): Web Push con VAPID y cifrado aes128gcm sin librerías, envío cada minuto, se despliega solo desde GitHub Actions si existen los secretos `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
