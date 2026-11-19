@@ -827,8 +827,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.23';
+const APP_VERSION='1.23.1';
 const CHANGELOG=[
+  ['1.23.1','19 nov 2026',['Tutorial: al escribir los minutos, el teclado ya no descoloca el bocadillo; al pasar a «Guardar» se cierra el teclado para que veas el botón']],
   ['1.23','19 nov 2026',['🧭 Tutorial nuevo: aprendes usando la app de verdad. Cada paso señala un botón y avanza cuando lo pulsas','Con un hábito de prueba: al acabar o saltarlo, tus datos quedan exactamente como estaban','Si lo dejas a medias, al volver te deja continuar o saltarlo','En Ajustes › Tutorial lo repites entero o solo una sección; y la primera vez que entras en una sección nueva, un mini-tour de 3 pasos']],
   ['1.22','19 nov 2026',['🔊 Sonido y vibración al avanzar: cada paso suena una nota más aguda y vibra un poco; al completar el hábito, un acorde de campana y vibración larga; al completar el día, uno más grande','Arreglado: el iPhone no vibraba','Se puede quitar el sonido en Ajustes › Apariencia']],
   ['1.21','19 nov 2026',['🔔 Avisos de verdad: te llegan al iPhone a su hora aunque la app esté cerrada (Ajustes › Avisos de tus hábitos)','Eliges cuánto antes, qué hábitos y si también clases y fútbol; si ya lo hiciste, movido o saltado, no avisa','☁️ La nube junta los cambios: si usas dos dispositivos, se queda lo último de cada día y de cada hábito, sin preguntarte']],
@@ -2405,7 +2406,7 @@ const TOUR_STEPS=[
   {id:'menu',seccion:'hoy',selector:'#hc-tour .hc-menu',accion:'click',texto:'Pulsa ⋯ para ver todo lo que puedes hacer con un hábito.',validar:sheetOn},
   {id:'apuntar',seccion:'hoy',selector:'#sheetBody .row-btn[onclick^="logSheet"]',accion:'click',texto:'Pulsa «Apuntar lo que has hecho».',validar:()=>!!$('#mnM')},
   {id:'minutos',seccion:'hoy',selector:'#mnM',accion:'input',texto:'Escribe <b>30</b> en minutos.',validar:()=>!!$('#mnM')&&parseInt($('#mnM').value,10)===30},
-  {id:'guardar',seccion:'hoy',selector:'#sheetBody .btn.pri[onclick^="saveLog"]',accion:'click',texto:'Pulsa «Guardar». Esos 30 min suman a tu total de la semana.',validar:()=>!sheetOn()},
+  {id:'guardar',seccion:'hoy',selector:'#sheetBody .btn.pri[onclick^="saveLog"]',accion:'click',antes:tourKeyboardOff,texto:'Pulsa «Guardar». Esos 30 min suman a tu total de la semana.',validar:()=>!sheetOn()},
   {id:'empezar',seccion:'hoy',selector:'#hc-tour .start-btn',accion:'click',texto:'Pulsa «▶ Empezar»: pantalla completa con cronómetro y el plan.',
     antes:()=>{OPEN[todayK()+':tour']=true;render();},validar:()=>!!$('#focus.on')},
   {id:'salir',seccion:'hoy',selector:'#focus .fo-x',accion:'click',texto:'Así te concentras sin distracciones. Pulsa ✕ para salir.',validar:()=>!$('#focus.on')},
@@ -2436,6 +2437,8 @@ const TOUR_STEPS=[
 // Mini-tour la primera vez que entras en una sección que no viste en el tutorial (pasos del guion por id)
 const TOUR_MINI={hoy:['plan','paso1','campana'],agenda:['vista','dia','bloque','bloque-x'],prog:['detalle','mapa','detalle-x'],set:['avisos','avisos-x','repetir']};
 const tourById=id=>TOUR_STEPS.find(s=>s.id===id);
+// Cierra el teclado del móvil (si el paso siguiente no es escribir, el teclado taparía el botón)
+function tourKeyboardOff(){const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))a.blur();}
 
 /* ── ESTADO Y DATOS DE PRUEBA ── */
 function tourState(){try{return JSON.parse(localStorage.getItem(TOUR_KEY))||{};}catch(e){return {};}}
@@ -2500,13 +2503,14 @@ function tourShow(){
     TOUR.nav={id:'nav-'+s.seccion,selector:`nav button[data-v="${s.seccion}"]`,accion:'navegar',texto:`Pulsa «${TOUR_SECS[s.seccion]}» abajo para ir a esa sección.`,validar:()=>view===s.seccion};
     return tourPaint();
   }
+  if(s.accion!=='input'&&s.accion!=='change')tourKeyboardOff();
   if(s.antes&&TOUR.prepared!==TOUR.i){TOUR.prepared=TOUR.i;try{s.antes();}catch(e){}}
   if(!s.selector)return tourPaint();
   // Esperar a que el elemento exista (pantallas y hojas que se están abriendo); si no aparece, se salta el paso
   const t0=Date.now(),idx=TOUR.i;
   const wait=()=>{if(!TOUR||TOUR.i!==idx||TOUR.nav)return;const el=tourTarget(s);
-    if(el){const r=el.getBoundingClientRect(),vh=(window.visualViewport||{}).height||innerHeight;
-      if(s.selector!=='#sheet'&&(r.top<60||r.bottom>vh-90))el.scrollIntoView({block:'center',behavior:'smooth'});
+    if(el){const r=el.getBoundingClientRect(),vv=window.visualViewport,top=vv?vv.offsetTop:0,vh=vv?vv.height+vv.offsetTop:innerHeight;
+      if(s.selector!=='#sheet'&&(r.top<top+60||r.bottom>vh-90))el.scrollIntoView({block:'center',behavior:'smooth'});
       return tourPaint();}
     if(Date.now()-t0>4000)return tourNext(true);
     setTimeout(wait,120);};
@@ -2570,12 +2574,12 @@ function tourLoop(){
 }
 function tourPlace(force){
   const r=$('#tour'),s=tourCur();if(!r||!s)return;
-  const vv=window.visualViewport,vw=vv?vv.width:innerWidth,vh=vv?vv.height+vv.offsetTop:innerHeight;
+  const vv=window.visualViewport,vw=vv?vv.width+vv.offsetLeft:innerWidth,vh=vv?vv.height+vv.offsetTop:innerHeight,v0=vv?vv.offsetTop:0,h0=vv?vv.offsetLeft:0;
   const el=tourTarget(s);let b;
   if(el){const q=el.getBoundingClientRect(),p=s.selector==='#sheet'?0:6;
     b={x:Math.max(4,q.left-p),y:Math.max(4,q.top-p),w:0,h:0};b.w=Math.min(vw-4,q.right+p)-b.x;b.h=Math.min(vh-4,q.bottom+p)-b.y;}
   else b={x:vw/2,y:vh/2,w:0,h:0};
-  const key=[b.x,b.y,b.w,b.h,vw,vh].map(Math.round).join();
+  const key=[b.x,b.y,b.w,b.h,vw,vh,v0].map(Math.round).join();
   if(!force&&key===TOUR.rect)return;TOUR.rect=key;
   const hole=r.querySelector('.tr-hole'),[bt,bb,bl,br]=r.querySelectorAll('.tr-blk'),cov=r.querySelector('.tr-cover');
   const rad=el?Math.min(18,parseFloat(getComputedStyle(el).borderRadius)+4||12):0;
@@ -2590,17 +2594,17 @@ function tourPlace(force){
   const tip=r.querySelector('.tr-tip'),arr=r.querySelector('.tr-arr'),M=12,G=14;
   const w=Math.min(340,vw-2*M);tip.style.width=w+'px';const th=tip.offsetHeight;
   let x,y,side;
-  if(!el){x=(vw-w)/2;y=(vh-th)/2;side='none';}
+  if(!el){x=h0+(vw-h0-w)/2;y=v0+(vh-v0-th)/2;side='none';}
   else{
-    const below=vh-(b.y+b.h)-G-M,above=b.y-G-M-(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat'))||0);
+    const below=vh-(b.y+b.h)-G-M,above=b.y-v0-G-M;
     if(below>=th){side='down';y=b.y+b.h+G;}
     else if(above>=th){side='up';y=b.y-G-th;}
     else if(vw-(b.x+b.w)-G-M>=w){side='right';x=b.x+b.w+G;y=b.y+b.h/2-th/2;}
     else if(b.x-G-M>=w){side='left';x=b.x-G-w;y=b.y+b.h/2-th/2;}
-    else{side='none';y=below>above?vh-th-M:M+20;}
+    else{side='none';y=below>above?vh-th-M:v0+M+20;}
     if(x==null)x=b.x+b.w/2-w/2;
   }
-  x=Math.max(M,Math.min(vw-M-w,x));y=Math.max(M,Math.min(vh-M-th,y));
+  x=Math.max(h0+M,Math.min(vw-M-w,x));y=Math.max(v0+M,Math.min(vh-M-th,y));
   Object.assign(tip.style,{left:x+'px',top:y+'px'});
   tip.dataset.side=side;
   if(side==='up'||side==='down')arr.style.left=Math.max(18,Math.min(w-18,b.x+b.w/2-x))+'px',arr.style.top='';

@@ -2,6 +2,9 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.23.1 · 19 nov 2026
+- Tutorial: con el teclado abierto el bocadillo se coloca en la parte visible de la pantalla (el iPhone desplaza la vista); al pasar a cualquier paso que no sea escribir se cierra el teclado, así «Guardar» queda a la vista.
+
 ## v1.23 · 19 nov 2026
 - 🧭 Tutorial interactivo guiado (sustituye a la guía de 16 pantallas de texto): cada paso señala un elemento real con un foco (overlay con hueco, borde que late) y un bocadillo que se coloca solo; avanza cuando haces la acción (tocar, escribir, deslizar, hacer scroll). Solo 3 pasos informativos de 27.
 - Recorre Hoy, Agenda, Progreso y Ajustes; para cambiar de sección pulsas tú la pestaña. Lo demás está bloqueado y, si tocas fuera, el objetivo tiembla.

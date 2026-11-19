@@ -151,7 +151,30 @@ async def main():
         check(not errs, f"sin errores de JS {errs[:3]}")
         await b.close()
 
+
+async def teclado():
+    """Teclado abierto (vista visible reducida y desplazada): el bocadillo queda en la parte visible; «Guardar» cierra el teclado."""
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path="/usr/bin/google-chrome")
+        ctx = await b.new_context(**p.devices["iPhone 13"], timezone_id="Europe/Madrid", service_workers="block")
+        pg = await ctx.new_page(); await pg.clock.install(time="2026-11-24T10:00:00+01:00")
+        cdp = await ctx.new_cdp_session(pg)
+        await pg.goto(URL); await pg.wait_for_timeout(2000)
+        await pg.evaluate("go('hoy');tourStart('full',TOUR_STEPS)"); await pg.wait_for_timeout(500)
+        await walk(pg, cdp, stop_at="minutos"); await pg.wait_for_timeout(600)
+        await pg.locator("#mnM").tap()
+        # simula el teclado del iPhone: la parte visible mide 330 px y está desplazada 180 px hacia abajo
+        await pg.evaluate("Object.defineProperty(window,'visualViewport',{configurable:true,value:{width:390,height:330,offsetTop:180,offsetLeft:0,addEventListener(){},removeEventListener(){}}});tourPlace(true)")
+        r = await pg.evaluate("(()=>{const t=document.querySelector('#tour .tr-tip').getBoundingClientRect();return [t.top,t.bottom]})()")
+        check(r[0] >= 180 and r[1] <= 510, f"con el teclado abierto, el bocadillo queda en la parte visible {[round(x) for x in r]}")
+        await pg.locator("#mnM").fill("30"); await pg.wait_for_timeout(900)
+        await pg.evaluate("delete window.visualViewport;0")
+        st = await pg.evaluate("[tourCur().id,document.activeElement.id]")
+        check(st[0] == "guardar" and st[1] != "mnM", f"al pasar a «Guardar» se cierra el teclado {st}")
+        await pg.evaluate("tourEnd(false)"); await b.close()
+
 if __name__ == "__main__":
     asyncio.run(main())
+    asyncio.run(teclado())
     print("FALLAN:" if fails else "TODO OK", fails if fails else "")
     sys.exit(1 if fails else 0)
