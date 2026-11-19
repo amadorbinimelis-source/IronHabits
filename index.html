@@ -615,6 +615,11 @@ nav button svg{width:24px;height:24px}
 .gd-list li{position:relative;padding:var(--s2) 0 var(--s2) var(--s5);border-top:1px solid var(--border);font-size:var(--fs-body);line-height:1.5;color:var(--muted)}
 .gd-list li b{color:var(--text)}
 .gd-list li::before{content:'';position:absolute;left:6px;top:1.05em;width:6px;height:6px;border-radius:50%;background:var(--acc)}
+/* v1.17 · áreas táctiles de 44 px en botones pequeños */
+.cx button{min-height:44px;min-width:44px;padding:0 var(--s2);display:inline-flex;align-items:center;justify-content:center}
+.fp-row{min-height:44px}
+.ci-row .ci-lb{width:72px}.ci-row .ci{gap:4px}.ci button{min-width:44px}
+.chk{cursor:pointer}.chk input{width:22px;height:22px;flex:none}
 </style>
 </head>
 <body>
@@ -677,8 +682,9 @@ nav button svg{width:24px;height:24px}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.16';
+const APP_VERSION='1.17';
 const CHANGELOG=[
+  ['1.17','19 nov 2026',['🛟 Eliminar, archivar o editar un hábito ahora se puede deshacer, y antes se guarda una copia automática','Copias automáticas: la primera y la última de cada día','Todos los botones (Restaurar, Quitar, filas del plan…) son fáciles de tocar','Una tarjeta deslizada ya no se cierra sola','Plan actualizado: arreglada una instrucción antigua de la guía de Inglés']],
   ['1.16','19 nov 2026',['📖 Guía completa de IronHabits: 16 temas con todo lo que puedes hacer y cómo funciona (total semanal, rachas, día flojo, agenda, carga de entreno, nube…)','Índice para ir directo a cualquier tema; está en Ajustes › Guía de la app']],
   ['1.15','19 nov 2026',['💪 La app ahora se llama IronHabits (antes Rutina). Tus datos, copias y nube se conservan','Si usas la nube, vuelve a suscribir el calendario una vez: el enlace tiene el nombre nuevo']],
   ['1.14','19 nov 2026',['🕗 Hora en tus hábitos: los que crees tú salen en la agenda, en «Ahora / Después» y en el calendario','⏳ Cuenta atrás en Hoy: tus próximos exámenes y metas (B2, B1…)','🎉 Celebración al completar el día','📝 Tus notas: todas juntas y con buscador','👋 Guía rápida de la app (también en Ajustes)']],
@@ -1668,13 +1674,21 @@ function openDetail(id){
   setTimeout(()=>{const w=$('#hmWrap');if(w)w.scrollLeft=w.scrollWidth;},50);
 }
 function moveH(id,d){const i=S.habits.findIndex(h=>h.id===id),j=i+d;if(j<0||j>=S.habits.length)return;[S.habits[i],S.habits[j]]=[S.habits[j],S.habits[i]];save();openDetail(id);render();}
-function archiveH(id){const h=getH(id);h.archived=!h.archived;if(S.timer&&S.timer.hid===id)S.timer=null;save();closeSheet();render();toast(h.archived?'Hábito archivado':'Hábito recuperado');}
+function archiveH(id){const h=getH(id);h.archived=!h.archived;if(S.timer&&S.timer.hid===id)S.timer=null;save();closeSheet();render();toast(h.archived?'Hábito archivado':'Hábito recuperado',[['Deshacer',()=>{h.archived=!h.archived;save();render();}]]);}
 async function deleteH(id){
-  const h=getH(id);if(!await ask(`Se eliminará «${h.name}» y todo su historial. No se puede deshacer.`,'Eliminar',true))return;
+  const h=getH(id);if(!await ask(`Se eliminará «${h.name}» y su historial. Antes guardo una copia automática y podrás deshacerlo unos segundos.`,'Eliminar',true))return;
+  await safetySnap(`Antes de eliminar «${h.name}»`);
+  // Todo lo de este hábito, para poder deshacer al momento
+  const idx=S.habits.indexOf(h),copy=JSON.parse(JSON.stringify(h)),logs={},ag={};
+  for(const k in S.logs)if(S.logs[k][id])logs[k]=S.logs[k][id];
+  for(const k in S.agenda||{})for(const x of ['h:'+id,'in:'+id])if(S.agenda[k][x])(ag[k]=ag[k]||{})[x]=S.agenda[k][x];
   S.habits=S.habits.filter(x=>x.id!==id);
   for(const k in S.logs){delete S.logs[k][id];if(!Object.keys(S.logs[k]).length)delete S.logs[k];}
+  for(const k in ag){for(const x in ag[k])delete S.agenda[k][x];if(!Object.keys(S.agenda[k]).length)delete S.agenda[k];}
   if(S.timer&&S.timer.hid===id)S.timer=null;
-  save();closeSheet();render();toast('Hábito eliminado');
+  save();closeSheet();render();
+  toast(`«${h.name}» eliminado`,[['Deshacer',()=>{if(getH(id))return;S.habits.splice(Math.min(idx,S.habits.length),0,copy);
+    for(const k in logs)(S.logs[k]=S.logs[k]||{})[id]=logs[k];for(const k in ag)S.agenda[k]={...(S.agenda[k]||{}),...ag[k]};save();render();toast('Hábito recuperado ↺');}]]);
 }
 
 /* ═════════════ EDITOR ═════════════ */
@@ -1789,8 +1803,10 @@ function edSave(){
   if(D.time&&!D.time.start)delete D.time;
   const isNew=D._new;delete D._new;
   if(!isNew&&S.packs&&Object.keys(S.packs).length)D.userEdited=true; // la próxima actualización del plan respeta tus cambios
-  if(isNew)S.habits.push(D);else{const i=S.habits.findIndex(h=>h.id===D.id);S.habits[i]=D;}
-  D=null;save();closeSheet();render();toast(isNew?'Hábito creado ✨':'Cambios guardados');
+  let before=null;if(!isNew){const i=S.habits.findIndex(h=>h.id===D.id);before=JSON.parse(JSON.stringify(S.habits[i]));S.habits[i]=D;}else S.habits.push(D);
+  if(before)safetySnap(`Antes de editar «${before.name}»`);
+  const id=D.id;D=null;save();closeSheet();render();
+  toast(isNew?'Hábito creado ✨':'Cambios guardados',[['Deshacer',()=>{const i=S.habits.findIndex(h=>h.id===id);if(i<0)return;if(before)S.habits[i]=before;else S.habits.splice(i,1);save();render();toast('Deshecho ↺');}]]);
 }
 
 /* ═════════════ ESTADÍSTICAS ═════════════ */
@@ -1960,7 +1976,7 @@ async function autoPlan(){
     const r=await fetch('plan.json',{cache:'no-store',signal:ac.signal});clearTimeout(to);if(!r.ok)return;
     const p=await r.json();if(!p||!isPlanKind(p.kind))return;
     const cur=((S.packs||{})[p.id||'plan'])||0;
-    if((p.version||1)>cur){if(cur)await safetySnap('Antes de actualizar el plan');mergePack(p);render();toast(cur?'📥 Plan actualizado':'📥 Plan cargado');}
+    if((p.version||1)>cur){if(cur)await safetySnap('Antes de actualizar el plan');mergePack(p);render();if(cur)toast('📥 Plan actualizado');}
   }catch(e){}
 }
 
@@ -2099,12 +2115,12 @@ function welcomeSheet(i=0){
     <div class="wl-ic">${g.ic}</div><div class="sheet-title" style="padding:0">${g.t}</div><p>${g.intro}</p>
     <ul class="gd-list">${g.items.map(x=>`<li>${x}</li>`).join('')}</ul>
     <div class="btns">${i?`<button class="btn ghost" onclick="welcomeSheet(${i-1})">Atrás</button>`:`<button class="btn ghost" onclick="welcomeDone()">Saltar</button>`}<button class="btn pri" onclick="${last?'welcomeDone()':`welcomeSheet(${i+1})`}">${last?'Empezar':'Siguiente'}</button></div></div>`);
-  S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();
 }
 function guideIndex(){
   openSheet(`<div class="sheet-title">📖 Guía de IronHabits</div><div class="sub mb12">Toca un tema para ir directo</div>
     ${GUIDE.map((g,i)=>`<button class="row-btn" onclick="welcomeSheet(${i})"><span class="ri" style="font-size:18px">${g.ic}</span><div>${i+1}. ${g.t}</div></button>`).join('')}`);
 }
+function guideSeen(){if((S.settings.guideV||0)<GUIDE_V){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();}}
 function welcomeDone(){S.settings.welcomed=true;S.settings.guideV=GUIDE_V;save();closeSheet();}
 
 /* ═════════════ AHORA / SIGUIENTE ═════════════ */
@@ -2121,7 +2137,7 @@ function nowCard(k){
 let _lastMin=-1;
 setInterval(()=>{const n=new Date(),m=n.getHours()*60+n.getMinutes();if(m===_lastMin)return;_lastMin=m;
   if(dayRollover()&&!$('#sheet').classList.contains('on')&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'){render();checkNotify(m);return;}
-  if(view==='hoy'&&sel===todayK()&&!$('#sheet').classList.contains('on')&&document.activeElement.id!=='noteIn')renderHoy();
+  if(view==='hoy'&&sel===todayK()&&!$('#sheet').classList.contains('on')&&document.activeElement.id!=='noteIn'&&!document.querySelector('.hc-in.open'))renderHoy();
   checkNotify(m);},20000);
 
 /* ═════════════ BANNERS (revisión, copia, plan) ═════════════ */
@@ -2490,8 +2506,11 @@ async function writeSnap(kind,reason){
   const now=new Date(),o={id:kind==='auto'?'auto-'+todayK():'pre-'+now.getTime(),kind,reason:reason||'',at:now.toISOString(),
     habits:S.habits.length,days:Object.keys(S.logs).length,state:lightState()};
   await snapRun('readwrite',st=>st.put(o));
-  const all=await snapList(),autos=all.filter(x=>x.kind==='auto'),pres=all.filter(x=>x.kind==='pre');
-  const drop=[...autos.slice(SNAP_DAYS),...pres.slice(SNAP_PRE)];
+  let all=await snapList();
+  // Además de la última del día, se guarda la PRIMERA de cada día: si te equivocas por la mañana y lo ves por la tarde, sigue ahí
+  if(kind==='auto'&&!all.some(x=>x.id==='dia-'+todayK())){await snapRun('readwrite',st=>st.put({...o,id:'dia-'+todayK(),kind:'first',reason:'Primera copia del día'}));all=await snapList();}
+  const autos=all.filter(x=>x.kind==='auto'),firsts=all.filter(x=>x.kind==='first'),pres=all.filter(x=>x.kind==='pre');
+  const drop=[...autos.slice(SNAP_DAYS),...firsts.slice(SNAP_DAYS),...pres.slice(SNAP_PRE)];
   if(drop.length)await snapRun('readwrite',st=>{drop.forEach(x=>st.delete(x.id));});
 }
 // Copias guardadas con el nombre antiguo de la app: se pasan a la base nueva una vez
@@ -2509,8 +2528,8 @@ async function safetySnap(reason){try{await writeSnap('pre',reason);}catch(e){}}
 async function snapSheet(){
   let all=[];try{all=await snapList();}catch(e){}
   openSheet(`<div class="sheet-title">🗂️ Copias automáticas</div>
-    <p class="hint">Se guardan solas en este móvil: una al día (los últimos ${SNAP_DAYS} días) y otra antes de cada cambio grande. Sirven si algo sale mal; para no perder nada si pierdes el móvil, usa también la nube o la copia en Drive.</p>
-    ${all.length?all.map(x=>`<div class="cx" style="border-style:solid">${x.kind==='auto'?'📅':'🛟'}<span><b style="color:var(--text)">${new Date(x.at).toLocaleString('es-ES',{dateStyle:'medium',timeStyle:'short'})}</b><br>${esc(x.reason||'Copia del día')} · ${x.habits} hábitos · ${x.days} día${x.days===1?'':'s'} con registros</span><button onclick="restoreSnap('${x.id}')">Restaurar</button></div>`).join(''):'<p class="hint">Todavía no hay ninguna. La primera se guarda unos segundos después de cualquier cambio.</p>'}
+    <p class="hint">Se guardan solas en este móvil: la primera y la última de cada día (últimos ${SNAP_DAYS} días) y otra antes de cada cambio grande. Sirven si algo sale mal; para no perder nada si pierdes el móvil, usa también la nube o la copia en Drive.</p>
+    ${all.length?all.map(x=>`<div class="cx" style="border-style:solid">${x.kind==='pre'?'🛟':x.kind==='first'?'🌅':'📅'}<span><b style="color:var(--text)">${new Date(x.at).toLocaleString('es-ES',{dateStyle:'medium',timeStyle:'short'})}</b><br>${esc(x.reason||'Última copia del día')} · ${x.habits} hábitos · ${x.days} día${x.days===1?'':'s'} con registros</span><button onclick="restoreSnap('${x.id}')">Restaurar</button></div>`).join(''):'<p class="hint">Todavía no hay ninguna. La primera se guarda unos segundos después de cualquier cambio.</p>'}
     <p class="hint">${_persist===true?'🔒 El sistema ha marcado los datos de la app como persistentes: no los borra para liberar espacio.':_persist===false?'Este navegador no garantiza conservar los datos. En iPhone, tenerla instalada en la pantalla de inicio es lo que los protege.':''}</p>`);
 }
 async function restoreSnap(id){
@@ -2881,7 +2900,7 @@ swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 render();
 askPersist();
-if((S.settings.guideV||0)<GUIDE_V&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on'))welcomeSheet(0);},900);
+if((S.settings.guideV||0)<GUIDE_V&&!navigator.webdriver)setTimeout(()=>{if(!$('#sheet').classList.contains('on')){welcomeSheet(0);guideSeen();}},900);
 migrateSnaps().then(()=>autoPlan()).then(()=>cloudPull()).then(()=>snapSoon());
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>

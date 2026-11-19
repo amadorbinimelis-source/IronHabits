@@ -180,7 +180,7 @@ def text_phase3(d, wd):
 def build():
     program = {}
     prep = [
-        ("Prepara el kit", "# 🧰 Prepara tu kit de inglés\n- Abre la guía del hábito (toca «Inglés» → 📘 Guía) y consigue todo lo que pone.\n- Hoy: añade inglés (UK) en HyperLingua y crea tu cuenta gratis en 7ESL.\n- Pide el libro «Cambridge B2 First 4 · Authentic Practice Tests» (con respuestas y audio)."),
+        ("Prepara el kit", "# 🧰 Prepara tu kit de inglés\n- Abre la guía del hábito (botón ⋯ de Inglés › Progreso, guía y plan completo › 📘 Guía) y consigue todo lo que pone.\n- Hoy: añade inglés (UK) en HyperLingua y crea tu cuenta gratis en 7ESL.\n- Pide el libro «Cambridge B2 First 4 · Authentic Practice Tests» (con respuestas y audio)."),
         ("Prepara el kit", f"# 🧰 Guarda tus enlaces\n- Página oficial de preparación de Cambridge (sample papers 1 y 2):\n{CAMB}\n- Write & Improve:\n{WI}\n- Crea en el móvil una nota llamada «Errores inglés»."),
         ("Nivel de partida", f"# 🎯 ¿De dónde partes?\n- Haz el Reading & Use of English del 7ESL Test 1 sin cronómetro, para ver tu nivel real:\n{r7(1)}\n- Apunta tu nota: la compararemos en marzo."),
         ("Primer día", "# Mañana empezamos 🇬🇧\n- Smart Review y primera isla en inglés.\n- Mira cómo será la semana 1 en la app."),

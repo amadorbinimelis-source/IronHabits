@@ -2,6 +2,13 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.17 · 19 nov 2026 · Reevaluación, trozo 1: arreglos
+- R1: `deleteH` guarda copia antes y ofrece Deshacer (hábito con su plan, registros, cambios de agenda y posición); `archiveH` y `edSave` también con Deshacer (y copia al editar).
+- R2: áreas táctiles de 44 px en `.cx` (Restaurar/Quitar), filas del plan completo y check-in dentro de la campana. `tests/test_v117.py` recorre las 4 pantallas y 25 hojas.
+- R6: plan v12 sin la instrucción antigua «toca Inglés → Guía» (`gen/ingles_plan.py`).
+- R8: además de la última copia del día (`auto-`), se guarda la primera (`dia-`).
+- R10–R12: la guía guarda una sola vez; el repintado de cada minuto no cierra una tarjeta deslizada; sin aviso «Plan cargado» la primera vez.
+
 ## v1.16 · 19 nov 2026 · Guía completa
 - `GUIDE` (16 temas: Hoy, marcar, plan del día, menú, mover/saltar/extra, total semanal y rachas, día flojo y pausas, Agenda, check-in y carga, Progreso, crear hábitos, calendario, datos y nube, notas, rutina ideal) con barra de progreso e índice (`guideIndex`). Se enseña una vez al actualizar (`GUIDE_V`).
 
