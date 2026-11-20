@@ -78,7 +78,7 @@ async def main():
         sz = await pg.evaluate("planIDB('readonly').then(P=>({main:localStorage.getItem('ironhabits_v1').length, plan:JSON.stringify(P||{}).length, ls:localStorage.getItem('ironhabits_plan_v1')}))")
         check(sz["main"] < 60000 and sz["plan"] > 200000 and sz["ls"] is None, f"guardado ligero: principal {sz['main']} B en localStorage, plan {sz['plan']} B en IndexedDB")
         await pg.reload(); await pg.wait_for_timeout(1200)
-        check(await pg.evaluate("!!S.agendaBase['2026-11-23'] && !!getH('en').plan.program && !!getH('en').guide"), "guardado ligero: al recargar se recupera agenda, plan y guías")
+        check(await pg.evaluate("!!S.agendaBase['2026-11-23'] && !!getH('en').plan.program && !!getH('fr').guide"), "guardado ligero: al recargar se recupera agenda, plan y guías")
         # 13. Versión mínima
         r = await pg.evaluate("""(()=>{const t=todayK(),h=getH('fr');h.start=addDays(t,-30);sel=t;S.logs={};
             if(!showOn(h,t))return 'skip';toggleMinDay(t);const html=document.body.innerHTML.includes('Versión mínima');

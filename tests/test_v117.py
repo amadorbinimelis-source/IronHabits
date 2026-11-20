@@ -72,7 +72,7 @@ async def main():
 
         # Plan sin instrucciones antiguas
         r = await pg.evaluate("JSON.stringify(getH('en').plan.program).includes('toca «Inglés» → 📘 Guía')")
-        check(not r and await pg.evaluate("S.packs.amador") == 12, "el plan ya no dice «toca Inglés → Guía» (plan v12)")
+        check(not r and await pg.evaluate("S.packs.amador") >= 12, "el plan ya no dice «toca Inglés → Guía» (plan v12)")
         check(not errs, f"sin errores de JavaScript {errs[:2]}")
         await b.close()
 

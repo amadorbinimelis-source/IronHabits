@@ -49,7 +49,7 @@ async def main():
         check(c.startswith("13:") and m == 13, f"salir y volver suma sin contar dos veces (reloj {c}, {m} min)")
         # tiempo cumplido sin pasos → aviso
         await pg.evaluate("focusMode('en')"); await pg.wait_for_timeout(300)
-        await pg.clock.run_for(33 * 60 * 1000); await pg.wait_for_timeout(1300)
+        await pg.clock.run_for(65 * 60 * 1000); await pg.wait_for_timeout(1300)
         check(await pg.evaluate("document.querySelector('#foTime').classList.contains('full')") and "Tiempo cumplido" in await pg.inner_text("#toast"), "al llegar al tiempo previsto, la barra se pone verde y avisa")
         await pg.locator("#focus .fo-x").tap(); await pg.wait_for_timeout(200)
         # Horas

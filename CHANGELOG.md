@@ -2,6 +2,16 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.26 · 20 nov 2026
+- 🇬🇧 Plan de inglés nuevo hacia «casi C1» (plan v13): 75 min L–V, 60 sábado, 40 domingo (~233 h hasta el 19 de junio). 4 fases, 3 controles (metas 155 · 168 · 175), 3 simulacros con el libro y semana final suave.
+- Cada día en bloques (`blocks`) con minutos, cómo hacerlo y un solo botón: enlace exacto (7ESL, British Council, Cambridge, BBC) o copiar la orden para el proyecto de Claude «Inglés B2» y abrirlo.
+- 📅 Plan completo: semanas por fases, días con icono, controles 📍, simulacros 🧪, examen 🎯, hechos ✓; tocar un día abre su clase.
+- 🧰 Material: 12 cosas (comprar, descargar, crear cuenta, configurar) con «Lo tengo», la fecha del primer uso (calculada del plan) y aviso en Hoy 3 días antes. Incluye las instrucciones del proyecto de Claude para copiar.
+- 📊 Notas: formulario único por partes (la app hace las cuentas con las tablas oficiales de Cambridge) que guarda en los mismos «Simulacros B2 First» de Progreso; gráfica con 160 · 175 · 180.
+- Sin duplicar funciones: vocabulario y errores van a HyperLingua; tests a su web o libro; corrección y speaking al proyecto de Claude. La guía de texto de Inglés se sustituye por 🧰 Material.
+- Calidad: auditoría del plan al generarlo (horas, 36 lecciones de gramática, writings por tipo, speaking por parte, controles, simulacros) y comprobación de enlaces en cada publicación (`tests/check_links.py`).
+- Pruebas: `tests/test_v126.py`.
+
 ## v1.25 · 20 nov 2026
 - ▶ Empezar · causa del fallo: el anillo era el tiempo y solo se pintaba al abrir; el reloj se actualizaba pero el anillo no. Ahora el anillo es el progreso del hábito (pasos tachados, cantidad o hecho) y se mueve al tachar o destachar, en todos los hábitos. En los de tipo tiempo, el anillo sigue siendo el tiempo.
 - Barra de tiempo debajo del anillo, hasta la duración prevista; al llegar se pone verde y avisa.

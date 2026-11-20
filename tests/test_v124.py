@@ -98,7 +98,7 @@ async def main():
         check(await pg.evaluate("S.templates.some(t=>t.name==='Estirar'&&t.steps.length===2)"), "«Guardar también como plantilla»")
 
         # ── Bug 4: tiempo libre
-        await pg.evaluate("(()=>{const k=todayK(),l=dayEvents(k).find(e=>e.kind==='libre');window._lib=l;agSet(k,'h:fr',{start:l.start,end:fmtT(tm(l.start)+45)});save();go('agenda');agView='day';sel=k;renderAgenda()})()"); await pg.wait_for_timeout(400)
+        await pg.evaluate("(()=>{const k=todayK(),l=dayEvents(k).find(e=>e.kind==='libre'&&tm(e.end)-tm(e.start)>=75);window._lib=l;agSet(k,'h:fr',{start:l.start,end:fmtT(tm(l.start)+45)});save();go('agenda');agView='day';sel=k;renderAgenda()})()"); await pg.wait_for_timeout(400)
         r = await pg.evaluate("(()=>{const ev=[...document.querySelectorAll('#agBody .ag-ev')],f=ev.find(e=>/Francés/.test(e.textContent)),fr=f.getBoundingClientRect(),full=document.querySelector('#agBody .ag-day').getBoundingClientRect().width-44,libs=ev.filter(e=>e.classList.contains('libre')).map(e=>e.querySelector('small').textContent);return [Math.round(fr.width),Math.round(full),libs]})()")
         lib = await pg.evaluate("[_lib.start,_lib.end]")
         st = lib[0]; en45 = await pg.evaluate("fmtT(tm(_lib.start)+45)")

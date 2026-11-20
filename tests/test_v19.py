@@ -51,11 +51,11 @@ async def main():
         r = await pg.evaluate("(()=>{const m={date:'2026-12-01',r:30,u:20,w:26,l:20,s:40};const q=mockScore(m);return [q.overall,grade(q.overall)[0]]})()")
         check(r[0] == 166 and r[1].startswith("C"), f"nota global de un simulacro: {r}")
         await pg.evaluate("mockSheet('2026-12-01')"); await pg.wait_for_timeout(200)
-        for part, v in (("r", 30), ("u", 20), ("w", 26), ("l", 14), ("s", 40)): await pg.fill(f"#mk-{part}", str(v))
-        txt = await pg.inner_text("#mkTot")
+        for part, v in (("p1", 8), ("p5", 5), ("p6", 3), ("p7", 6), ("p2", 7), ("p3", 6), ("p4", 7), ("w", 26), ("l", 14), ("s", 40)): await pg.fill(f"#sf-{part}", str(v))
+        txt = await pg.inner_text("#sfOut")
         await pg.evaluate("saveMock()"); await pg.wait_for_timeout(200)
         blk = await pg.evaluate("mocksBlock(true)")
-        check("Nota global: 162" in txt and len(await pg.evaluate("S.mocks")) == 1 and "Listening" in blk and "más floja" in blk, f"registrar simulacro y parte floja ({txt.splitlines()[0]})")
+        check("Media: 162" in txt and len(await pg.evaluate("S.mocks")) == 1 and "Listening" in blk and "más floja" in blk, f"registrar simulacro y parte floja ({txt.splitlines()[0]})")
 
         # ── Carga de entreno ──
         r = await pg.evaluate("""(()=>{const _tk=todayK;todayK=()=>'2027-01-31';S.logs={};

@@ -21,6 +21,8 @@ jobs:
         run: python gen/build_ics.py
       - name: Probar el servidor de avisos
         run: cd worker && npm i --no-save http_ece@1 >/dev/null && node test.mjs
+      - name: Comprobar los enlaces del plan
+        run: python tests/check_links.py
       - name: Revisar la agenda
         run: python tests/test_agenda.py
       - name: Probar la app en un navegador
@@ -47,6 +49,7 @@ jobs:
           python tests/test_v123.py
           python tests/test_v124.py
           python tests/test_v125.py
+          python tests/test_v126.py
       - name: Preparar la web
         run: |
           mkdir _site

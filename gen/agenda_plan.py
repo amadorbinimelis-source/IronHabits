@@ -52,7 +52,7 @@ def wake_of(d):
     prev = d - datetime.timedelta(days=1)
     return BED[prev.weekday()] + 8 - 24
 
-def build_day(d, has, train):
+def build_day(d, has, train, en_h=0.75):
     """has: conjunto de hábitos con plan ese día; train: lista (habit, moment, tag, text) del entreno."""
     k = d.isoformat(); wd = d.weekday(); D = Day(d)
     wake = wake_of(d); bed = BED[wd]
@@ -66,7 +66,7 @@ def build_day(d, has, train):
         t = D.add("partido", "Partido (fisio) · trayectos incluidos", t, 11.5, "fijo", detail="Hora aproximada: si el partido es por la tarde, cámbiala aquí.")
         t = 12.0
         if "fr" in has: t = D.add("h:fr", "Francés", t, t + 0.75, "habito", "fr")
-        if "en" in has: t = D.add("h:en", "Inglés", t, t + 0.75, "habito", "en")
+        if "en" in has: t = D.add("h:en", "Inglés", t, t + en_h, "habito", "en")
         t = D.add("comida", "Cocinar y comer", max(t, 13.5), max(t, 13.5) + 1, "comida")
         D.add("libre1", "Descanso", t, 17.0, "libre")
         t = 17.0
@@ -79,7 +79,7 @@ def build_day(d, has, train):
     if wd == 5:  # sábado
         t = 8.0
         if "fr" in has: t = D.add("h:fr", "Francés", t, t + 0.75, "habito", "fr")
-        if "en" in has: t = D.add("h:en", "Inglés", t, t + 0.75, "habito", "en")
+        if "en" in has: t = D.add("h:en", "Inglés", t, t + en_h, "habito", "en")
         t = D.add("tray1", "Trayecto al gimnasio", t, t + 0.5, "trayecto")
         if "boxeo" in tr: t = D.add("h:boxeo", "Boxeo por tu cuenta (gimnasio)", t, t + 1, "habito", "boxeo")
         t = D.add("mimi", "Tirada con Mimi", t + 0.25, t + 1.75, "fijo", detail="Hora aproximada: ajústala a su tirada.")
@@ -95,7 +95,7 @@ def build_day(d, has, train):
 
     # ── lunes a viernes ──
     if "fr" in has: t = D.add("h:fr", "Francés", t, t + 0.75, "habito", "fr")
-    if "en" in has: t = D.add("h:en", "Inglés", t, t + 0.75, "habito", "en")
+    if "en" in has: t = D.add("h:en", "Inglés", t, t + en_h, "habito", "en")
     t = D.add("tray1", "Ir a Sant Pau (dejar material) y a la biblio", t, t + 0.5, "trayecto")
     if "estudio" in has: t = D.add("h:estudio", "Estudio de exámenes (biblio)", t, t + 1, "habito", "estudio")
     if "dx" in has: t = D.add("h:dx", "Diagnóstico diferencial · teoría (biblio)", t, t + 1, "habito", "dx")
@@ -175,13 +175,15 @@ def habits_with_plan(H, k):
 
 def build(H):
     agenda = {}
+    en = next((h for h in H if h["id"] == "en"), None)
+    en_min = {k: e.get("min", 45) for k, e in (en["plan"]["program"] if en else {}).items()}
     d = START
     days = []
     while d <= END:
         k = d.isoformat()
         has = habits_with_plan(H, k)
         train = entreno_plan.plan_day(d)
-        D = build_day(d, has, train)
+        D = build_day(d, has, train, max(10, en_min.get(k, 45)) / 60)
         days.append(D)
         d += datetime.timedelta(days=1)
     # Preparar táper la noche anterior cuando el día siguiente come táper

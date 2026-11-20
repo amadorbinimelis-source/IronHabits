@@ -151,12 +151,14 @@ GOALS = {
     "dx": {"date": "2027-04-18", "label": "Fin de los 20 temas de dx diferencial"},
 }
 for h in HABITS:
-    h["guide"] = guias.GUIDES.get(h["id"], "")
+    h["guide"] = "" if h.get("kit") else guias.GUIDES.get(h["id"], "")  # con 🧰 Material, la guía sobra
     h["minimal"] = guias.MINIMAL.get(h["id"], "")
     h["metrics"] = guias.METRICS.get(h["id"], [])
     h["goal"] = GOALS.get(h["id"])
-pack = {"kind": "ironhabits-plan", "id": "amador", "version": 12, "generated": datetime.date.today().isoformat(), "habits": HABITS, "agenda": agenda_plan.build(HABITS), "agendaUntil": agenda_plan.END.isoformat(), "classesKnownUntil": entreno_plan.CLASSES_KNOWN_UNTIL.isoformat()}
+pack = {"kind": "ironhabits-plan", "id": "amador", "version": 13, "generated": datetime.date.today().isoformat(), "habits": HABITS, "agenda": agenda_plan.build(HABITS), "agendaUntil": agenda_plan.END.isoformat(), "classesKnownUntil": entreno_plan.CLASSES_KNOWN_UNTIL.isoformat()}
 out = os.path.join(os.path.dirname(__file__), "..", "plan.json")
 with open(out, "w", encoding="utf-8") as f:
     json.dump(pack, f, ensure_ascii=False, separators=(",", ":"))
+errs = ingles_plan.audit(next(h for h in HABITS if h["id"] == "en"))
+assert not errs, f"El plan de inglés se queda corto: {errs}"
 print("días:", len(program), "primero:", min(program), "último:", max(program), "tamaño KB:", os.path.getsize(out) // 1024)
