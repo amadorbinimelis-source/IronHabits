@@ -4,7 +4,7 @@ Hasta la v1.14 la app se llamaba «Rutina».
 
 ## v1.27 · 20 nov 2026
 - 📳 Vibración mínima en todos los botones (escucha global de toques; no vibra dos veces por el mismo toque). Ajustes › Apariencia › «Vibración al tocar».
-- 🎵 Sonido al abrir: tres notas de campana suaves. Suena en el primer toque tras abrir (iOS no permite sonido sin un toque antes). Ajustes › Apariencia › «Sonido al abrir»; respeta «Sonido al completar» apagado y el modo silencio.
+- 🎵 Sonido al abrir: un único barrido de grave a agudo, a elegir entre «Swell cálido» (por defecto), «Aire» y «Cristal» (Web Audio, con pasa-bajos, rampas exponenciales y limitador). Suena en el primer toque tras abrir (iOS no permite sonido sin un toque antes). Ajustes › Apariencia › «Sonido al abrir»; respeta «Sonido al completar» apagado y el modo silencio.
 - Pruebas: `tests/test_v127.py`.
 
 ## v1.26 · 20 nov 2026
