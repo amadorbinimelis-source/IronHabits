@@ -2,6 +2,11 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.27 · 20 nov 2026
+- 📳 Vibración mínima en todos los botones (escucha global de toques; no vibra dos veces por el mismo toque). Ajustes › Apariencia › «Vibración al tocar».
+- 🎵 Sonido al abrir: tres notas de campana suaves. Suena en el primer toque tras abrir (iOS no permite sonido sin un toque antes). Ajustes › Apariencia › «Sonido al abrir»; respeta «Sonido al completar» apagado y el modo silencio.
+- Pruebas: `tests/test_v127.py`.
+
 ## v1.26 · 20 nov 2026
 - 🇬🇧 Plan de inglés nuevo hacia «casi C1» (plan v13): 75 min L–V, 60 sábado, 40 domingo (~233 h hasta el 19 de junio). 4 fases, 3 controles (metas 155 · 168 · 175), 3 simulacros con el libro y semana final suave.
 - Cada día en bloques (`blocks`) con minutos, cómo hacerlo y un solo botón: enlace exacto (7ESL, British Council, Cambridge, BBC) o copiar la orden para el proyecto de Claude «Inglés B2» y abrirlo.

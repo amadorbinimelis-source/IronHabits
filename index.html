@@ -914,8 +914,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.26';
+const APP_VERSION='1.27';
 const CHANGELOG=[
+  ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
   ['1.25','20 nov 2026',['▶ Empezar: el anillo ahora es tu progreso (pasos tachados) y se mueve al tachar; debajo, una barra de tiempo que se llena hasta el tiempo previsto','Si lo completas todo antes de tiempo, te pregunta si ya has terminado','⏱ Horas de Inglés y Francés: total y media semanal en Progreso y en el detalle del hábito']],
   ['1.24.2','19 nov 2026',['🗑️ «Eliminar hábito» a mano: en el menú ⋯ de cada hábito, al final del editor y al tocar su bloque en la Agenda (con confirmación y Deshacer)']],
@@ -1198,6 +1199,19 @@ function fxStep(p){ // p: progreso tras el paso (0–1)
   if(ac)tone(ac,{f0:f*.86,f1:f,glide:.045,dur:.32,vol:.2,partials:MARIMBA}); // sube un poco al sonar: de grave a agudo
   ticks(p>=.66?[0,85]:[0],p>=.66?[14,60,18]:[14]);
 }
+/* Toque: vibración mínima en cualquier botón (como el teclado del iPhone). Ajustes › Apariencia › «Vibración al tocar». */
+document.addEventListener('click',e=>{
+  if(S.settings.tapHaptic===false)return;const t=e.target;if(!t||!t.closest||t.closest('#hapticSw'))return;
+  if(t.closest('button,a,[role=button],.step,label,select,input[type=checkbox],input[type=radio]'))buzz();
+},true);
+/* Sonido al abrir: el iPhone no deja sonar nada hasta el primer toque, así que suena en tu primer toque al abrir la app.
+   Dos notas suaves hacia arriba (la «firma» de IronHabits). Ajustes › Apariencia › «Sonido al abrir». */
+let _hello=false;const _t0=Date.now();
+function fxHello(){const ac=audio();if(!ac)return;
+  [[392,0],[587.33,.11],[783.99,.22]].forEach(([f,t],i)=>tone(ac,{t,f0:f,dur:i===2?.7:.3,vol:i===2?.16:.12,partials:BELL}));}
+['touchend','click'].forEach(ev=>document.addEventListener(ev,()=>{
+  if(_hello)return;_hello=true;if(S.settings.bootSound===false||S.settings.sound===false||Date.now()-_t0>60000)return;fxHello();
+},{capture:true,passive:true}));
 function fxGoal(big){
   const ac=audio();
   if(ac){
@@ -1208,7 +1222,7 @@ function fxGoal(big){
   }
   ticks(big?[0,70,140,210,280,400,520]:[0,70,140,210,330],big?[40,30,40,30,40,30,260]:[30,30,30,30,180]);
 }
-function buzz(){try{if(navigator.vibrate){navigator.vibrate(12);return;}const l=document.getElementById('hapticSw');if(l&&isIOS())l.click();}catch(e){}}
+let _bz=0;function buzz(){const n=performance.now();if(n-_bz<60)return;_bz=n;try{if(navigator.vibrate){navigator.vibrate(12);return;}const l=document.getElementById('hapticSw');if(l&&isIOS())l.click();}catch(e){}}
 let _tt;function toast(m,actions){const t=$('#toast');t.innerHTML=esc(m)+(actions||[]).map((a,i)=>`<button onclick="toastAct(${i})">${esc(a[0])}</button>`).join('');toast._a=actions||[];t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),actions&&actions.length?5000:2400);}
 function toastAct(i){const a=(toast._a||[])[i];$('#toast').classList.remove('on');if(a)a[1]();}
 // Deshacer: foto de todo lo que se puede cambiar desde la app, justo antes de cada acción.
@@ -2398,6 +2412,8 @@ function renderSet(){
     <div class="sec">Apariencia</div>
     <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'dark')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
     <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
+    <label class="chk card" style="justify-content:space-between"><span>📳 Vibración al tocar<small class="hint" style="display:block">Un toque mínimo en cada botón</small></span><input type="checkbox" switch ${S.settings.tapHaptic===false?'':'checked'} onchange="S.settings.tapHaptic=this.checked;save()"></label>
+    <label class="chk card" style="justify-content:space-between"><span>🎵 Sonido al abrir<small class="hint" style="display:block">Suena en tu primer toque (el iPhone no deja que suene antes)</small></span><input type="checkbox" switch ${S.settings.bootSound===false?'':'checked'} onchange="S.settings.bootSound=this.checked;save();if(this.checked)fxHello()"></label>
     <label class="chk card" style="justify-content:space-between"><span>🔊 Sonido al completar<small class="hint" style="display:block">Una nota en cada paso y otra al acabar. Con el iPhone en silencio no suena</small></span><input type="checkbox" switch ${S.settings.sound===false?'':'checked'} onchange="S.settings.sound=this.checked;save();if(this.checked)fxStep(.5)"></label>
     <button class="row-btn" onclick="tplSheet()">${ri('note')}<div>Plantillas de hábitos<small>${(S.templates||[]).length} plantillas · edita sus pasos o bórralas</small></div></button>
     <button class="row-btn" onclick="sortSheet()">${ri('move')}<div>Ordenar tus hábitos<small>Arrástralos para cambiar el orden</small></div></button>
