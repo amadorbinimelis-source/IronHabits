@@ -772,6 +772,24 @@ html[data-theme=light] .hc-act{color:#fff}
 .tpl-row .btn{width:auto;padding:0 12px;min-height:44px}
 .ed-need{color:var(--warn)}
 .chip.qt.on{background:color-mix(in srgb,var(--acc) 22%,var(--card));border-color:var(--acc)}
+
+/* Modo «Empezar»: anillo de progreso + barra de tiempo */
+.fo-x{display:grid;place-items:center;padding:0;font-size:18px;line-height:1;color:var(--text)}
+.fo-sp{width:44px}
+.fo-pct{font-size:56px}
+.fo-time{max-width:300px;margin:var(--s3) auto 0}
+.fo-tl{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);margin-bottom:6px}
+.fo-tl b{font-family:var(--num);color:var(--text);font-variant-numeric:tabular-nums}
+.fo-bar{height:10px;border-radius:99px;background:var(--card2);overflow:hidden;border:1px solid var(--border)}
+.fo-bar i{display:block;height:100%;border-radius:99px;background:var(--hc);transition:width 1s linear}
+.fo-time.full .fo-bar i{background:var(--ok)}.fo-time.full .fo-tl span:last-child{color:var(--ok);font-weight:700}
+.fo-ask{position:absolute;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:var(--s4);z-index:2}
+.fo-ask[hidden]{display:none}
+.fo-ask-c{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;max-width:360px;width:100%}
+.fo-ask-t{font-size:var(--fs-h2);font-weight:700;margin-bottom:6px}.fo-ask-c p{color:var(--muted);line-height:1.45}
+.hrs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.hrs b{display:block;font-family:var(--num);font-size:1.5rem;font-weight:800}.hrs span{font-size:var(--fs-xs,.72rem);color:var(--muted)}
+.hrs-h{font-weight:700;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -844,8 +862,9 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.24.2';
+const APP_VERSION='1.25';
 const CHANGELOG=[
+  ['1.25','20 nov 2026',['▶ Empezar: el anillo ahora es tu progreso (pasos tachados) y se mueve al tachar; debajo, una barra de tiempo que se llena hasta el tiempo previsto','Si lo completas todo antes de tiempo, te pregunta si ya has terminado','⏱ Horas de Inglés y Francés: total y media semanal en Progreso y en el detalle del hábito']],
   ['1.24.2','19 nov 2026',['🗑️ «Eliminar hábito» a mano: en el menú ⋯ de cada hábito, al final del editor y al tocar su bloque en la Agenda (con confirmación y Deshacer)']],
   ['1.24.1','19 nov 2026',['Al crear un hábito siempre te pregunta «¿Cuándo?»: solo ese día o se repite (y cada cuánto). Ya no se crea «cada día» sin darte cuenta']],
   ['1.24','19 nov 2026',['🕗 Hora del hábito arriba del todo: «Sin hora / Con hora», inicio y fin','🗓️ Los hábitos sin hora también salen en la agenda (franja «Sin hora» del día y fila en la semana)','📋 Plantillas: al crear un hábito eliges «En blanco» o una plantilla (Francés con sus 3 pasos, Inglés, Fuerza…). Se editan en Ajustes › Plantillas','«Un solo día» en la frecuencia; si lo creas mirando otro día, empieza ese día','Tiempo libre: un hábito encima se ve entero y el libre se recorta alrededor; lo que se solapa de verdad se ve lado a lado']],
@@ -2032,6 +2051,7 @@ function openDetail(id){
       <div><b>${r===null?'—':Math.round(r*100)+'%'}</b><span>30 días</span></div>
       <div><b>${tot}</b><span>Total</span></div>
     </div>
+    ${HOURS_IDS.includes(h.id)?`<div class="sec">⏱ Horas de estudio</div>${hoursCard(h)}`:''}
     ${h.schedule.mode==='xweek'?'':`<div class="freeze"><span>🧊</span><div><b>${st.freeze} comodín${st.freeze===1?'':'es'} de racha${st.frozen&&st.frozen.length?` · ${st.frozen.length} usado${st.frozen.length===1?'':'s'}`:''}</b><small>Ganas uno cada semana que llegas al total (máx. 2). Si fallas un día, se gasta solo y la racha no se rompe. En el mapa, en azul hielo.</small></div></div>`}
     <div class="hm-wrap" id="hmWrap"><div class="hm-months" style="grid-template-columns:repeat(${W},13px)">${hm.months}</div>
       <div class="hm-big" style="grid-template-columns:repeat(${W},13px)">${hm.cells}</div></div>
@@ -2291,6 +2311,7 @@ function renderStats(){
       <div class="kpi kpi-streak"><b>${bestS&&bestS.cur?`${ic('flame')}${bestS.cur}`:'—'}</b><span>${bestS&&bestS.cur?esc(bestS.h.emoji+' '+bestS.h.name):'Mejor racha actual'}</span></div>
     </div>
     <button class="banner" onclick="reviewSheet()">${ri('review')}<div><b>Revisión de la semana</b><small>Qué ha ido bien, qué falló y qué viene</small></div><span class="go">Abrir ›</span></button>
+    ${hoursBlock()}
     <button class="banner" onclick="monthSheet()">${ri('calendar')}<div><b>Resumen de ${MONTHS[new Date().getMonth()].toLowerCase()}</b><small>Tu mes en números, con imagen para compartir</small></div><span class="go">Ver ›</span></button>
     <!--MAS-->
     <div class="sec">Cumplimiento por semana</div>
@@ -2903,29 +2924,81 @@ async function focusMode(id){
   else if(h.type!=='time'&&!(S.focus&&S.focus.hid===id)){S.focus={hid:id,k,t0:Date.now()};save();}
   _focus=id;try{if(navigator.wakeLock)_wake=await navigator.wakeLock.request('screen');}catch(e){}
   let el=$('#focus');if(!el){el=document.createElement('div');el.id='focus';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');document.body.appendChild(el);}
-  renderFocus();el.classList.add('on');lockScroll(true);clearInterval(_focT);_focT=setInterval(tickFocus,1000);
+  renderFocus();el.classList.add('on');lockScroll(true);clearInterval(_focT);_foFull=focusElapsed(h)>=focusTarget(h)&&focusTarget(h)>0;_focT=setInterval(tickFocus,1000);
 }
-function focusElapsed(h){const k=todayK();if(h.type==='time'){const T=S.timer;return ((entry(h,k)||{}).v||0)*60000+(T&&T.hid===h.id?Date.now()-T.t0:0);}return S.focus&&S.focus.hid===h.id?Date.now()-S.focus.t0:0;}
+/* Tiempo de la sesión: lo ya apuntado hoy (e.mins) + lo que lleva el cronómetro en marcha.
+   Al salir o terminar, lo que llevas se suma a los minutos del día (sirve para el recuento de horas). */
+function focusElapsed(h){const k=todayK(),e=entry(h,k)||{};
+  if(h.type==='time'){const T=S.timer;return (e.v||0)*60000+(T&&T.hid===h.id?Date.now()-T.t0:0);}
+  return (e.mins||0)*60000+(S.focus&&S.focus.hid===h.id?Date.now()-S.focus.t0:0);}
+function focusTarget(h){const k=todayK();return (h.type==='time'?(h.target||0):evDur(h,k))*60000;}
+function focusBank(h){ // pasa lo del cronómetro a los minutos del día y lo reinicia (sin contarlo dos veces)
+  if(h.type==='time'||!S.focus||S.focus.hid!==h.id)return;
+  const ms=Date.now()-S.focus.t0;if(ms>=30000){const e=ens(h,todayK());e.mins=Math.round(((e.mins||0)*60000+ms)/60000);}
+  S.focus.t0=Date.now();
+}
 function renderFocus(){
   const h=getH(_focus),k=todayK();if(!h)return closeFocus();const e=entry(h,k)||{},pl=planFor(h,k),ms=focusElapsed(h);
-  const tgt=h.type==='time'?(h.target||0)*60000:evDur(h,k)*60000,p=tgt?Math.min(1,ms/tgt):0;
-  $('#focus').innerHTML=`<div class="fo-top"><button class="fo-x" onclick="closeFocus()" aria-label="Salir">✕</button><span>Modo concentración</span><span></span></div>
-    <div class="fo-hd" style="--hc:${h.color}"><div class="fo-ring">${ring(p,220,10,h.color)}<div><b id="foClock">${fmtClock(ms)}</b><small>${tgt?'de '+fmtDur(tgt/60000):'en marcha'}</small></div></div>
+  const tgt=focusTarget(h),tp=tgt?Math.min(1,ms/tgt):0,isT=h.type==='time';
+  const p=isT?tp:progress(h,k),done=isDone(h,k);
+  const sub=h.type==='checklist'?`${h.steps.filter(x=>(e.steps||[]).includes(x.id)).length} de ${h.steps.length} pasos`:h.type==='count'?`${e.v||0} de ${h.target}`:isT?(tgt?'de '+fmtDur(tgt/60000):'en marcha'):done?'hecho':'por hacer';
+  $('#focus').innerHTML=`<div class="fo-top"><button class="fo-x" onclick="closeFocus()" aria-label="Salir">✕</button><span>Modo concentración</span><span class="fo-sp"></span></div>
+    <div class="fo-hd" style="--hc:${h.color}"><div class="fo-ring" id="foRing">${ring(p,220,10,done?'var(--ok)':h.color)}<div>${isT?`<b id="foClock">${fmtClock(ms)}</b>`:`<b class="fo-pct">${Math.round(p*100)}%</b>`}<small>${sub}</small></div></div>
+      ${!isT&&tgt?`<div class="fo-time ${tp>=1?'full':''}" id="foTime"><div class="fo-tl"><span>⏱ <b id="foClock">${fmtClock(ms)}</b></span><span>de ${fmtDur(tgt/60000)}</span></div><div class="fo-bar"><i id="foBar" style="width:${tp*100}%"></i></div></div>`:''}
       <div class="fo-name">${esc(h.emoji)} ${esc(h.name)}</div>${pl&&pl.tag?`<div class="fo-tag">${esc(pl.tag)}</div>`:''}</div>
-    <div class="fo-body" style="--hc:${h.color}">${h.type==='checklist'?`<div class="steps">${h.steps.map(st=>{const on=(e.steps||[]).includes(st.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${st.id}');renderFocus()"><span class="sb">${on?ic('check',3.2):''}</span>${esc(st.text)}</button>`;}).join('')}</div>`:''}
+    <div class="fo-body" style="--hc:${h.color}">${h.type==='checklist'?`<div class="steps">${h.steps.map(st=>{const on=(e.steps||[]).includes(st.id);return `<button class="step ${on?'on':''}" onclick="focusStep('${st.id}')"><span class="sb">${on?ic('check',3.2):''}</span>${esc(st.text)}</button>`;}).join('')}</div>`
+      :h.type==='count'?`<div class="btns"><button class="btn ghost" onclick="focusCount(-1)">−</button><button class="btn pri" onclick="focusCount(1)">+${h.step||1}</button></div>`
+      :h.type==='check'?`<button class="btn ${done?'ghost':'pri'}" style="width:100%" onclick="focusCheck()">${done?'Desmarcar':'✓ Marcar hecho'}</button>`:''}
       ${pl&&pl.text?`<div class="hc-plan">${fmtPlan(pl.text)}</div>`:''}</div>
-    <div class="fo-ft"><button class="btn ghost" onclick="closeFocus()">Salir</button><button class="btn pri" onclick="finishFocus()">✓ Terminar</button></div>`;
+    <div class="fo-ft"><button class="btn ghost" onclick="closeFocus()">Salir</button><button class="btn pri" onclick="finishFocus()">✓ Terminar</button></div>
+    <div class="fo-ask" id="foAsk" hidden></div>`;
 }
-function tickFocus(){const h=getH(_focus);if(!h)return;const el=$('#foClock');if(el)el.textContent=fmtClock(focusElapsed(h));}
-function closeFocus(){clearInterval(_focT);const el=$('#focus');if(el)el.classList.remove('on');lockScroll(false);try{_wake&&_wake.release();}catch(e){}_wake=null;_focus=null;render();}
+// Tachar o sumar dentro del modo: actualiza el anillo y, si queda completo antes de tiempo, pregunta
+function focusAfter(was){const h=getH(_focus),k=todayK();renderFocus();if(!h)return;
+  if(!was&&isDone(h,k)){const ms=focusElapsed(h),tgt=focusTarget(h);if(tgt&&ms<tgt)focusAskDone(ms,tgt);else focusToastFull();}}
+function focusStep(sid){const h=getH(_focus),k=todayK(),was=isDone(h,k);stepT(h.id,sid);focusAfter(was);}
+function focusCount(d){const h=getH(_focus),k=todayK(),was=isDone(h,k);d>0?act(h.id,k):minus(h.id);focusAfter(was);}
+function focusCheck(){const h=getH(_focus),k=todayK(),was=isDone(h,k);act(h.id,k);focusAfter(was);}
+function focusAskDone(ms,tgt){const el=$('#foAsk');if(!el)return;
+  el.innerHTML=`<div class="fo-ask-c"><div class="fo-ask-t">¿Ya has terminado?</div><p>Lo has completado todo, pero llevas <b>${Math.floor(ms/60000)} min</b> de los <b>${fmtDur(tgt/60000)}</b> previstos.</p>
+    <div class="btns"><button class="btn ghost" onclick="$('#foAsk').hidden=true">Sigo un rato</button><button class="btn pri" onclick="finishFocus()">Sí, he terminado</button></div></div>`;
+  el.hidden=false;}
+let _foFull=false;
+function focusToastFull(){toast('⏱ Tiempo cumplido y todo hecho. ¡Pulsa Terminar!');}
+function tickFocus(){const h=getH(_focus);if(!h)return;const ms=focusElapsed(h),tgt=focusTarget(h),c=$('#foClock');if(c)c.textContent=fmtClock(ms);
+  const tp=tgt?Math.min(1,ms/tgt):0,b=$('#foBar');if(b)b.style.width=tp*100+'%';
+  if(h.type==='time'){const r=$('#foRing svg');if(r)renderFocus();} // en los de tiempo, el anillo es el tiempo
+  if(tgt&&ms>=tgt&&!_foFull){_foFull=true;const t=$('#foTime');if(t)t.classList.add('full');buzz();setTimeout(buzz,150);if(h.type!=='time')toast('⏱ Tiempo cumplido'+(isDone(h,todayK())?'':'. Te quedan pasos por tachar'));}
+}
+function closeFocus(){const h=getH(_focus);if(h&&$('#focus.on')){focusBank(h);if(h.type!=='time'){S.focus=null;}save();}
+  clearInterval(_focT);_foFull=false;const el=$('#focus');if(el)el.classList.remove('on');lockScroll(false);try{_wake&&_wake.release();}catch(e){}_wake=null;_focus=null;render();}
 function finishFocus(){
-  const h=getH(_focus),k=todayK();if(!h)return closeFocus();const mins=Math.round(focusElapsed(h)/60000);
-  if(h.type==='time'){if(S.timer&&S.timer.hid===h.id)stopTimer(true);}
-  else{pushUndo();const was=isDone(h,k),e=ens(h,k);
-    if(h.type==='check')e.v=1;else if(h.type==='count')e.v=Math.max(e.v||0,h.target||1);else e.steps=h.steps.map(x=>x.id);
-    if(mins>=1&&e.mins==null)e.mins=mins;S.focus=null;closeFocus();return commit(h,k,was);}
-  S.focus=null;closeFocus();
+  const h=getH(_focus),k=todayK();if(!h)return closeFocus();
+  if(h.type==='time'){if(S.timer&&S.timer.hid===h.id)stopTimer(true);S.focus=null;return closeFocus();}
+  pushUndo();focusBank(h);const was=isDone(h,k),e=ens(h,k);
+  if(h.type==='check')e.v=1;else if(h.type==='count')e.v=Math.max(e.v||0,h.target||1);else e.steps=h.steps.map(x=>x.id);
+  S.focus=null;closeFocus();return commit(h,k,was,progress(h,k));
 }
+
+/* ═════════════ HORAS DE IDIOMAS (Inglés y Francés) ═════════════
+   Minutos de cada día: los apuntados (modo «Empezar», «Apuntar» o cronómetro). Un día completado sin minutos
+   apuntados cuenta su duración prevista, marcada como «estimada». */
+const HOURS_IDS=['fr','en'];
+function hoursOf(h){
+  let real=0,est=0,first=null;
+  for(const k in S.logs){const e=S.logs[k][h.id];if(!e||k>todayK())continue;
+    const m=e.mins||(h.type==='time'?e.v||0:0);
+    if(m>0){real+=m;}else if(isDone(h,k)){est+=evDur(h,k);}else continue;
+    if(!first||k<first)first=k;}
+  const weeks=first?Math.max(1,Math.ceil((Math.round((pk(todayK())-pk(first))/864e5)+1)/7)):0;
+  return {real,est,total:real+est,weeks,avg:weeks?(real+est)/weeks:0,first};
+}
+const fmtH=m=>{const h=m/60;return h<10?h.toFixed(1).replace('.',',')+' h':Math.round(h)+' h';};
+function hoursCard(h){const x=hoursOf(h);
+  return `<div class="hrs"><div><b>${fmtH(x.total)}</b><span>Total</span></div><div><b>${fmtH(x.avg)}</b><span>Media semanal</span></div><div><b>${x.weeks}</b><span>Semanas</span></div></div>
+    <p class="hint" style="margin-top:6px">${x.total?`${fmtH(x.real)} cronometradas${x.est?` + ${fmtH(x.est)} estimadas (días hechos sin cronómetro)`:''}. Para que cuenten exactas, hazlo con ▶ Empezar.`:'Aún no hay horas: usa ▶ Empezar y se apuntan solas.'}</p>`;}
+function hoursBlock(){const hs=S.habits.filter(h=>HOURS_IDS.includes(h.id)&&!h.archived);if(!hs.length)return '';
+  return `<div class="sec">Horas de idiomas</div>${hs.map(h=>`<div class="card" style="--hc:${h.color}"><div class="hrs-h">${esc(h.emoji)} ${esc(h.name)}</div>${hoursCard(h)}</div>`).join('')}`;}
 
 /* ═════════════ RESUMEN DEL MES (con imagen para compartir) ═════════════ */
 function monthSummary(ym){

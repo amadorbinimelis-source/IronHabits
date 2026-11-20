@@ -2,6 +2,15 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.25 · 20 nov 2026
+- ▶ Empezar · causa del fallo: el anillo era el tiempo y solo se pintaba al abrir; el reloj se actualizaba pero el anillo no. Ahora el anillo es el progreso del hábito (pasos tachados, cantidad o hecho) y se mueve al tachar o destachar, en todos los hábitos. En los de tipo tiempo, el anillo sigue siendo el tiempo.
+- Barra de tiempo debajo del anillo, hasta la duración prevista; al llegar se pone verde y avisa.
+- Si lo completas todo antes de tiempo, pregunta «¿Ya has terminado?» («Sigo un rato» / «Sí, he terminado»).
+- Los minutos de cada sesión se suman al día al salir o terminar (sin contar dos veces al volver a entrar).
+- ⏱ Horas de Inglés y Francés: total, media semanal y semanas en Progreso y en el detalle del hábito; días hechos sin cronómetro cuentan su duración prevista como «estimadas».
+- Botón ✕ del modo centrado.
+- Pruebas: `tests/test_v125.py`.
+
 ## v1.24.2 · 19 nov 2026
 - 🗑️ «Eliminar hábito» fácil de encontrar: al final del menú ⋯ de cada hábito, al final del editor y en la hoja de su bloque en la Agenda. Con confirmación, copia automática y Deshacer.
 
