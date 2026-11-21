@@ -37,12 +37,14 @@ async def main():
         # la hora vacía no se queda sin altura y los selectores usan el tema oscuro
         await pg.evaluate("extraSheet(todayK())"); await pg.wait_for_timeout(350)
         r = await pg.evaluate("({h:document.querySelector('#exS').getBoundingClientRect().height,cs:getComputedStyle(document.documentElement).colorScheme})")
-        check(r["h"] >= 44 and r["cs"] == "dark", f"campo de hora vacío visible y tema oscuro {r}")
+        th = await pg.evaluate("document.documentElement.dataset.theme")
+        check(r["h"] >= 44 and r["cs"] == th, f"campo de hora vacío visible y selectores con el tema actual ({th}) {r}")
         await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(350)
         # contraste del texto tenue
         r = await pg.evaluate("""(()=>{const L=h=>{const c=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(x=>x<=.03928?x/12.92:((x+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]};
-          const v=getComputedStyle(document.documentElement).getPropertyValue('--dim').trim();return (L(v)+.05)/(L('#15151B')+.05);})()""")
-        check(r >= 4.5, f"texto tenue con contraste suficiente ({r:.2f}:1)")
+          const R=t=>{document.documentElement.dataset.theme=t;const cs=getComputedStyle(document.documentElement),a=L(cs.getPropertyValue('--dim').trim()),b=L(cs.getPropertyValue('--card').trim());return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+          const o=document.documentElement.dataset.theme,r=[R('dark'),R('light')];document.documentElement.dataset.theme=o;return Math.min(...r);})()""")
+        check(r >= 4.5, f"texto tenue con contraste suficiente en claro y en oscuro ({r:.2f}:1)")
         # check-in centrado
         await pg.evaluate("S.checkins={};openSheet(checkinCard(todayK()))"); await pg.wait_for_timeout(300)
         r = await pg.evaluate("getComputedStyle(document.querySelector('#sheet .ci button')).textAlign")

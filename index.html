@@ -3,14 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0B0B0F">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#F5F5F7">
+<meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="IronHabits">
 <title>IronHabits</title>
 <link rel="manifest" href="manifest.webmanifest">
+<script>/* v1.31 · el tema (claro por defecto) se pone antes de pintar nada: así la pantalla de carga ya sale del color bueno */
+(function(){var t='light';try{var d=JSON.parse(localStorage.getItem('ironhabits_v1')||'{}');t=(d.settings&&d.settings.theme)||'light';}catch(e){}
+if(t==='auto')t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+var r=document.documentElement;r.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#F5F5F7':'#0B0B0F';})();</script>
+
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <!-- Pantallas de arranque de iOS (al abrir desde la pantalla de inicio) -->
@@ -673,6 +678,10 @@ input[type=checkbox][switch]:checked::after{left:21px;transform:none;width:24px;
 /* ═════════════ Pantalla de arranque animada ═════════════ */
 #boot{position:fixed;inset:0;z-index:1000;background:#0B0B0F;pointer-events:none;transition:opacity .35s ease}
 #boot.out{opacity:0}
+html[data-theme=light] #boot{background:#F5F5F7}
+html[data-theme=light] #boot .boot-name{color:#15151A}
+html[data-theme=light] #boot text{fill:#15151A}
+html[data-theme=light] #boot circle:not(#bootRing){stroke:#E2E2E8}
 .boot-logo{position:absolute;left:50%;top:40%;width:36vw;max-width:220px;height:auto;transform:translate(-50%,-50%)}
 #bootRing{transition:stroke-dashoffset .45s cubic-bezier(.2,.8,.2,1)}
 .boot-name{position:absolute;left:0;right:0;top:calc(40% + min(18vw,110px) + 6.8vw);text-align:center;color:#F4F4F6;font:900 7.5vw/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
@@ -1094,7 +1103,7 @@ html:not(.no-tint) .hc.thin .hc-in{background:color-mix(in srgb,var(--hc) 5%,var
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.30';
+const APP_VERSION='1.31';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -2706,7 +2715,7 @@ function renderSet(){
     <button class="row-btn" onclick="pauseSheet()">${ri('pause')}<div>Pausar hábitos<small>Vacaciones, lesión o exámenes: no cuenta como fallo</small></div></button>
     ${(S.pauses||[]).map(pz=>`<div class="cx">🏖️ <span>${shortDate(pz.from)} → ${shortDate(pz.to)}${pz.reason?' · '+esc(pz.reason):''} (${pz.habits.length} hábitos)</span><button onclick="removePause('${pz.id}')">Quitar</button></div>`).join('')}
     <div class="sec">Apariencia</div>
-    <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'dark')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
+    <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'light')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
     <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
     <label class="chk card" style="justify-content:space-between"><span>🎨 Tarjetas de color<small class="hint" style="display:block">Cada hábito con el fondo de su color en «Hoy»</small></span><input type="checkbox" switch ${S.settings.cardTint===false?'':'checked'} onchange="S.settings.cardTint=this.checked;save();applyTheme()"></label>
     <label class="chk card" style="justify-content:space-between"><span>📳 Vibración al tocar<small class="hint" style="display:block">Un toque mínimo en cada botón</small></span><input type="checkbox" switch ${S.settings.tapHaptic===false?'':'checked'} onchange="S.settings.tapHaptic=this.checked;save()"></label>
@@ -2733,13 +2742,13 @@ function calMoreSheet(){openSheet(`<div class="sheet-title">Calendario y avisos<
 function setAccent(c){S.settings.accent=c;applyAccent();save();renderSet();}
 function applyAccent(){const r=document.documentElement.style;r.removeProperty('--acc');r.setProperty('--acc-raw',S.settings.accent||'#22C55E');applyTheme();}
 /* Tema: oscuro, claro o el del sistema */
-const THEMES=[['dark','Oscuro'],['light','Claro'],['auto','Como el iPhone']];
+const THEMES=[['light','Claro'],['dark','Oscuro'],['auto','Como el iPhone']];
 const _mqDark=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
-function themeNow(){const t=S.settings.theme||'dark';return t==='auto'?(_mqDark&&!_mqDark.matches?'light':'dark'):t;}
+function themeNow(){const t=S.settings.theme||'light';return t==='auto'?(_mqDark&&!_mqDark.matches?'light':'dark'):t;}
 function applyTheme(){const t=themeNow();document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('no-tint',S.settings.cardTint===false);
   const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#F5F5F7':'#0B0B0F';
   const cs=document.querySelector('meta[name=color-scheme]');if(cs)cs.content=t;}
-if(_mqDark&&_mqDark.addEventListener)_mqDark.addEventListener('change',()=>{if((S.settings.theme||'dark')==='auto'){applyTheme();render();}});
+if(_mqDark&&_mqDark.addEventListener)_mqDark.addEventListener('change',()=>{if((S.settings.theme||'light')==='auto'){applyTheme();render();}});
 function setTheme(t){S.settings.theme=t;applyTheme();save();renderSet();}
 function backupJSON(){if(S.timer)stopTimer(true);const o={...S,exportedAt:new Date().toISOString()};delete o._needPlanSave;return JSON.stringify(o);}
 function markExport(){S.settings.lastExport=todayK();save();}

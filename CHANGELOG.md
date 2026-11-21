@@ -2,6 +2,12 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.31 · 21 nov 2026 · Claro por defecto
+- El tema por defecto es «Claro» (Ajustes › Apariencia: Claro · Oscuro · Como el iPhone).
+- La pantalla de carga sigue el tema: blanca en claro y negra en oscuro, desde el primer instante (el tema se aplica antes de pintar nada, leyendo lo guardado).
+- Color de la barra del iPhone y del manifiesto en claro. Caché del SW v19.
+- Pruebas: `tests/test_v131.py`; la prueba de contraste mira ahora los dos temas.
+
 ## v1.30 · 21 nov 2026 · Agenda = Semana
 - Fuera las pestañas «Día» y «3 días»: la Agenda es solo la Semana (plegada por defecto).
 - El día ensanchado hace de vista Día: todos los bloques (comidas, trayectos…) con su nombre completo, el tiempo libre de fondo (se toca para cambiarlo), la fila «Sin hora» con cada hábito tocable y la línea roja de la hora actual.
