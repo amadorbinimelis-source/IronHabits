@@ -583,6 +583,12 @@ nav button svg{width:24px;height:24px}
 .hc-in{position:relative;z-index:1;padding:var(--s3);background:var(--card);border-radius:inherit;transition:transform var(--t) var(--ease);touch-action:pan-y}
 .hc.done .hc-in{background:color-mix(in srgb,var(--hc) 5%,var(--card))}
 .hc.done{background:var(--card)}
+/* v1.28 · tarjetas teñidas con el color de cada hábito */
+html:not(.no-tint) .hc{border-color:color-mix(in srgb,var(--hc) 34%,var(--border))}
+html:not(.no-tint) .hc-in{background:linear-gradient(155deg,color-mix(in srgb,var(--hc) 17%,var(--card)) 0%,color-mix(in srgb,var(--hc) 7%,var(--card)) 70%)}
+html:not(.no-tint) .hc-plan{background:color-mix(in srgb,var(--hc) 7%,var(--bg2));border-color:color-mix(in srgb,var(--hc) 22%,var(--border));border-left-color:var(--hc)}
+html:not(.no-tint) .hc.done .hc-in{background:color-mix(in srgb,var(--hc) 6%,var(--card))}
+html:not(.no-tint) .hc.done{border-color:color-mix(in srgb,var(--hc) 20%,var(--border))}
 .hc-acts{position:absolute;right:0;top:0;bottom:0;display:flex;width:168px}
 .hc-act{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:18px;color:#fff}
 .hc-act span{font-size:var(--fs-xs);font-weight:700}
@@ -915,7 +921,7 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.27';
+const APP_VERSION='1.28';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -2447,6 +2453,7 @@ function renderSet(){
     <div class="sec">Apariencia</div>
     <div class="card"><div class="hint" style="margin:0 0 8px">Tema</div><div class="seg">${THEMES.map(([v,l])=>`<button class="${(S.settings.theme||'dark')===v?'on':''}" onclick="setTheme('${v}')">${l}</button>`).join('')}</div>
     <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
+    <label class="chk card" style="justify-content:space-between"><span>🎨 Tarjetas de color<small class="hint" style="display:block">Cada hábito con el fondo de su color en «Hoy»</small></span><input type="checkbox" switch ${S.settings.cardTint===false?'':'checked'} onchange="S.settings.cardTint=this.checked;save();applyTheme()"></label>
     <label class="chk card" style="justify-content:space-between"><span>📳 Vibración al tocar<small class="hint" style="display:block">Un toque mínimo en cada botón</small></span><input type="checkbox" switch ${S.settings.tapHaptic===false?'':'checked'} onchange="S.settings.tapHaptic=this.checked;save()"></label>
     <label class="chk card" style="justify-content:space-between"><span>🎵 Sonido al abrir<small class="hint" style="display:block">Suena en tu primer toque (el iPhone no deja que suene antes)</small></span><input type="checkbox" switch ${S.settings.bootSound===false?'':'checked'} onchange="S.settings.bootSound=this.checked;save();if(this.checked)fxHello()"></label>
     ${S.settings.bootSound===false?'':`<div class="seg hello-seg">${Object.entries(HELLO).map(([k,x])=>`<button class="${(S.settings.helloStyle||'a')===k?'on':''}" onclick="S.settings.helloStyle='${k}';save();fxHello('${k}');renderSet()">${x.n}</button>`).join('')}</div><p class="hint" style="margin-top:4px">${esc(HELLO[S.settings.helloStyle||'a'].d)}. Toca uno para escucharlo.</p>`}
@@ -2474,7 +2481,7 @@ function applyAccent(){const r=document.documentElement.style;r.removeProperty('
 const THEMES=[['dark','Oscuro'],['light','Claro'],['auto','Como el iPhone']];
 const _mqDark=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
 function themeNow(){const t=S.settings.theme||'dark';return t==='auto'?(_mqDark&&!_mqDark.matches?'light':'dark'):t;}
-function applyTheme(){const t=themeNow();document.documentElement.dataset.theme=t;
+function applyTheme(){const t=themeNow();document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('no-tint',S.settings.cardTint===false);
   const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#F5F5F7':'#0B0B0F';
   const cs=document.querySelector('meta[name=color-scheme]');if(cs)cs.content=t;}
 if(_mqDark&&_mqDark.addEventListener)_mqDark.addEventListener('change',()=>{if((S.settings.theme||'dark')==='auto'){applyTheme();render();}});

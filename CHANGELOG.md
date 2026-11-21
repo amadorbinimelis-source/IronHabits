@@ -2,6 +2,10 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.28 · 21 nov 2026
+- 🎨 Tarjetas de «Hoy» con el color de cada hábito: fondo en degradado suave, borde y caja del plan a juego; los hechos quedan más apagados. Ajustes › Apariencia › «Tarjetas de color».
+- Pruebas: `tests/test_v128.py`.
+
 ## v1.27 · 20 nov 2026
 - 📳 Vibración mínima en todos los botones (escucha global de toques; no vibra dos veces por el mismo toque). Ajustes › Apariencia › «Vibración al tocar».
 - 🎵 Sonido al abrir: un único barrido de grave a agudo, a elegir entre «Swell cálido» (por defecto), «Aire» y «Cristal» (Web Audio, con pasa-bajos, rampas exponenciales y limitador). Suena en el primer toque tras abrir (iOS no permite sonido sin un toque antes). Ajustes › Apariencia › «Sonido al abrir»; respeta «Sonido al completar» apagado y el modo silencio.
