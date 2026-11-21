@@ -41,10 +41,11 @@ async def main():
 
         # Tarjeta: tocar el nombre despliega/pliega el plan; ⋯ abre el menú de 5
         await pg.evaluate("S.logs={};save();render()"); await pg.wait_for_timeout(200)
-        a = await pg.evaluate("!!document.querySelector('#hc-fr .hc-plan')")
-        await pg.locator("#hc-fr .hc-info").tap(); await pg.wait_for_timeout(300)
-        bb = await pg.evaluate("!!document.querySelector('#hc-fr .hc-plan')")
-        check(a and not bb and not await pg.evaluate("$('#sheet').classList.contains('on')"), "tocar el nombre pliega el plan (sin abrir menús)")
+        hid = await pg.evaluate("document.querySelector('.tlr .hc .hc-more').closest('.hc').id")
+        a = await pg.evaluate(f"!document.querySelector('#{hid} .hc-plan')&&!!document.querySelector('.hc.hero .hc-plan')")
+        await pg.locator(f"#{hid} .hc-info").tap(); await pg.wait_for_timeout(300)
+        bb = await pg.evaluate(f"!!document.querySelector('#{hid} .hc-plan')")
+        check(a and bb and not await pg.evaluate("$('#sheet').classList.contains('on')"), "diseño C: la fila sale compacta y tocar el nombre despliega el plan (sin abrir menús)")
         await pg.locator("#hc-fr .hc-info").tap(); await pg.wait_for_timeout(300)
         await pg.locator("#hc-fr .hc-menu").tap(); await pg.wait_for_timeout(400)
         r = await pg.evaluate("[...document.querySelectorAll('#sheetBody .row-btn')].map(b=>b.querySelector('div').firstChild.textContent.trim())")

@@ -886,6 +886,11 @@ html:not(.no-tint) .hc.hero .hc-in{background:linear-gradient(155deg,color-mix(i
 .hero-tag{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);font-weight:700;color:color-mix(in srgb,var(--hc) 60%,var(--text));margin-bottom:var(--s2)}
 .hero-tag .now{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:7px;background:var(--danger);color:#fff}
 .hero-tag .now.next{background:var(--card3);color:var(--text)}
+.hero-tag .now.late{background:var(--warn);color:#1A1200}
+/* botones de enlace dentro del plan: el texto no puede ser del mismo color que el fondo */
+.hc-plan a.blk-go{color:#fff;padding:0 14px}
+.hc-plan a.blk-go.cl{color:var(--text)}
+.hc-plan a.blk-go.off{color:var(--muted)}
 .hc.hero .hc-name{font-size:22px;font-weight:700;letter-spacing:-.02em}
 .hc.hero .start-btn{background:var(--hc);color:#0A0A0D;border-color:transparent;font-size:var(--fs-h3);min-height:52px;font-weight:700}
 /* Sin hora: fichas que se marcan con un toque */
@@ -1779,9 +1784,11 @@ function heroPick(k,hs){
   for(const h of hs){if(isDone(h,k))continue;const x=habitTime(h,k);if(!x||!x.start)continue;const s=tm(x.start),e=tm(x.end);
     if(s<=m&&m<e){if(!cur||s<cur.s)cur={h,s,e};}else if(s>m&&(!nxt||s<nxt.s))nxt={h,s,e};}
   if(cur)return{...cur,now:true,left:cur.e-m};
-  return nxt?{...nxt,now:false,left:nxt.s-m}:null;
+  if(nxt)return{...nxt,now:false,left:nxt.s-m};
+  let late=null;for(const h of hs){if(isDone(h,k))continue;const x=habitTime(h,k);if(x&&x.start&&(!late||tm(x.start)<late.s))late={h,s:tm(x.start),e:tm(x.end)};}
+  return late?{...late,now:false,late:true,left:0}:null; // ya pasó su hora y sigue pendiente
 }
-function heroTag(x){const d=x.left,t=d>=60?`${Math.floor(d/60)} h ${pad(d%60)} min`:`${d} min`;
+function heroTag(x){if(x.late)return `<div class="hero-tag"><span class="now late">PENDIENTE</span>era a las ${fmtT(x.s)}</div>`;const d=x.left,t=d>=60?`${Math.floor(d/60)} h ${pad(d%60)} min`:`${d} min`;
   return `<div class="hero-tag"><span class="now ${x.now?'':'next'}">${x.now?'AHORA':'SIGUIENTE'}</span>${x.now?`quedan ${t}`:`empieza en ${t}`}</div>`;}
 let _bell=[];
 function setBell(items){_bell=items;const b=$('#hoyBell');if(!b)return;b.hidden=!items.length;$('#hoyBellN').textContent=items.length||'';b.setAttribute('aria-label',`Avisos (${items.length})`);}
@@ -1821,19 +1828,19 @@ function hcHTML(h,k,o={}){
   }
   const minOn=!!(S.minDays||{})[k]&&h.minimal&&!fut;
   const pl=minOn?{text:h.minimal,tag:'Versión mínima'}:planFor(h,k);
-  const open=cardOpen(h,k,done);
+  const open=cardOpen(h,k,done,!!o.hero),canOpen=!!pl||h.type==='checklist';
   const plan=pl&&open?(pl.blocks?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}${pl.min?` · ${pl.min} min`:''}</div>`:''}${blocksHTML(h,pl)}${hasCourse(h)?`<button class="crs-link" onclick="event.stopPropagation();courseSheet('${h.id}')">📅 Plan completo · 🧰 Material · 📊 Notas</button>`:''}</div>`
     :`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`):'';
   const start=open&&!done&&k===todayK()&&!(S.minDays||{})[k]?`<button class="start-btn" onclick="focusMode('${h.id}')">▶ ${o.hero&&p>0?'Continuar':'Empezar'}${h.type==='time'||o.hero?'':' con cronómetro'}</button>`:'';
   const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
-  const more=pl&&!open?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">Ver plan del día ▾</button>`:'';
-  const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
+  const more=canOpen&&!open&&!minOn?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">${pl?'Ver plan del día ▾':'Ver pasos ▾'}</button>`:'';
+  const steps=minOn||!(open||(p>0&&!done))?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
   // Deslizar a la izquierda (solo si está pendiente y el día no ha pasado): Mañana / Saltar
   const swipe=!done&&k>=todayK()&&!isExtra(h,k)&&!movedFrom(h,k);
   const acts=swipe?`<div class="hc-acts"><button class="hc-act move" onclick="swipeAct('${k}','${h.id}','move')">⏭️<span>Mañana</span></button><button class="hc-act skip" onclick="swipeAct('${k}','${h.id}','skip')">⊘<span>Saltar</span></button></div>`:'';
   return `<div class="hc ${done?'done':''} ${o.hero?'hero':''}" id="hc-${h.id}" style="--hc:${h.color}">${acts}<div class="hc-in" ${swipe?'data-swipe="1"':''}>${o.hero?heroTag(o.hero):''}
     <div class="hc-row">${p>0&&!done?`<span class="hc-fill" style="width:calc((100% + 24px) * ${p.toFixed(3)})"></span>`:''}<div class="hc-ico">${esc(h.emoji)}</div>
-      <button class="hc-info" onclick="${pl?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(pl&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
+      <button class="hc-info" onclick="${canOpen?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(canOpen&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
       <button class="hc-menu" onclick="cardMenu('${h.id}')" aria-label="Opciones de ${esc(h.name)}"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <div class="hc-ctl">${ctl}</div></div>${plan}${start}${minBtns}${steps}${more}</div></div>`;
 }
@@ -3487,7 +3494,7 @@ function doMin(id){const h=getH(id),k=sel;if(!h)return;if(k>todayK())return toas
 
 /* ═════════════ TARJETAS PLEGABLES ═════════════ */
 const OPEN={};
-function cardOpen(h,k,done){const key=k+':'+h.id;return key in OPEN?OPEN[key]:!done;}
+function cardOpen(h,k,done,hero){const key=k+':'+h.id;return key in OPEN?OPEN[key]:(hero&&!done);} // diseño C: solo «Ahora» se abre sola; el resto, compacto
 function toggleCard(k,id,v){OPEN[k+':'+id]=!!v;render();}
 
 /* ═════════════ PROGRESO (métricas) ═════════════ */

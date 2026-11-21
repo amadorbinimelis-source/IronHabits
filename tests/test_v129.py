@@ -105,6 +105,17 @@ async def main():
         check(":" in t and "Cada día" in t, f"y enseña hora y frecuencia ({t.splitlines()[-1]})")
         await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(300)
 
+        # ── Filas compactas, «Pendiente» y botones del plan visibles ──
+        await pg.evaluate("S.settings.theme='dark';applyTheme();sel=todayK();for(const k in OPEN)delete OPEN[k];go('hoy')"); await pg.wait_for_timeout(300)
+        r = await pg.evaluate("({rows:[...document.querySelectorAll('.tlr .hc')].filter(c=>c.querySelector('.hc-plan')).length,more:document.querySelectorAll('.tlr .hc-more').length,hero:!!document.querySelector('.hc.hero .hc-plan')})")
+        check(r["rows"] == 0 and r["more"] >= 2 and r["hero"], f"el resto del día sale compacto; solo «Ahora» abierta {r}")
+        r = await pg.evaluate("(()=>{const a=document.querySelector('.hc.hero .blk-go');if(!a)return null;const cs=getComputedStyle(a);return [cs.color,cs.backgroundColor,a.textContent.trim()]})()")
+        check(r is None or (r[0] != r[1] and r[2]), f"los botones del plan se leen (texto ≠ fondo) {r}")
+        await pg.clock.set_fixed_time("2026-11-25T23:30:00+01:00"); await pg.evaluate("render()"); await pg.wait_for_timeout(300)
+        r = await pg.evaluate("(document.querySelector('.hc.hero .hero-tag')||{}).textContent||''")
+        check("PENDIENTE" in r, f"de noche, «Ahora» enseña lo que quedó pendiente ({r})")
+        await pg.clock.set_fixed_time("2026-11-25T09:10:00+01:00")
+
         # ── Modo claro y objetivos táctiles ──
         await pg.evaluate("S.settings.theme='light';applyTheme();go('hoy')"); await pg.wait_for_timeout(300)
         small = await pg.evaluate("""[...document.querySelectorAll('.ntc,.wk-hint button,.hk,.tl-free,.wd')].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect()).filter(r=>r.width<43.5||r.height<43.5).length""")
