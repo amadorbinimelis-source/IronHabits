@@ -28,6 +28,8 @@ async def main():
         check(len(r) == 7 and all(a == b for a, b in r), f"la semana enseña un puntito por hábito de cada día {r[:3]}")
         r = await pg.evaluate("({hero:!!document.querySelector('.hc.hero#hc-en'),tag:(document.querySelector('.hc.hero .hero-tag')||{}).textContent||'',n:document.querySelectorAll('#hc-en').length})")
         check(r["hero"] and "AHORA" in r["tag"] and "quedan" in r["tag"] and r["n"] == 1, f"«Ahora»: Inglés arriba, sin repetirse abajo {r}")
+        r = await pg.evaluate("({tl:document.querySelectorAll('#hoyBody .tl-day').length,late:document.querySelectorAll('#hoyBody .sec-late').length,secs:[...document.querySelectorAll('#hoyBody .sec:not(.sec-btn)')].map(s=>s.textContent.trim())})")
+        check(r["tl"] == 1 and r["late"] == 0 and not any(x.startswith("Por la") for x in r["secs"]), f"una sola línea del día, sin franjas de mañana/tarde/noche {r['secs']}")
         r = await pg.evaluate("[...document.querySelectorAll('#hoyBody .tlr:not(.free) .tlr-t')].map(e=>e.textContent).filter(Boolean)")
         check(len(r) >= 2 and r[0] <= r[-1], f"cada hábito con su hora a la izquierda {r[:4]}")
         r = await pg.evaluate("[...document.querySelectorAll('#hoyBody .tl-free')].map(e=>e.textContent.trim())")

@@ -31,7 +31,7 @@ async def main():
         n = await pg.evaluate("document.querySelectorAll('#hoyBody > .banner, #hoyBody > .now-card, #hoyBody > .card:not(.wk-card):not(.note):not(.empty)').length")
         check(n <= 1, f"una sola tarjeta destacada arriba ({n})")
         r = await pg.evaluate("[document.querySelectorAll('#hoyBody .sec')[0].textContent, !!document.querySelector('.wk-card'), !document.querySelector('.wk-card .wk-row')]")
-        check(r[0].startswith(("Por la", "En cualquier")) and r[1] and r[2], f"franjas «Por la…» y total semanal plegado {r[0]}")
+        check(r[0].startswith(("Resto del día", "Sin hora")) and r[1] and r[2], f"una sola línea del día (sin franjas) y total semanal plegado {r[0]}")
         await pg.evaluate("S.reviews={};S.settings.lastExport=null;for(let i=1;i<6;i++)S.logs[addDays(todayK(),-i)]={fr:{v:0,steps:[]}};save();render()")
         r = await pg.evaluate("[!document.querySelector('#hoyBell').hidden, document.querySelector('#hoyBellN').textContent]")
         check(r[0] and int(r[1] or 0) >= 1, f"la campana guarda el resto de avisos ({r[1]})")

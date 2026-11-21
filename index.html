@@ -1054,6 +1054,29 @@ html:not(.no-tint) .hc.thin .hc-in{background:color-mix(in srgb,var(--hc) 5%,var
 .agw-in{position:relative}
 .agw-whrs{position:absolute;inset:0;pointer-events:none}
 .agw-whrs span{position:absolute;left:6px;font-size:11px;font-weight:600;color:var(--dim);transform:translateY(-50%)}
+
+/* v1.32 · rachas en color sólido (opaco) */
+.hk{background:var(--hc);border-color:transparent;color:#fff;box-shadow:0 6px 16px color-mix(in srgb,var(--hc) 30%,transparent)}
+.hk .hk-n{color:#fff}
+.hk .hk-u,.hk .hk-nm em{color:rgba(255,255,255,.85)}
+.hk .hk-nm{color:#fff}
+.hk-d7 i{background:rgba(255,255,255,.22);color:rgba(255,255,255,.9)}
+.hk-d7 i.on{background:#fff;color:var(--hc)}
+.hk-d7 i.off{opacity:.35}
+.hk-d7 i.t{box-shadow:0 0 0 1.5px #fff}
+.hk-ok{box-shadow:inset 0 0 0 2.5px #fff}
+.hk-ok.on{background:#fff;color:var(--hc)}
+
+/* v1.32 · una sola línea del día, filas blancas como la maqueta */
+.tl-day{position:relative}
+.tlr{grid-template-columns:48px minmax(0,1fr);gap:10px}
+.tlr-t{padding-right:12px;font-size:13px}
+.tlr-t::before{right:-1px}
+.tlr.late .tlr-t{color:var(--warn)}
+html:not(.no-tint) .hc.thin .hc-in{background:var(--card)}
+html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:var(--e1)}
+.hc.thin.done{opacity:.7}
+.hc-acts{top:1px;bottom:1px;right:1px;border-radius:0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0;overflow:hidden}
 </style>
 </head>
 <body>
@@ -1167,7 +1190,7 @@ html:not(.no-tint) .hc.thin .hc-in{background:color-mix(in srgb,var(--hc) 5%,var
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.31';
+const APP_VERSION='1.32';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -1850,17 +1873,17 @@ function habitSections(hs,k,heroPend){
   const row=h=>{const x=habitTime(h,k);return {t:x&&x.start?tm(x.start):9999,html:`<div class="tlr ${isDone(h,k)?'on':''}" style="--hc:${h.color}"><div class="tlr-t">${x&&x.start?fmtT(tm(x.start)):''}</div><div class="tlr-c">${hcHTML(h,k,{row:true})}</div></div>`};};
   const freeRow=f=>({t:f.s,html:`<div class="tlr free" style="--hc:var(--ok)"><div class="tlr-t">${fmtT(f.s)}</div><button class="tl-free" onclick="evSheet('${k}','${f.ev.id}')">☕ <b>${esc(f.ev.title||'Tiempo libre')}</b> · ${fmtDur(f.e-f.s)}</button></div>`});
   const chipHTML=chips.length?`<div class="ntc-row">${chips.map(h=>`<button class="ntc ${isDone(h,k)?'on':''}" id="hc-${h.id}" style="--hc:${h.color}" onclick="act('${h.id}')" ${fut?'disabled':''} aria-pressed="${isDone(h,k)}"><span class="ntc-e">${esc(h.emoji)}</span>${esc(h.name)}${isDone(h,k)?' ✓':''}</button>`).join('')}</div>`:'';
-  const order=['manana','tarde','noche','any'];let seq=order.map(m=>({m,past:false}));
-  if(isToday){const now=momentOfTime(fmtT(new Date().getHours()*60+new Date().getMinutes())),i=order.indexOf(now);
-    seq=[...order.slice(i,3).map(m=>({m,past:false})),{m:'any',past:false},...order.slice(0,i).map(m=>({m,past:true}))];}
+  // v1.32: sin franjas. Arriba «Sin hora» (fichas) y debajo una sola línea del día, en orden de hora
+  const nowMin=new Date().getHours()*60+new Date().getMinutes();
+  const timed=pend.filter(h=>tt(h)<9999),untimed=pend.filter(h=>tt(h)===9999);
+  const late=h=>{if(!isToday)return false;const x=habitTime(h,k);return !!(x&&x.end&&tm(x.end)<=nowMin);};
+  const rowL=h=>{const r=row(h);if(late(h))r.html=r.html.replace('<div class="tlr ','<div class="tlr late ');return r;};
   let html='';
-  for(const{m,past}of seq){
-    const g=pend.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));
-    const fr=past||m==='any'?[]:free.filter(f=>momentOfTime(fmtT(f.s))===m);
-    if(!g.length&&!(m==='any'&&chips.length))continue; // el tiempo libre solo acompaña a los hábitos de su franja
-    const items=[...g.map(row),...fr.map(freeRow)].sort((a,b)=>a.t-b.t).map(x=>x.html).join('');
-    const label=MOMENTS.find(x=>x[0]===m)[1];
-    html+=`<div class="sec ${past?'sec-late':''}"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[m]]}">${ic(MOMENT_IC[m])}</span>${label}${past?' · aún pendiente':''}${past&&overdue(k).length?`<button class="sec-act" onclick="replanSheet()">Recolocar</button>`:''}</div>`+(m==='any'?chipHTML:'')+items;
+  if(chips.length)html+=`<div class="sec"><span class="sec-ic" style="color:${ICON_HUE.clock}">${ic('clock')}</span>Sin hora</div>`+chipHTML;
+  if(timed.length||untimed.length){
+    const items=[...timed.map(rowL),...(timed.length?free.map(freeRow):[])].sort((a,b)=>a.t-b.t).map(x=>x.html).join('')+untimed.map(h=>row(h).html).join('');
+    const od=isToday?overdue(k).length:0;
+    html+=`<div class="sec"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[isToday?momentOfTime(fmtT(nowMin)):'manana']]}">${ic(MOMENT_IC[isToday?momentOfTime(fmtT(nowMin)):'manana'])}</span>${isToday?'Resto del día':'El día'}${od?`<button class="sec-act" onclick="replanSheet()">Recolocar ${od}</button>`:''}</div><div class="tl-day">${items}</div>`;
   }
   if(!heroPend&&!pend.length&&(done.length||chips.length)&&chips.every(h=>isDone(h,k))&&k<=t)html+=`<div class="all-done">🔥 Todo hecho${isToday?' hoy':''}. ¡Bien!</div>`;
   if(done.length){

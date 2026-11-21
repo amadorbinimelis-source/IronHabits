@@ -2,6 +2,12 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.32 · 22 nov 2026
+- Hoy sin franjas (mañana / tarde / noche): arriba «Sin hora» y debajo una sola línea del día en orden de hora; lo atrasado lleva la hora en ámbar y «Recolocar N» va en la cabecera. Filas blancas con sombra suave, como la maqueta C.
+- Rachas (Agenda › Semana) en color sólido del hábito, con texto blanco y los días hechos en blanco.
+- Arreglado: en las esquinas de las tarjetas asomaba el rojo de «Saltar».
+- Pruebas: franjas antiguas sustituidas en test_v113 y test_v118; nueva comprobación en test_v129.
+
 ## v1.31 · 21 nov 2026 · Claro por defecto
 - El tema por defecto es «Claro» (Ajustes › Apariencia: Claro · Oscuro · Como el iPhone).
 - La pantalla de carga sigue el tema: blanca en claro y negra en oscuro, desde el primer instante (el tema se aplica antes de pintar nada, leyendo lo guardado).
