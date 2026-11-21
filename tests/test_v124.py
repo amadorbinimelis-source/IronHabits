@@ -99,7 +99,7 @@ async def main():
 
         # ── Bug 4: tiempo libre
         await pg.evaluate("(()=>{const k=todayK(),l=dayEvents(k).find(e=>e.kind==='libre'&&tm(e.end)-tm(e.start)>=75);window._lib=l;agSet(k,'h:fr',{start:l.start,end:fmtT(tm(l.start)+45)});save();go('agenda');sel=k;WKX.open=true;WKX.wide=k;renderAgenda()})()"); await pg.wait_for_timeout(400)
-        r = await pg.evaluate("(()=>{const ev=[...document.querySelectorAll('.agw-day.wide .agw-ev')],f=ev.find(e=>/Francés/.test(e.textContent)),fr=f.getBoundingClientRect(),full=document.querySelector('.agw-day.wide').getBoundingClientRect().width,libs=ev.filter(e=>e.classList.contains('libre')).map(e=>e.querySelector('small').textContent);return [Math.round(fr.width),Math.round(full),libs]})()")
+        r = await pg.evaluate("(()=>{const ev=[...document.querySelectorAll('.agw-day.wide .agw-ev')],f=ev.find(e=>/Francés/.test(e.textContent)),fr=f.getBoundingClientRect(),full=document.querySelector('.agw-day.wide').getBoundingClientRect().width,libs=ev.filter(e=>e.classList.contains('libre')).map(e=>e.getAttribute('aria-label').split(' ').pop());return [Math.round(fr.width),Math.round(full),libs]})()")
         lib = await pg.evaluate("[_lib.start,_lib.end]")
         st = lib[0]; en45 = await pg.evaluate("fmtT(tm(_lib.start)+45)")
         check(abs(r[0] - r[1]) <= 4, f"un hábito sobre tiempo libre se ve a ancho completo ({r[0]} de {r[1]} px)")
@@ -107,8 +107,8 @@ async def main():
         r = await pg.evaluate("freeParts([{kind:'libre',start:'18:00',end:'21:00',id:'l'},{kind:'habito',start:'19:00',end:'20:00',id:'h'}]).map(f=>fmtT(f.s)+'-'+fmtT(f.e))")
         check(r == ["18:00-19:00", "20:00-21:00"], f"libre 18–21 + hábito 19–20 → 18–19 y 20–21 {r}")
         # solape real: lado a lado
-        await pg.evaluate("(()=>{const k=todayK(),c=dayEvents(k).find(e=>e.kind==='comida');agSet(k,'h:en',{start:c.start,end:fmtT(tm(c.start)+40)});save();renderAgenda()})()"); await pg.wait_for_timeout(300)
-        r = await pg.evaluate("(()=>{const ev=[...document.querySelectorAll('.agw-day.wide .agw-ev')],a=ev.find(e=>/Inglés/.test(e.textContent)).getBoundingClientRect(),c=ev.find(e=>/Cocinar y comer|comer/i.test(e.textContent)).getBoundingClientRect();return [a.right<=c.left+1||c.right<=a.left+1,Math.round(a.width),Math.round(c.width)]})()")
+        await pg.evaluate("(()=>{const k=todayK(),c=dayEvents(k).find(e=>e.kind==='fijo');window._fx=c;agSet(k,'h:en',{start:c.start,end:fmtT(tm(c.start)+40)});save();renderAgenda()})()"); await pg.wait_for_timeout(300)
+        r = await pg.evaluate("(()=>{const ev=[...document.querySelectorAll('.agw-day.wide .agw-ev')],a=ev.find(e=>/Inglés/.test(e.textContent)).getBoundingClientRect(),c=ev.find(e=>e.title.startsWith(_fx.title)&&!e.classList.contains('libre')).getBoundingClientRect();return [a.right<=c.left+1||c.right<=a.left+1,Math.round(a.width),Math.round(c.width)]})()")
         check(r[0], f"con un evento real se ven lado a lado, sin taparse {r}")
         await pg.evaluate("agView='week';WKX.open=true;WKX.wide=null;renderAgenda()"); await pg.wait_for_timeout(300)
         r = await pg.evaluate("[...document.querySelectorAll('[data-colk=\"'+todayK()+'\"] .agw-ev.narrow')].map(e=>e.textContent.trim())")

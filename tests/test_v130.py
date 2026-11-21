@@ -31,10 +31,10 @@ async def main():
         await pg.locator("#agWeek .wd").nth(2).tap(); await pg.wait_for_timeout(500)
         t = await pg.evaluate("todayK()")
         r = await pg.evaluate(f"""(()=>{{const c=document.querySelector('.agw-day.wide[data-colk="{t}"]');const ev=[...c.querySelectorAll('.agw-ev')];
-            const allDay=dayEvents('{t}').filter(e=>e.kind!=='sueno'&&e.kind!=='libre'&&tm(e.end)>tm(e.start)).length;
-            return {{n:ev.filter(e=>!e.classList.contains('libre')).length,all:allDay,libre:ev.filter(e=>e.classList.contains('libre')).map(e=>e.textContent.trim()).slice(0,2),
+            const allDay=dayEvents('{t}').filter(e=>(e.kind==='habito'||e.kind==='fijo')&&tm(e.end)>tm(e.start)).length;
+            return {{n:ev.filter(e=>!e.classList.contains('libre')).length,all:allDay,libre:ev.filter(e=>e.classList.contains('libre')).map(e=>e.getAttribute('aria-label')).slice(0,2),food:ev.some(e=>/🍽|🚶/.test(e.textContent)),
               now:!!c.querySelector('.agw-now'),nt:[...document.querySelectorAll('.agw-nt.wide button')].map(b=>b.textContent)}}}})()""")
-        check(r["n"] == r["all"] and r["n"] >= 8, f"el día ancho enseña todos los bloques del día ({r['n']} de {r['all']})")
+        check(r["n"] == r["all"] and r["n"] >= 4 and not r["food"], f"el día ancho enseña hábitos y obligaciones con nombre, sin comidas ni trayectos ({r['n']} de {r['all']})")
         check(len(r["libre"]) >= 1 and "–" in r["libre"][0], f"y el tiempo libre de fondo, con su hora {r['libre']}")
         check(r["now"], "línea roja de la hora actual en hoy")
         check("📖" in r["nt"], f"«sin hora» del día ancho: cada hábito se toca {r['nt']}")
@@ -46,8 +46,8 @@ async def main():
         check(await pg.evaluate(f"document.querySelector('#sheet').classList.contains('on')&&WKX.wide==='{t}'"), "tocar el tiempo libre abre su hoja")
         await pg.evaluate("closeSheet()"); await pg.wait_for_timeout(400)
         # columnas estrechas: solo lo importante, sin texto
-        r = await pg.evaluate("[...document.querySelectorAll('.agw-day:not(.wide) .agw-ev.libre')].every(e=>!e.textContent.trim())")
-        check(r, "en los días estrechos el tiempo libre es solo un contorno")
+        r = await pg.evaluate("[...document.querySelectorAll('.agw-day:not(.wide) .agw-ev.libre')].every(e=>['','☕'].includes(e.textContent.trim()))")
+        check(r, "en los días estrechos el tiempo libre es un contorno (☕ si es largo)")
         # el tutorial de la agenda funciona con la semana
         r = await pg.evaluate("TOUR_STEPS.filter(s=>s.seccion==='agenda').map(s=>s.selector)")
         check(not any(".seg" in x or ".ag-ev" in x for x in r), f"el tutorial ya no usa las pestañas viejas {r}")

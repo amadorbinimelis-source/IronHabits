@@ -78,7 +78,7 @@ async def main():
         await pg.evaluate(f"document.querySelector('.agw-day[data-colk=\"{k3}\"]').click()"); await pg.wait_for_timeout(300)
         check(await pg.evaluate(f"WKX.wide==='{k3}'"), "tocar el hueco de un día también lo ensancha")
         await pg.evaluate("agView='week';renderAgenda()"); await pg.wait_for_timeout(300)
-        await pg.locator(".wk-hint button").tap(); await pg.wait_for_timeout(300)
+        await pg.locator(".wkc-h button").tap(); await pg.wait_for_timeout(300)
         check(await pg.evaluate("!WKX.open&&!!document.querySelector('.wkm')&&!document.querySelector('.agw')"), "«Plegar» vuelve a la miniatura")
         # rachas abren el detalle
         await pg.evaluate("agView='week';WKX.open=false;renderAgenda()"); await pg.wait_for_timeout(300)
@@ -118,7 +118,7 @@ async def main():
 
         # ── Modo claro y objetivos táctiles ──
         await pg.evaluate("S.settings.theme='light';applyTheme();go('hoy')"); await pg.wait_for_timeout(300)
-        small = await pg.evaluate("""[...document.querySelectorAll('.ntc,.wk-hint button,.hk,.tl-free,.wd')].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect()).filter(r=>r.width<43.5||r.height<43.5).length""")
+        small = await pg.evaluate("""[...document.querySelectorAll('.ntc,.wkc-h button,.hk,.tl-free,.wd')].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect()).filter(r=>r.width<43.5||r.height<43.5).length""")
         check(small == 0, f"los nuevos botones miden al menos 44 px ({small})")
         check(await pg.evaluate("APP_VERSION") >= "1.29", "versión 1.29 o posterior")
         check(not errs, f"sin errores de JS {errs[:2]}")

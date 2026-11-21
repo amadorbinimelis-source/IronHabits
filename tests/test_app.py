@@ -24,7 +24,7 @@ async def main():
         # 2. Agenda del lunes 23
         await pg.evaluate("sel='2026-11-23';WKX.open=true;WKX.wide='2026-11-23';go('agenda')"); await pg.wait_for_timeout(400)
         n = await pg.evaluate("document.querySelectorAll('.agw-day[data-colk=\"2026-11-23\"] .agw-ev:not(.libre)').length")
-        check(n >= 12, f"agenda del 23 nov (día ancho) pinta {n} bloques")
+        check(n >= 5, f"agenda del 23 nov (día ancho) pinta {n} bloques (hábitos y obligaciones)")
         await pg.screenshot(path="/tmp/t/ag_day.png", full_page=True)
         # 3. Anular francés el 23 → desaparece de Hoy y no rompe la racha
         await pg.evaluate("evSheet('2026-11-23','h:fr')"); await pg.wait_for_timeout(300)
