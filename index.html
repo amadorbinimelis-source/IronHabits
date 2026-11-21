@@ -2064,7 +2064,7 @@ function resetDayPlan(id){const h=getH(id);pushUndo();if(h.plan&&h.plan.dates)de
 const KIND={fijo:['Obligatorio','#F97316'],habito:['Hábito',null],comida:['Comida','#84CC16'],trayecto:['Trayecto','#64748B'],libre:['Tiempo libre','#55555F'],sueno:['Sueño','#6366F1'],rutina:['Día a día','#94A3B8']};
 const KIND_COLOR={clase:'#60A5FA',futbol:'#F97316',partido:'#F97316',mimi:'#E879F9'};
 let agView='week';
-const WKX={open:false,wide:null,scroll:false}; // Semana: plegada (miniatura) o desplegada por horas; wide = día ensanchado
+const WKX={open:false,wide:null}; // Semana: plegada (miniatura) o desplegada por horas; wide = día ensanchado
 const AG0=6*60,AG1=24*60+40;
 function evColor(e){if(e.kind==='habito'){const h=getH(e.habit);return h?h.color:'#22C55E';}return KIND_COLOR[e.id]||KIND[e.kind][1];}
 function evIcon(e){if(e.kind==='habito'){const h=getH(e.habit);return h?h.emoji:'•';}return {clase:'🎓',futbol:'⚽',partido:'⚽',mimi:'🏃‍♀️',desayuno:'☕',comida:'🍽️',cena:'🍽️',merienda:'🍎',taper:'🥡',dormir:'😴'}[e.id]||{trayecto:'🚶',libre:'·',comida:'🍽️'}[e.kind]||'';}
@@ -2109,9 +2109,7 @@ function renderAgenda(){
   renderWeek('#agWeek');
   const body=$('#agBody');
   body.innerHTML=classesNote(k)+(WKX.open?`<div class="wk-hint"><span>Agenda de la semana</span><em>${WKX.wide?'toca otra vez para volver':'toca un día'}</em></div>`+weekGrid():weekMini())+rachasHTML(k);
-  // al desplegar la semana de hoy, baja hasta la hora actual
-  if(WKX.open&&WKX.scroll){WKX.scroll=false;const n=new Date(),m=n.getHours()*60+n.getMinutes(),d=$('.agw-day[data-colk="'+t+'"]'),h0=d?+d.dataset.h0:0;
-    if(d&&m>h0)setTimeout(()=>{const y=d.getBoundingClientRect().top+window.scrollY+(m-h0)*(40/60)-220;window.scrollTo({top:Math.max(0,y),behavior:'smooth'});},60);}
+  // al desplegar, la pantalla se queda donde estaba (sin bajar sola)
 }
 /* Hábitos del día sin hora: no tienen bloque, pero salen en la agenda (franja «Sin hora») */
 function noTimeHabits(k){const ev=dayEvents(k);return dayHabits(k).filter(h=>!ev.some(e=>e.habit===h.id));}
@@ -2144,7 +2142,7 @@ function weekMini(){
   const cols=days.map(k=>{const evs=dayEvents(k).filter(e=>!e.cancelled&&(weekRelevant(e)||e.kind==='libre'));
     const bars=evs.map(e=>{const h=e.habit?getH(e.habit):null,d=tm(e.end)-tm(e.start);return `<i class="${e.kind==='libre'?'libre':''} ${h&&isDone(h,k)?'ok':''}" style="--c:${evColor(e)};height:${Math.max(6,Math.min(40,Math.round(d*.1)))}px"></i>`;}).join('');
     return `<div class="wkm-d ${k===t?'today':''}"><small>${DOW_L[dow(k)]}</small><b>${pk(k).getDate()}</b>${bars}</div>`;}).join('');
-  return `<div class="wk-hint"><span>Tu semana de un vistazo</span></div><button class="wk-open" onclick="WKX.open=true;WKX.wide=null;WKX.scroll=true;renderAgenda()" aria-label="Desplegar la semana por horas"><div class="wkm">${cols}</div></button>`;
+  return `<div class="wk-hint"><span>Tu semana de un vistazo</span></div><button class="wk-open" onclick="WKX.open=true;WKX.wide=null;renderAgenda()" aria-label="Desplegar la semana por horas"><div class="wkm">${cols}</div></button>`;
 }
 function wkWide(k){WKX.wide=WKX.wide===k?null:k;renderAgenda();}
 /* Rachas de la semana (diseño C): racha grande, check de hoy y la fila L–D */
