@@ -58,7 +58,7 @@ jobs:
       - name: Preparar la web
         run: |
           mkdir _site
-          cp index.html plan.json sw.js manifest.webmanifest icon-*.png favicon.png ironhabits.ics _site/ && cp -r splash _site/
+          cp index.html plan.json sw.js manifest.webmanifest icon.svg icon-*.png favicon.png ironhabits.ics _site/ && cp -r splash _site/
       - name: Desplegar el servidor de avisos (Cloudflare)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

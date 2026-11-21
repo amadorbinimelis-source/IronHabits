@@ -40,6 +40,13 @@ async def main():
         await pg2.evaluate("S.settings.theme='auto';save()"); await pg2.reload(); await pg2.wait_for_timeout(2000)
         r = await pg2.evaluate("[window._bg,document.documentElement.dataset.theme]")
         check(r == ["rgb(11, 11, 15)", "dark"], f"«Como el iPhone» con el iPhone en oscuro: carga negra desde el primer instante {r}")
+        r = await pg2.evaluate("[...document.querySelectorAll('link[rel=apple-touch-startup-image]')].map(l=>[l.getAttribute('href'),l.media])")
+        dk = [h for h, m in r if 'prefers-color-scheme: dark' in m]
+        check(len(dk) * 2 == len(r) and all(h.endswith('-dark.png') for h in dk), f"pantallas de arranque de iOS en claro y en oscuro ({len(r)})")
+        ok = await pg2.evaluate("(hs)=>Promise.all(hs.map(u=>fetch(u).then(r=>r.ok)))", [h for h, _ in r])
+        check(all(ok), "todas existen")
+        r = await pg2.evaluate("fetch('icon.svg').then(r=>r.text()).then(t=>t.includes('#E63946')&&t.includes('#2BB673'))")
+        check(r, "el logo nuevo (icon.svg) está en la app")
         check(await pg2.evaluate("APP_VERSION") >= "1.31", "versión 1.31")
         await b.close()
 

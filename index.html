@@ -19,17 +19,29 @@ var r=document.documentElement;r.dataset.theme=t;var m=document.querySelector('m
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <!-- Pantallas de arranque de iOS (al abrir desde la pantalla de inicio) -->
+<link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1080x2340-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1080x2340.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1125x2436-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1170x2532-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1179x2556-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1206x2622-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1242x2208-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2208.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1242x2688-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1284x2778-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1290x2796-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1320x2868-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-750x1334-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-828x1792-dark.png">
 <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-828x1792.png">
 <style>
 :root{
@@ -680,12 +692,13 @@ input[type=checkbox][switch]:checked::after{left:21px;transform:none;width:24px;
 #boot.out{opacity:0}
 html[data-theme=light] #boot{background:#F5F5F7}
 html[data-theme=light] #boot .boot-name{color:#15151A}
-html[data-theme=light] #boot text{fill:#15151A}
-html[data-theme=light] #boot circle:not(#bootRing){stroke:#E2E2E8}
-.boot-logo{position:absolute;left:50%;top:40%;width:36vw;max-width:220px;height:auto;transform:translate(-50%,-50%)}
-#bootRing{transition:stroke-dashoffset .45s cubic-bezier(.2,.8,.2,1)}
-.boot-name{position:absolute;left:0;right:0;top:calc(40% + min(18vw,110px) + 6.8vw);text-align:center;color:#F4F4F6;font:900 7.5vw/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
-@media (min-width:600px){.boot-name{font-size:44px}}
+
+#boot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.boot-ic{width:116px;height:116px;border-radius:26px;margin-top:-60px;box-shadow:0 16px 36px rgba(0,0,0,.45)}
+html[data-theme=light] .boot-ic{box-shadow:0 30px 60px rgba(0,0,0,.18)}
+.boot-name{color:#F4F4F6;font:800 30px/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
+.boot-bar{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom) + 64px);width:120px;height:4px;margin-left:-60px;border-radius:2px;background:rgba(127,127,140,.22);overflow:hidden}
+#bootRing{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,#2BB673,#F9C74F,#F3722C,#E63946);transition:width .45s cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:reduce){#bootRing{transition:none}}
 
 /* ═════════════ v1.20 · Tema claro ═════════════ */
@@ -1036,13 +1049,9 @@ html:not(.no-tint) .hc.thin .hc-in{background:color-mix(in srgb,var(--hc) 5%,var
 <body>
 <!-- Pantalla de arranque animada: el anillo se llena mientras carga (sigue a la pantalla de arranque de iOS, en la misma posición) -->
 <div id="boot" aria-hidden="true">
-  <svg class="boot-logo" viewBox="0 0 120 120">
-    <defs><linearGradient id="bootG" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F97316"/><stop offset="1" stop-color="#22C55E"/></linearGradient></defs>
-    <circle cx="60" cy="60" r="47" fill="none" stroke="#26262F" stroke-width="10"/>
-    <circle id="bootRing" cx="60" cy="60" r="47" fill="none" stroke="url(#bootG)" stroke-width="10" stroke-linecap="round" stroke-dasharray="295.3" stroke-dashoffset="295.3" transform="rotate(-90 60 60)"/>
-    <text x="60" y="61" text-anchor="middle" dominant-baseline="central" fill="#F4F4F6" font-size="38" font-weight="900" font-family="-apple-system,'SF Pro Display',Inter,system-ui,sans-serif" letter-spacing="-1">IH</text>
-  </svg>
+  <img class="boot-ic" src="icon-512.png" alt="">
   <div class="boot-name">IronHabits</div>
+  <div class="boot-bar"><i id="bootRing"></i></div>
 </div>
 <div id="app">
 
@@ -4437,7 +4446,7 @@ if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
    El anillo del logo se llena por etapas (código listo → plan cargado → listo) y la pantalla se desvanece.
    No espera a internet: la sincronización sigue por detrás. */
 const BOOT_T0=performance.now();
-function bootProgress(p){const r=document.getElementById('bootRing');if(r)r.style.strokeDashoffset=String(295.3*(1-Math.max(0,Math.min(1,p))));}
+function bootProgress(p){const r=document.getElementById('bootRing');if(r)r.style.width=(100*Math.max(0,Math.min(1,p))).toFixed(1)+'%';}
 let _booted=false;
 function bootDone(){if(_booted)return;_booted=true;bootProgress(1);const b=document.getElementById('boot');if(!b)return;
   const wait=Math.max(0,650-(performance.now()-BOOT_T0)); // que se vea el anillo completo un instante

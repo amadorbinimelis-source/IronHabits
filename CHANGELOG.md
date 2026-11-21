@@ -5,7 +5,9 @@ Hasta la v1.14 la app se llamaba «Rutina».
 ## v1.31 · 21 nov 2026 · Claro por defecto
 - El tema por defecto es «Claro» (Ajustes › Apariencia: Claro · Oscuro · Como el iPhone).
 - La pantalla de carga sigue el tema: blanca en claro y negra en oscuro, desde el primer instante (el tema se aplica antes de pintar nada, leyendo lo guardado).
-- Color de la barra del iPhone y del manifiesto en claro. Caché del SW v19.
+- Logo nuevo (anillo de 7 tramos de colores con una H de acero): iconos de 64/180/192/512 y maskable, generados desde `icon.svg` con `gen/build_icons.py`.
+- Pantalla de carga con el logo nuevo y una barra de progreso fina; pantallas de arranque de iOS en claro y en oscuro (según el modo del iPhone), iguales a la de la app para que no salte.
+- Color de la barra del iPhone y del manifiesto en claro. Caché del SW v20.
 - Pruebas: `tests/test_v131.py`; la prueba de contraste mira ahora los dos temas.
 
 ## v1.30 · 21 nov 2026 · Agenda = Semana
