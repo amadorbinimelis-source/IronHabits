@@ -19,6 +19,15 @@ async def main():
         await pg.evaluate("""localStorage.setItem('ironhabits_tour',JSON.stringify({done:true,minis:{}}));S.settings.bootSound=false;
           S.habits.push(Object.assign(blankHabit(),{id:'leer',name:'Leer',emoji:'📖',color:'#F472B6',start:addDays(todayK(),-10)}));save();sel=todayK();go('hoy')""")
         await pg.wait_for_timeout(300)
+        # Hoy: filas finas que se despliegan al tocarlas
+        r = await pg.evaluate("[...document.querySelectorAll('.tlr .hc.thin')].map(c=>[c.id,c.classList.contains('exp'),!!c.querySelector('.hc-plan'),getComputedStyle(c.querySelector('.hc-menu')).display])")
+        check(len(r) >= 2 and all(not e and not pl and d == 'none' for _, e, pl, d in r), f"filas finas: sin plan ni ⋯ hasta tocarlas {r[:2]}")
+        hid = r[0][0]
+        await pg.locator(f"#{hid} .hc-info").tap(); await pg.wait_for_timeout(300)
+        r2 = await pg.evaluate(f"(()=>{{const c=document.querySelector('#{hid}');return [c.classList.contains('exp'),getComputedStyle(c.querySelector('.hc-menu')).display!=='none',!!c.querySelector('.hc-plan,.steps,.start-btn')]}})()")
+        check(r2 == [True, True, True], f"tocar la fila la despliega con ⋯ y su contenido {r2}")
+        await pg.locator(f"#{hid} .hc-info").tap(); await pg.wait_for_timeout(300)
+        check(await pg.evaluate(f"!document.querySelector('#{hid}').classList.contains('exp')"), "otro toque la vuelve a plegar")
         await pg.locator("nav button[data-v=agenda]").tap(); await pg.wait_for_timeout(400)
         r = await pg.evaluate("({tabs:!!document.querySelector('.ag-bar'),seg:document.querySelectorAll('#agBody .seg').length,mini:document.querySelectorAll('.wkm-d').length,title:$('#agTitle').textContent,sub:$('#agSub').textContent})")
         check(not r["tabs"] and r["seg"] == 0 and r["mini"] == 7, f"Agenda: sin pestañas Día / 3 días, empieza en la semana plegada {r}")

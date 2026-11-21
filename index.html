@@ -998,6 +998,23 @@ html:not(.no-tint) .hc.hero .hc-in{background:linear-gradient(155deg,color-mix(i
 .agw.fit .agw-ev.libre{background:transparent;color:var(--muted);border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
 .agw.fit .agw-ev.libre.cmp b{font-size:.8rem;opacity:.8}
 .agw.fit .agw-ev.libre:not(.cmp) b{color:color-mix(in srgb,var(--ok) 70%,var(--text))}
+
+/* v1.30 · filas finas de la línea del día (como la maqueta C): toca la fila para desplegarla */
+.hc.thin .hc-in{padding:8px 6px 8px 12px}
+html:not(.no-tint) .hc.thin .hc-in{background:color-mix(in srgb,var(--hc) 5%,var(--card))}
+.hc.thin .hc-row{gap:8px;align-items:center}
+.hc.thin .hc-ico{width:30px;height:30px;background:none;font-size:22px;flex:none}
+.hc.thin .hc-name{font-size:var(--fs-h3);font-weight:700}
+.hc.thin .hc-meta{font-size:var(--fs-sm);margin-top:1px}
+.hc.thin .hc-st{display:flex;align-items:center;gap:2px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);flex:none}
+.hc.thin .hc-st svg{width:15px;height:15px;color:#F97316}
+.hc.thin:not(.exp) .hc-menu{display:none}
+.hc.thin .ctl{width:44px;height:44px}
+.hc.thin .hc-row>.hc-fill{left:-12px;top:-8px;bottom:-8px;border-radius:var(--r-lg) 0 0 var(--r-lg)}
+.hc.thin:not(.exp) .hc-row>.hc-fill{display:none}
+.hc.thin:not(.exp) .hc-in>.hc-fill2{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--hc) 16%,transparent);pointer-events:none;border-radius:var(--r-lg) 0 0 var(--r-lg);transition:width .5s var(--ease)}
+.hc.thin .hc-in>*:not(.hc-fill2){position:relative}
+.hc.thin .steps{margin-top:4px}
 </style>
 </head>
 <body>
@@ -1750,7 +1767,7 @@ function habitSections(hs,k,heroPend){
   const pend=rest.filter(h=>!isDone(h,k)),done=rest.filter(h=>isDone(h,k));
   const nowM=new Date().getHours()*60+new Date().getMinutes(),fut=k>t;
   const free=k>=t?freeParts(dayEvents(k)).filter(f=>f.e-f.s>=30&&(k>t||f.e>nowM)):[];
-  const row=h=>{const x=habitTime(h,k);return {t:x&&x.start?tm(x.start):9999,html:`<div class="tlr ${isDone(h,k)?'on':''}" style="--hc:${h.color}"><div class="tlr-t">${x&&x.start?fmtT(tm(x.start)):''}</div><div class="tlr-c">${hcHTML(h,k)}</div></div>`};};
+  const row=h=>{const x=habitTime(h,k);return {t:x&&x.start?tm(x.start):9999,html:`<div class="tlr ${isDone(h,k)?'on':''}" style="--hc:${h.color}"><div class="tlr-t">${x&&x.start?fmtT(tm(x.start)):''}</div><div class="tlr-c">${hcHTML(h,k,{row:true})}</div></div>`};};
   const freeRow=f=>({t:f.s,html:`<div class="tlr free" style="--hc:var(--ok)"><div class="tlr-t">${fmtT(f.s)}</div><button class="tl-free" onclick="evSheet('${k}','${f.ev.id}')">☕ <b>${esc(f.ev.title||'Tiempo libre')}</b> · ${fmtDur(f.e-f.s)}</button></div>`});
   const chipHTML=chips.length?`<div class="ntc-row">${chips.map(h=>`<button class="ntc ${isDone(h,k)?'on':''}" id="hc-${h.id}" style="--hc:${h.color}" onclick="act('${h.id}')" ${fut?'disabled':''} aria-pressed="${isDone(h,k)}"><span class="ntc-e">${esc(h.emoji)}</span>${esc(h.name)}${isDone(h,k)?' ✓':''}</button>`).join('')}</div>`:'';
   const order=['manana','tarde','noche','any'];let seq=order.map(m=>({m,past:false}));
@@ -1821,6 +1838,18 @@ let _bell=[];
 function setBell(items){_bell=items;const b=$('#hoyBell');if(!b)return;b.hidden=!items.length;$('#hoyBellN').textContent=items.length||'';b.setAttribute('aria-label',`Avisos (${items.length})`);}
 function noticesSheet(){openSheet(`<div class="sheet-title">Más para hoy</div><div class="sub mb12">Lo que no cabe arriba en Hoy</div>${_bell.join('')||'<p class="hint">No hay nada más.</p>'}`);}
 
+/* Meta corta de las filas de la línea del día: duración · progreso (la hora ya está a la izquierda) */
+function rowMeta(h,k){
+  const e=entry(h,k)||{},x=habitTime(h,k),parts=[];const running=S.timer&&S.timer.hid===h.id&&S.timer.k===k;
+  if(x&&x.start)parts.push(fmtDur(tm(x.end)-tm(x.start)));
+  if(h.type==='checklist')parts.push(`${h.steps.filter(s=>(e.steps||[]).includes(s.id)).length}/${h.steps.length} pasos`);
+  if(h.type==='count')parts.push(`${fmtNum(e.v||0)}/${h.target} ${esc(h.unit||'')}`.trim());
+  if(h.type==='time')parts.push(running?`⏱ <span id="tm-${h.id}">${fmtClock((e.v||0)*60000+Date.now()-S.timer.t0)}</span>`:`${fmtMin(e.v||0)}/${h.target} min`);
+  if(h.schedule.mode==='xweek')parts.push(`${weekCount(h,k)}/${h.schedule.times} esta semana`);
+  if(e.min)parts.push('🪫 mínima');
+  if(!parts.length)parts.push(schedText(h));
+  return parts.join(' · ');
+}
 function metaText(h,k){
   const e=entry(h,k)||{},parts=[];
   const running=S.timer&&S.timer.hid===h.id&&S.timer.k===k;
@@ -1855,19 +1884,20 @@ function hcHTML(h,k,o={}){
   }
   const minOn=!!(S.minDays||{})[k]&&h.minimal&&!fut;
   const pl=minOn?{text:h.minimal,tag:'Versión mínima'}:planFor(h,k);
-  const open=cardOpen(h,k,done,!!o.hero),canOpen=!!pl||h.type==='checklist';
+  const row=!!o.row,open=cardOpen(h,k,done,!!o.hero),canOpen=row||!!pl||h.type==='checklist';
   const plan=pl&&open?(pl.blocks?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}${pl.min?` · ${pl.min} min`:''}</div>`:''}${blocksHTML(h,pl)}${hasCourse(h)?`<button class="crs-link" onclick="event.stopPropagation();courseSheet('${h.id}')">📅 Plan completo · 🧰 Material · 📊 Notas</button>`:''}</div>`
     :`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`):'';
   const start=open&&!done&&k===todayK()&&!(S.minDays||{})[k]?`<button class="start-btn" onclick="focusMode('${h.id}')">▶ ${o.hero&&p>0?'Continuar':'Empezar'}${h.type==='time'||o.hero?'':' con cronómetro'}</button>`:'';
   const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
-  const more=canOpen&&!open&&!minOn?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">${pl?'Ver plan del día ▾':'Ver pasos ▾'}</button>`:'';
+  const more=!row&&canOpen&&!open&&!minOn?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">${pl?'Ver plan del día ▾':'Ver pasos ▾'}</button>`:'';
   const steps=minOn||!(open||(p>0&&!done))?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
   // Deslizar a la izquierda (solo si está pendiente y el día no ha pasado): Mañana / Saltar
   const swipe=!done&&k>=todayK()&&!isExtra(h,k)&&!movedFrom(h,k);
   const acts=swipe?`<div class="hc-acts"><button class="hc-act move" onclick="swipeAct('${k}','${h.id}','move')">⏭️<span>Mañana</span></button><button class="hc-act skip" onclick="swipeAct('${k}','${h.id}','skip')">⊘<span>Saltar</span></button></div>`:'';
-  return `<div class="hc ${done?'done':''} ${o.hero?'hero':''}" id="hc-${h.id}" style="--hc:${h.color}">${acts}<div class="hc-in" ${swipe?'data-swipe="1"':''}>${o.hero?heroTag(o.hero):''}
+  const st=row?streaks(h):null;
+  return `<div class="hc ${done?'done':''} ${o.hero?'hero':''} ${row?'thin':''} ${open?'exp':''}" id="hc-${h.id}" style="--hc:${h.color}">${acts}<div class="hc-in" ${swipe?'data-swipe="1"':''}>${row&&!open&&p>0&&!done?`<span class="hc-fill2" style="width:${(p*100).toFixed(1)}%"></span>`:''}${o.hero?heroTag(o.hero):''}
     <div class="hc-row">${p>0&&!done?`<span class="hc-fill" style="width:calc((100% + 24px) * ${p.toFixed(3)})"></span>`:''}<div class="hc-ico">${esc(h.emoji)}</div>
-      <button class="hc-info" onclick="${canOpen?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(canOpen&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
+      <button class="hc-info" onclick="${canOpen?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(canOpen&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${row?rowMeta(h,k):metaText(h,k)}</div></button>${row&&st.cur?`<span class="hc-st">${ic('flame')}${st.cur}${st.unit==='sem'?' sem':''}</span>`:''}
       <button class="hc-menu" onclick="cardMenu('${h.id}')" aria-label="Opciones de ${esc(h.name)}"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <div class="hc-ctl">${ctl}</div></div>${plan}${start}${minBtns}${steps}${more}</div></div>`;
 }
@@ -2898,7 +2928,7 @@ const TOUR_STEPS=[
     validar:()=>{const o=agOv(todayK(),'h:tour');return !!(o&&o.cancel);}},
   {id:'deshacer',seccion:'hoy',selector:'#toast.on button',accion:'click',si:hasTouch,texto:'Todo se puede deshacer. Pulsa «Deshacer».',
     antes:()=>clearTimeout(_tt),validar:()=>{const o=agOv(todayK(),'h:tour');return !(o&&o.cancel);}},
-  {id:'menu',seccion:'hoy',selector:'#hc-tour .hc-menu',accion:'click',texto:'Pulsa ⋯ para ver todo lo que puedes hacer con un hábito.',validar:sheetOn},
+  {id:'menu',seccion:'hoy',selector:'#hc-tour .hc-menu',accion:'click',texto:'Pulsa ⋯ para ver todo lo que puedes hacer con un hábito.',antes:()=>{OPEN[todayK()+':tour']=true;render();},validar:sheetOn},
   {id:'apuntar',seccion:'hoy',selector:'#sheetBody .row-btn[onclick^="logSheet"]',accion:'click',texto:'Pulsa «Apuntar lo que has hecho».',validar:()=>!!$('#mnM')},
   {id:'minutos',seccion:'hoy',selector:'#mnM',accion:'input',texto:'Escribe <b>30</b> en minutos.',validar:()=>!!$('#mnM')&&parseInt($('#mnM').value,10)===30},
   {id:'guardar',seccion:'hoy',selector:'#sheetBody .btn.pri[onclick^="saveLog"]',accion:'click',antes:tourKeyboardOff,texto:'Pulsa «Guardar». Esos 30 min suman a tu total de la semana.',validar:()=>!sheetOn()},

@@ -41,7 +41,7 @@ async def main():
 
         # Tarjeta: tocar el nombre despliega/pliega el plan; ⋯ abre el menú de 5
         await pg.evaluate("S.logs={};save();render()"); await pg.wait_for_timeout(200)
-        hid = await pg.evaluate("document.querySelector('.tlr .hc .hc-more').closest('.hc').id")
+        hid = await pg.evaluate("document.querySelector('.tlr .hc.thin:not(.exp)').id")
         a = await pg.evaluate(f"!document.querySelector('#{hid} .hc-plan')&&!!document.querySelector('.hc.hero .hc-plan')")
         await pg.locator(f"#{hid} .hc-info").tap(); await pg.wait_for_timeout(300)
         bb = await pg.evaluate(f"!!document.querySelector('#{hid} .hc-plan')")

@@ -16,8 +16,8 @@ async def main():
         await pg.goto(URL); await pg.wait_for_timeout(1500)
         is_open = lambda: pg.evaluate("document.querySelector('#sheet').classList.contains('on')")
         async def open_task():
-            await pg.evaluate("sel='2026-11-23';go('hoy')"); await pg.wait_for_timeout(300)
-            await pg.locator(".hc-menu").first.tap(); await pg.wait_for_timeout(450)
+            await pg.evaluate("sel='2026-11-23';go('hoy');const c=document.querySelector('.tlr .hc');if(c){OPEN['2026-11-23:'+c.id.slice(3)]=true;render();}"); await pg.wait_for_timeout(300)
+            await pg.locator(".hc-menu:visible").first.tap(); await pg.wait_for_timeout(450)
         # 1. ✕
         await open_task(); check(await is_open(), "al tocar una tarea se abre la hoja")
         await pg.screenshot(path="/tmp/t/sheet_movil.png")

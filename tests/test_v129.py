@@ -107,7 +107,7 @@ async def main():
 
         # ── Filas compactas, «Pendiente» y botones del plan visibles ──
         await pg.evaluate("S.settings.theme='dark';applyTheme();sel=todayK();for(const k in OPEN)delete OPEN[k];go('hoy')"); await pg.wait_for_timeout(300)
-        r = await pg.evaluate("({rows:[...document.querySelectorAll('.tlr .hc')].filter(c=>c.querySelector('.hc-plan')).length,more:document.querySelectorAll('.tlr .hc-more').length,hero:!!document.querySelector('.hc.hero .hc-plan')})")
+        r = await pg.evaluate("({rows:[...document.querySelectorAll('.tlr .hc')].filter(c=>c.querySelector('.hc-plan')).length,more:document.querySelectorAll('.tlr .hc.thin:not(.exp)').length,hero:!!document.querySelector('.hc.hero .hc-plan')})")
         check(r["rows"] == 0 and r["more"] >= 2 and r["hero"], f"el resto del día sale compacto; solo «Ahora» abierta {r}")
         r = await pg.evaluate("(()=>{const a=document.querySelector('.hc.hero .blk-go');if(!a)return null;const cs=getComputedStyle(a);return [cs.color,cs.backgroundColor,a.textContent.trim()]})()")
         check(r is None or (r[0] != r[1] and r[2]), f"los botones del plan se leen (texto ≠ fondo) {r}")
