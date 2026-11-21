@@ -1016,9 +1016,12 @@ html:not(.no-tint) .hc.thin .hc-in{background:color-mix(in srgb,var(--hc) 5%,var
 .hc.thin .hc-in>*:not(.hc-fill2){position:relative}
 .hc.thin .steps{margin-top:4px}
 
-/* día ancho: ventana de horas que se desliza (5–24 h) */
-.agw-scroll.on{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:0 0 14px 14px}
-.agw.agw-top{margin-bottom:0}
+/* día ancho: su columna se desliza sola (5–24 h), con sus propias horas dentro */
+.agw.fit .agw-day.wide{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.agw.fit .agw-day.wide::-webkit-scrollbar{display:none}
+.agw-in{position:relative}
+.agw-whrs{position:absolute;inset:0;pointer-events:none}
+.agw-whrs span{position:absolute;left:6px;font-size:11px;font-weight:600;color:var(--dim);transform:translateY(-50%)}
 </style>
 </head>
 <body>
@@ -2144,7 +2147,7 @@ function renderAgenda(){
   const body=$('#agBody');
   body.innerHTML=classesNote(k)+(WKX.open?`<div class="wk-hint"><span>Agenda de la semana</span><em>${WKX.wide?'toca otra vez para volver':'toca un día'}</em></div>`+weekGrid():weekMini())+rachasHTML(k);
   // al desplegar, la pantalla se queda donde estaba (sin bajar sola); con un día ancho, la ventana de horas se abre en las 7:00
-  const sc=$('#agwScroll');if(sc&&WKX.wide)sc.scrollTop=WKX.st!=null?WKX.st:2*40;
+  const sc=$('#agwScroll');if(sc&&WKX.wide)sc.scrollTop=WKX.st!=null?WKX.st:(WKX._align||0);
 }
 /* Hábitos del día sin hora: no tienen bloque, pero salen en la agenda (franja «Sin hora») */
 function noTimeHabits(k){const ev=dayEvents(k);return dayHabits(k).filter(h=>!ev.some(e=>e.habit===h.id));}
@@ -2193,46 +2196,49 @@ function rachasHTML(k){
       <div class="hk-nm">${esc(h.emoji)} <span>${esc(h.name)}</span><em>${dn}/${h.schedule.mode==='xweek'?h.schedule.times:due}</em></div><div class="hk-d7">${d7}</div></button>`;}).join('')}</div>`;
 }
 function weekGrid(){
-  // Semana por horas (diseño 1+3): solo hábitos y obligaciones fijas, tiempo libre de fondo, horas cada 2 h
-  const ws=weekStartK(sel),t=todayK(),HP=40,PX=HP/60;
+  // Semana por horas (diseño 1+3): solo hábitos y obligaciones fijas, tiempo libre de fondo, horas cada 2 h.
+  // El día ancho es una columna que se desliza sola (5–24 h); los demás se quedan quietos con las horas de la semana.
+  const ws=weekStartK(sel),t=todayK(),HP=40,PX=HP/60,W0=5,W1=24;
   const days=[...Array(7)].map((_,i)=>addDays(ws,i)),wide=days.includes(WKX.wide)?WKX.wide:null;
   const raw=days.map(k=>dayEvents(k));
   const evs=raw.map(L=>L.filter(e=>(e.kind==='habito'||e.kind==='fijo')&&tm(e.end)>tm(e.start)));
   const all=evs.flat();
   if(!all.length)return `<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda esta semana</h3><p>${S.agendaUntil?`La agenda está hecha hasta el ${shortDate(S.agendaUntil)}.`:''}</p></div>`;
-  // con un día ancho, de 5 a 24 h dentro de una ventana que se desliza (se abre en 7–22); si no, solo las horas con algo
-  const h0=wide?5:Math.max(5,Math.floor(Math.min(...all.map(e=>tm(e.start)))/60)),h1=wide?24:Math.min(24,Math.ceil(Math.max(...all.map(e=>tm(e.end)))/60));
-  const H=(h1-h0)*HP,lo=h0*60,hi=Math.min(h1*60,1439);
+  const h0=Math.max(W0,Math.floor(Math.min(...all.map(e=>tm(e.start)))/60)),h1=Math.min(W1,Math.ceil(Math.max(...all.map(e=>tm(e.end)))/60));
+  const H=(h1-h0)*HP;
   const cols=`30px ${days.map(k=>k===wide?'minmax(0,6.5fr)':'minmax(0,1fr)').join(' ')}`;
-  const lines=`background-image:linear-gradient(to bottom,var(--border) 1px,transparent 1px);background-size:100% ${2*HP}px;background-position:0 ${h0%2?HP:0}px`;
-  let html=`<div class="wkc"><div class="wkc-h"><b>Por horas</b><button class="mini-btn" onclick="WKX.open=false;WKX.wide=null;renderAgenda()">Plegar ‹</button></div>
-    <div class="agw-wrap" id="agwWrap"><div class="agw fit agw-top ${wide?'has-wide':''}" style="grid-template-columns:${cols}"><div class="agw-hd" style="cursor:default"></div>`;
+  const lines=a=>`background-image:linear-gradient(to bottom,var(--border) 1px,transparent 1px);background-size:100% ${2*HP}px;background-position:0 ${a%2?HP:0}px`;
+  let html=`<div class="wkc"><div class="wkc-h"><b>Por horas</b><button class="mini-btn" onclick="WKX.open=false;WKX.wide=null;WKX.st=null;renderAgenda()">Plegar ‹</button></div>
+    <div class="agw-wrap" id="agwWrap"><div class="agw fit ${wide?'has-wide':''}" style="grid-template-columns:${cols}"><div class="agw-hd" style="cursor:default"></div>`;
   days.forEach(k=>{html+=`<div class="agw-hd ${k===t?'today':''} ${k===wide?'wide':''}" onclick="wkWide('${k}')"><b>${k===wide?DOW_N[dow(k)]:DOW_L[dow(k)]}</b><span>${pk(k).getDate()}</span></div>`;});
   const nts=days.map(k=>noTimeHabits(k));
   if(nts.some(x=>x.length)){html+=`<div class="agw-nt-l">Sin<br>hora</div>`;days.forEach((k,i)=>{const L=nts[i];
     if(k===wide){html+=`<div class="agw-nt wide">${L.map(h=>`<button class="${isDone(h,k)?'done':''}" onclick="evSheet('${k}','h:${h.id}')" aria-label="${esc(h.name)}">${esc(h.emoji)}</button>`).join('')}</div>`;return;}
     html+=`<button class="agw-nt" onclick="wkWide('${k}')" aria-label="${L.length} sin hora el ${longDate(k)}">${L.slice(0,3).map(h=>`<span class="${isDone(h,k)?'done':''}">${esc(h.emoji)}</span>`).join('')}${L.length>3?`<small>+${L.length-3}</small>`:''}</button>`;});}
-  html+=`</div><div class="agw-scroll ${wide?'on':''}" id="agwScroll" ${wide?`style="max-height:${15*HP+8}px" onscroll="WKX.st=this.scrollTop"`:''}><div class="agw fit ${wide?'has-wide':''}" style="grid-template-columns:${cols}">`;
   html+=`<div class="agw-hrs" style="height:${H}px">`;
   for(let h=h0;h<=h1;h++)if(h%2===0)html+=`<span style="top:${(h-h0)*HP}px">${h}</span>`;
   html+=`</div>`;
   days.forEach((k,i)=>{
-    const cmp=k!==wide; // columnas estrechas: solo icono y hora
-    html+=`<div class="agw-day ${k===wide?'wide':''} ${k===t?'today':''}" data-colk="${k}" data-h0="${h0*60}" style="height:${H}px;${lines}" onclick="wkWide('${k}')">`;
+    const isW=k===wide,a0=isW?W0:h0,a1=isW?W1:h1,lo=a0*60,hi=Math.min(a1*60,1439),HH=(a1-a0)*HP,cmp=!isW;
+    let inner='';
     // tiempo libre de fondo (huecos de 30 min o más), recortado alrededor de lo demás
-    for(const f of freeParts(raw[i])){const st=Math.max(f.s,h0*60),en=Math.min(f.e,h1*60);if(en-st<30)continue;
-      html+=`<button class="agw-ev libre ${cmp?'cmp':''}" style="--c:${evColor(f.ev)};top:${(st-h0*60)*PX}px;height:${(en-st)*PX-2}px;left:1px;width:calc(100% - 2px);right:auto" onclick="event.stopPropagation();evSheet('${k}','${f.ev.id}')" aria-label="${esc(f.ev.title)} ${fmtT(st)}–${fmtT(en)}">${cmp?(en-st>=60?'<b>☕</b>':''):`<b>☕ ${esc(f.ev.title)}</b>`}</button>`;}
+    for(const f of freeParts(raw[i])){const st=Math.max(f.s,lo),en=Math.min(f.e,a1*60);if(en-st<30)continue;
+      inner+=`<button class="agw-ev libre ${cmp?'cmp':''}" style="--c:${evColor(f.ev)};top:${(st-lo)*PX}px;height:${(en-st)*PX-2}px;left:1px;width:calc(100% - 2px);right:auto" onclick="event.stopPropagation();evSheet('${k}','${f.ev.id}')" aria-label="${esc(f.ev.title)} ${fmtT(st)}–${fmtT(en)}">${cmp?(en-st>=60?'<b>☕</b>':''):`<b>☕ ${esc(f.ev.title)}</b>`}</button>`;}
     for(const e of layout(evs[i].map(x=>({...x})))){
-      const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60);if(en<=st)continue;const top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
-      const w=100/e._lanes,title=k===wide?(WEEK_SHORT[e.id]||e.title):'';
+      const st=Math.max(tm(e.start),lo),en=Math.min(tm(e.end),a1*60);if(en<=st)continue;const top=(st-lo)*PX,ht=Math.max(18,(en-st)*PX-2);
+      const w=100/e._lanes,title=isW?(WEEK_SHORT[e.id]||e.title):'';
       const hb=e.habit?getH(e.habit):null,ok=hb&&isDone(hb,k)?' ✓':'';
       const narrow=e._lanes>1&&cmp,lbl=cmp?`<b>${evIcon(e)}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`:`<b>${evIcon(e)} ${esc(title)}${ok}</b><small>${fmtT(tm(e.start))}</small>`;
-      html+=`<button class="agw-ev ${e.cancelled?'cancel':''} ${narrow?'narrow':''} ${cmp?'cmp':''} ${hb&&isDone(hb,k)?'ok':''}" title="${esc(e.title)} ${fmtT(tm(e.start))}–${fmtT(tm(e.end))}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 1px);width:calc(${w}% - 2px);right:auto" onclick="event.stopPropagation();evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,lo,hi)}>${lbl}</button>`;
+      inner+=`<button class="agw-ev ${e.cancelled?'cancel':''} ${narrow?'narrow':''} ${cmp?'cmp':''} ${hb&&isDone(hb,k)?'ok':''}" title="${esc(e.title)} ${fmtT(tm(e.start))}–${fmtT(tm(e.end))}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 1px);width:calc(${w}% - 2px);right:auto" onclick="event.stopPropagation();evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,lo,hi)}>${lbl}</button>`;
     }
-    if(k===t){const nw=new Date(),m=nw.getHours()*60+nw.getMinutes();if(m>=h0*60&&m<=h1*60)html+=`<div class="agw-now" style="top:${(m-h0*60)*PX}px"></div>`;}
-    html+=`</div>`;
+    if(k===t){const nw=new Date(),m=nw.getHours()*60+nw.getMinutes();if(m>=lo&&m<=a1*60)inner+=`<div class="agw-now" style="top:${(m-lo)*PX}px"></div>`;}
+    if(isW){ // columna ancha: su propia ventana de horas que se desliza, con sus horas dentro
+      let hl='';for(let h=W0;h<=W1;h++)if(h%2===0)hl+=`<span style="top:${(h-W0)*HP}px">${h}</span>`;
+      html+=`<div class="agw-day wide ${k===t?'today':''}" data-colk="${k}" data-h0="${lo}" id="agwScroll" style="height:${H}px" onclick="wkWide('${k}')" onscroll="WKX.st=this.scrollTop"><div class="agw-in" style="height:${HH}px;${lines(W0)}"><div class="agw-whrs">${hl}</div>${inner}</div></div>`;
+    } else html+=`<div class="agw-day ${k===t?'today':''}" data-colk="${k}" data-h0="${lo}" style="height:${H}px;${lines(h0)}" onclick="wkWide('${k}')">${inner}</div>`;
   });
-  html+=`</div></div></div></div><p class="hint" style="text-align:center">Toca un bloque para cambiarlo. Mantenlo pulsado y arrástralo para moverlo de hora o de día.</p>`;
+  html+=`</div></div></div><p class="hint" style="text-align:center">Toca un bloque para cambiarlo. Mantenlo pulsado y arrástralo para moverlo de hora o de día.</p>`;
+  WKX._align=(h0-W0)*HP; // al abrir un día ancho, su ventana empieza alineada con la semana
   return html;
 }
 function evSheet(k,id){

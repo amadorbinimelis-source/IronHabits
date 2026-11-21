@@ -8,7 +8,7 @@ Hasta la v1.14 la app se llamaba «Rutina».
 - Tocar un día en la tira de arriba despliega la semana con ese día en grande. Al desplegar, baja hasta la hora actual.
 - Hoy: las filas de la línea del día son finas (icono, nombre, duración · progreso, racha y check); tocar la fila la despliega con el plan, los pasos, ⋯ y «Empezar». Las que están a medias enseñan sus pasos y el relleno de progreso.
 - Al desplegar la semana, la pantalla ya no baja sola.
-- Día ancho: ventana de horas que se desliza con el dedo, de 5:00 a 24:00 (se abre en las 7:00 y recuerda dónde estabas al cambiar de día); se pueden arrastrar bloques en todo ese rango.
+- Día ancho: solo esa columna se desliza con el dedo, de 5:00 a 24:00, con sus horas dentro (se abre alineada con la semana y recuerda dónde estabas al cambiar de día); los demás días se quedan quietos. Se pueden arrastrar bloques en todo ese rango.
 - Arreglado (venía de la v1.26): los botones de enlace del plan («Abrir Test 1»…) tenían el texto del color del fondo.
 - Tutorial de la Agenda adaptado (desplegar, ensanchar hoy, tocar el bloque).
 - Pruebas: `tests/test_v130.py`; las que usaban la vista Día ahora usan el día ancho.
