@@ -2,6 +2,21 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.30 · 21 nov 2026 · Agenda = Semana
+- Fuera las pestañas «Día» y «3 días»: la Agenda es solo la Semana (plegada por defecto).
+- El día ensanchado hace de vista Día: todos los bloques (comidas, trayectos…) con su nombre completo, el tiempo libre de fondo (se toca para cambiarlo), la fila «Sin hora» con cada hábito tocable y la línea roja de la hora actual.
+- Tocar un día en la tira de arriba despliega la semana con ese día en grande. Al desplegar, baja hasta la hora actual.
+- Tutorial de la Agenda adaptado (desplegar, ensanchar hoy, tocar el bloque).
+- Pruebas: `tests/test_v130.py`; las que usaban la vista Día ahora usan el día ancho.
+
+## v1.29 · 21 nov 2026 · Diseño C (híbrido)
+- Hoy: la semana con un puntito de color por hábito (relleno = hecho); tarjeta grande «AHORA / SIGUIENTE» con el hábito que toca y «▶ Continuar»; el resto del día como línea de tiempo con la hora a la izquierda y un punto de color; el tiempo libre sale entre los hábitos de su franja; los hábitos sin hora y sin plan, como fichas de un toque. Relleno de progreso en la cabecera de cada tarjeta.
+- Agenda › Semana: empieza plegada (miniatura de 7 días); al tocarla se despliega por horas en la misma pantalla y sin scroll lateral; tocar un día lo ensancha con nombres y horas («Ver día ›»), otro toque lo devuelve; «Plegar» vuelve a la miniatura. Debajo, «Rachas»: racha grande, check de hoy y fila L–D por hábito. Arrastrar bloques sigue igual.
+- Detalle: cabecera de color con los pasos de hoy (se tachan ahí), próximas 3 sesiones y mapa mes a mes.
+- Editor: vista previa en vivo de cómo saldrá en Hoy.
+- Sin cambios en los datos guardados (no hace falta migración).
+- Pruebas: `tests/test_v129.py` (29 comprobaciones); pruebas de la semana adaptadas a la vista desplegada.
+
 ## v1.28 · 21 nov 2026
 - 🎨 Tarjetas de «Hoy» con el color de cada hábito: fondo en degradado suave, borde y caja del plan a juego; los hechos quedan más apagados. Ajustes › Apariencia › «Tarjetas de color».
 - Pruebas: `tests/test_v128.py`.

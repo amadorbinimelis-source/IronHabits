@@ -88,7 +88,7 @@ async def main():
         await pg.evaluate("go('set')"); await pg.wait_for_timeout(300)
         t = await pg.inner_text("#setBody")
         check(t.count("Suscribir el calendario") == 1 and "Exportar unas semanas" not in t and "Descargar el archivo" not in t, "Ajustes: una forma de calendario y una de copia")
-        await pg.evaluate("agView='day';sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(300)
+        await pg.evaluate("WKX.open=true;sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(300)
         check(not await pg.evaluate("!!document.querySelector('.ag-legend')"), "Agenda sin leyenda")
         # Ejemplos sin duplicar y borrar sin perder el plan
         await pg.evaluate("go('hoy');loadExamples()"); await pg.wait_for_timeout(300)

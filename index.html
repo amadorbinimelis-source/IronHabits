@@ -849,6 +849,123 @@ html[data-theme=light] .hc-act{color:#fff}
 .sf-f label{font-weight:700;font-size:.9rem}.sf-f label small{display:block;font-weight:500;color:var(--muted);font-size:.72rem}
 .sf-f span{color:var(--muted);font-size:.85rem}
 .sf-out{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;font-size:.85rem}.sf-out b{font-family:var(--num);font-size:1.15rem}
+
+/* ═══ v1.29 · Diseño C (híbrido): Ahora + línea del día + semana desplegable + rachas ═══ */
+/* Tira de la semana: número y un puntito por hábito (relleno = hecho) */
+.wd{gap:2px;padding:4px 0 5px;justify-content:flex-start}
+.wd-n{display:grid;place-items:center;width:30px;height:30px;border-radius:15px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.wd.today .wd-n{background:var(--acc);color:var(--on-acc);font-weight:800}
+.wd.fut .wd-n{color:var(--muted)}
+.wd-dots{display:flex;gap:2.5px;height:6px;align-items:center}
+.wd-dots i{width:5px;height:5px;border-radius:3px;box-shadow:inset 0 0 0 1.4px var(--c);opacity:.6}
+.wd-dots i.on{background:var(--c);box-shadow:none;opacity:1}
+/* Línea del día: hora a la izquierda, una línea con un punto del color del hábito y la tarjeta */
+.tlr{display:grid;grid-template-columns:40px minmax(0,1fr);gap:6px;position:relative}
+.tlr-t{position:relative;font-size:12px;font-weight:700;color:var(--muted);text-align:right;padding:16px 10px 0 0;font-variant-numeric:tabular-nums}
+.tlr-t::before{content:'';position:absolute;right:-1px;top:0;bottom:0;width:2px;background:var(--border)}
+.tlr-t::after{content:'';position:absolute;right:-5px;top:20px;width:10px;height:10px;border-radius:5px;background:var(--bg);box-shadow:inset 0 0 0 2.5px var(--hc);z-index:1}
+.tlr.on .tlr-t::after{background:var(--hc);box-shadow:none}
+.tlr .hc{margin-bottom:var(--s2)}
+.tlr .hc-name{white-space:normal;overflow-wrap:anywhere;line-height:1.2}
+.tlr .hc-ico{width:38px;height:38px;font-size:19px}
+.tlr .hc-in{padding:10px}
+.tlr .hc-row{gap:8px}
+.tlr .hc-row>.hc-fill{left:-10px;top:-10px}
+.hc.hero .hc-name{white-space:normal}
+.tlr.free .tlr-t::after{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ok) 70%,transparent)}
+.tl-free{width:100%;min-height:48px;margin-bottom:var(--s2);border-radius:var(--r-lg);border:1.5px dashed color-mix(in srgb,var(--ok) 55%,transparent);display:flex;align-items:center;gap:10px;padding:0 14px;text-align:left;color:var(--muted);font-size:var(--fs-sm)}
+.tl-free b{color:var(--text);font-weight:600;font-size:var(--fs-body)}
+/* Relleno de progreso detrás de la cabecera de la tarjeta */
+.hc-row{position:relative}
+.hc-row>*{position:relative}
+.hc-row>.hc-fill{position:absolute;left:calc(-1 * var(--s3));top:calc(-1 * var(--s3));bottom:-4px;border-radius:var(--r-lg) 6px 6px 0;background:color-mix(in srgb,var(--hc) 20%,transparent);pointer-events:none;transition:width .5s var(--ease)}
+/* Tarjeta «Ahora»: el hábito que toca, grande y con un botón para seguir */
+.hc.hero{border-radius:var(--r-xl);margin-bottom:var(--s3);border-width:1.5px}
+.hc.hero .hc-in{padding:var(--s4)}
+html:not(.no-tint) .hc.hero .hc-in{background:linear-gradient(155deg,color-mix(in srgb,var(--hc) 26%,var(--card)) 0%,color-mix(in srgb,var(--hc) 10%,var(--card)) 75%)}
+.hero-tag{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);font-weight:700;color:color-mix(in srgb,var(--hc) 60%,var(--text));margin-bottom:var(--s2)}
+.hero-tag .now{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:7px;background:var(--danger);color:#fff}
+.hero-tag .now.next{background:var(--card3);color:var(--text)}
+.hc.hero .hc-name{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.hc.hero .start-btn{background:var(--hc);color:#0A0A0D;border-color:transparent;font-size:var(--fs-h3);min-height:52px;font-weight:700}
+/* Sin hora: fichas que se marcan con un toque */
+.ntc-row{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s3)}
+.ntc{min-height:44px;border-radius:22px;padding:0 14px 0 5px;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid color-mix(in srgb,var(--hc) 30%,var(--border));font-weight:600;font-size:var(--fs-body)}
+.ntc-e{width:34px;height:34px;border-radius:17px;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb,var(--hc) 20%,transparent)}
+.ntc.on{background:var(--hc);color:#0A0A0D;border-color:transparent}
+.ntc.on .ntc-e{background:rgba(255,255,255,.3)}
+.ntc.pop{animation:pop .45s var(--ease)}
+/* Semana: miniatura que se despliega y día que se ensancha */
+.wkm{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;width:100%;text-align:center}
+.wkm-d{border-radius:14px;padding:6px 3px;display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--card);border:1px solid var(--border);min-height:120px}
+.wkm-d.today{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.wkm-d small{font-size:11px;font-weight:700;color:var(--dim)}
+.wkm-d b{font-size:15px;margin-bottom:3px}
+.wkm-d i{width:100%;border-radius:4px;background:color-mix(in srgb,var(--c) 25%,var(--card));border-left:3px solid var(--c)}
+.wkm-d i.ok{background:color-mix(in srgb,var(--c) 55%,var(--card))}
+.wkm-d i.libre{background:transparent;border:1.5px dashed color-mix(in srgb,var(--ok) 55%,transparent)}
+.wk-open{display:block;width:100%;text-align:left}
+.wk-hint{display:flex;justify-content:space-between;align-items:center;margin:var(--s3) 2px var(--s2);font-size:var(--fs-sm);color:var(--muted);font-weight:600}
+.wk-hint button{min-height:44px;padding:0 14px;border-radius:var(--r-md);background:var(--card2);color:var(--text);font-weight:600}
+.agw.fit{min-width:0;transition:grid-template-columns .35s var(--ease)}
+.agw.fit .agw-hd{cursor:pointer}
+.agw.fit .agw-day{cursor:pointer}
+.agw.fit .agw-day.wide{background-color:color-mix(in srgb,var(--acc) 6%,transparent)}
+.agw.fit .agw-hd.wide b{color:var(--text)}
+.agw-ev.cmp{padding:2px 1px;text-align:center}
+.agw-ev.cmp b{font-size:.8rem;overflow:visible;text-overflow:clip}
+.agw-ev.cmp small{font-size:11px;letter-spacing:-.03em}
+.agw.has-wide .agw-ev.cmp small{display:none}
+.agw-go{display:block;margin:4px auto 0;font-size:11px;font-weight:700;color:var(--acc);min-height:24px}
+/* Rachas: una tarjeta por hábito con la semana L–D */
+.hkg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2)}
+.hk{position:relative;text-align:left;border-radius:var(--r-xl);padding:14px;background:color-mix(in srgb,var(--hc) 16%,var(--card));border:1px solid color-mix(in srgb,var(--hc) 28%,var(--border));min-height:44px}
+.hk-n{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.hk-u{font-size:11px;font-weight:700;letter-spacing:.06em;color:color-mix(in srgb,var(--hc) 60%,var(--text));margin-top:3px;text-transform:uppercase}
+.hk-nm{display:flex;align-items:center;gap:6px;font-size:var(--fs-body);font-weight:700;margin-top:10px;min-width:0}
+.hk-nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hk-nm em{margin-left:auto;font-style:normal;font-size:var(--fs-sm);font-weight:800;color:color-mix(in srgb,var(--hc) 60%,var(--text))}
+.hk-d7{display:flex;gap:3px;margin-top:8px}
+.hk-d7 i{flex:1;max-width:20px;height:20px;border-radius:6px;background:color-mix(in srgb,var(--hc) 14%,var(--card2));font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center;color:var(--muted)}
+.hk-d7 i.on{background:var(--hc);color:#0A0A0D}
+.hk-d7 i.off{opacity:.3}
+.hk-d7 i.t{box-shadow:0 0 0 1.5px var(--text)}
+.hk-ok{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:15px;box-shadow:inset 0 0 0 2.5px var(--hc);display:grid;place-items:center;color:transparent}
+.hk-ok.on{background:var(--hc);box-shadow:none;color:#0A0A0D}
+/* Detalle: cabecera de color, pasos de hoy, próximas sesiones y meses */
+.det-hero{border-radius:var(--r-xl);padding:var(--s4);background:linear-gradient(155deg,color-mix(in srgb,var(--hc) 30%,var(--card)) 0%,color-mix(in srgb,var(--hc) 10%,var(--card)) 80%);border:1px solid color-mix(in srgb,var(--hc) 35%,var(--border));margin-bottom:var(--s3)}
+.det-hero .dh1{display:flex;align-items:center;gap:var(--s3)}
+.det-hero .dh1 .hc-ico{width:52px;height:52px;font-size:26px}
+.det-hero h2{font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.det-hero .dmeta{font-size:var(--fs-sm);color:color-mix(in srgb,var(--hc) 45%,var(--text));font-weight:600;margin-top:2px}
+.det-hero .dchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--s3)}
+.det-hero .dchips span{font-size:var(--fs-sm);font-weight:700;padding:5px 10px;border-radius:10px;background:color-mix(in srgb,var(--card) 55%,transparent)}
+.det-hero .steps{margin-top:var(--s2)}
+.nx-row{display:flex;justify-content:space-between;align-items:center;min-height:48px;padding:0 var(--s4);font-size:var(--fs-body)}
+.nx-row+.nx-row{border-top:1px solid var(--border)}
+.nx-row span{color:var(--muted);font-variant-numeric:tabular-nums}
+.mos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 12px;padding:var(--s4)}
+.mo small{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.mo div{display:grid;grid-template-columns:repeat(7,1fr);gap:2.5px}
+.mo i{aspect-ratio:1;border-radius:3px}
+/* Editor: vista previa arriba y bloques agrupados */
+.ed-prev{margin:2px 0 var(--s3);padding:var(--s3);border-radius:var(--r-xl);background:var(--bg2);border:1px solid var(--border)}
+.ed-prev>small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:0 0 8px 2px}
+.ed-pc{display:flex;align-items:center;gap:12px;border-radius:var(--r-lg);padding:10px 12px;background:linear-gradient(155deg,color-mix(in srgb,var(--hc) 20%,var(--card)),color-mix(in srgb,var(--hc) 8%,var(--card)));border:1px solid color-mix(in srgb,var(--hc) 34%,var(--border))}
+.ed-pc .hc-ico{width:40px;height:40px;font-size:20px}
+.ed-pc b{display:block;font-size:var(--fs-h3);font-weight:600}
+.ed-pc small{font-size:var(--fs-sm);color:var(--muted)}
+.ed-pc .ed-ring{margin-left:auto;width:30px;height:30px;border-radius:15px;box-shadow:inset 0 0 0 2.5px var(--hc);flex:none}
+
+/* v1.30 · Agenda solo semana */
+.agw-ev.libre{z-index:0;background:transparent;border:1.5px dashed color-mix(in srgb,var(--c) 60%,transparent);color:var(--muted)}
+.agw-ev.libre b{font-weight:600}
+.agw-ev:not(.libre){z-index:1}
+.agw-now{position:absolute;left:-1px;right:-1px;height:2px;background:var(--danger);z-index:3;pointer-events:none;border-radius:1px}
+.agw-now::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;border-radius:4px;background:var(--danger)}
+.agw-nt.wide{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:center}
+.agw-nt.wide button{min-width:30px;min-height:30px;font-size:16px;border-radius:8px}
+.agw-nt.wide button.done{opacity:.45}
 </style>
 </head>
 <body>
@@ -921,7 +1038,7 @@ html[data-theme=light] .hc-act{color:#fff}
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.28';
+const APP_VERSION='1.30';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -1523,7 +1640,7 @@ function renderProg(){
 }
 
 /* ═════════════ HOY ═════════════ */
-function pick(k){sel=k;render();}
+function pick(k){sel=k;if(view==='agenda'){WKX.open=true;WKX.wide=k;}render();}
 function wkShift(n){sel=addDays(sel,7*n);render();}
 function weekLabel(){
   const ws=weekStartK(sel),tw=weekStartK(todayK()),d=Math.round(diffDays(tw,ws)/7);
@@ -1538,10 +1655,10 @@ function swipeWeek(el){let x0=null,y0=null;el.addEventListener('touchstart',e=>{
 function renderWeek(target){
   const ws=weekStartK(sel),t=todayK();let html='';
   for(let i=0;i<7;i++){
-    const k=addDays(ws,i),st=dayStats(k),p=st.total?st.done/st.total:0;
-    html+=`<button class="wd ${k===sel?'sel':''} ${k===t?'today':''} ${k>t?'fut':''}" onclick="pick('${k}')">
-      <span class="wd-l">${DOW_L[dow(k)]}</span>
-      <span class="wd-r">${ring(k>t?0:p,32,3,'var(--acc)')}<b>${pk(k).getDate()}</b></span></button>`;
+    const k=addDays(ws,i),hs=dayHabits(k),nd=hs.filter(h=>isDone(h,k)).length;
+    const dots=hs.slice(0,6).map(h=>`<i style="--c:${h.color}" class="${isDone(h,k)?'on':''}"></i>`).join('');
+    html+=`<button class="wd ${k===sel?'sel':''} ${k===t?'today':''} ${k>t?'fut':''}" onclick="pick('${k}')" aria-label="${longDate(k)}: ${nd} de ${hs.length} hechos">
+      <span class="wd-l">${DOW_L[dow(k)]}</span><b class="wd-n">${pk(k).getDate()}</b><span class="wd-dots">${dots}</span></button>`;
   }
   $(target||'#wkDays').innerHTML=html;
   const lb=$(target==='#agWeek'?'#agLbl':'#wkLbl');if(lb){lb.innerHTML=weekLabel();lb.classList.toggle('away',sel!==t);}
@@ -1565,7 +1682,9 @@ function renderHoy(){
   const done=hs.filter(h=>isDone(h,k)).length,fut=k>t,minOn=!!(S.minDays||{})[k];
   // 1 · Una sola tarjeta destacada (lo más importante ahora); el resto, en la campana
   let html='';
-  if(k===t){const sp=spotlight(k);html+=sp.main;setBell(sp.rest);}else setBell([]);
+  const hero=heroPick(k,hs);
+  if(k===t){const sp=spotlight(k,!!hero);html+=sp.main;setBell(sp.rest);}else setBell([]);
+  if(hero&&hs.length)html+=hcHTML(hero.h,k,{hero:hero}); // «Ahora», justo debajo de la semana
   // 2 · Cabecera compacta del día
   const pct=hs.length?done/hs.length:0,rd=k===t?readiness(k):null,low=rd&&rd.score<45&&!minOn;
   html+=`<div class="dayhead"><span class="dh-ring">${ring(pct,40,5,'var(--acc)')}</span>
@@ -1577,7 +1696,7 @@ function renderHoy(){
   if(!hs.length){
     html+=`<div class="card empty"><div class="big">🌙</div><h3>Nada programado</h3><p>Descansa o adelanta algo de otro día.</p></div>`;
   } else {
-    html+=habitSections(hs,k);
+    html+=habitSections(hs.filter(h=>!hero||h!==hero.h),k,!!hero);
   }
   if(k<=addDays(t,7))html+=`<button class="btn ghost mt8" onclick="extraSheet('${k}')">➕ Añadir sesión extra</button>`;
   const cx=S.habits.filter(h=>!h.archived&&isCancelledH(h,k)&&!hasLog(h,k));
@@ -1592,23 +1711,33 @@ function renderHoy(){
 }
 /* Orden de Hoy según la hora: la franja de ahora primero, luego las siguientes, después lo que quedó pendiente
    de franjas pasadas y, al final, «Hechos hoy» plegado. Los demás días: franjas en orden y lo hecho al final. */
-function habitSections(hs,k){
+function habitSections(hs,k,heroPend){
   const t=todayK(),isToday=k===t,tt=h=>{const x=habitTime(h,k);return x&&x.start?tm(x.start):9999;};
-  const pend=hs.filter(h=>!isDone(h,k)),done=hs.filter(h=>isDone(h,k));
+  const chip=h=>momentFor(h,k)==='any'&&h.type==='check'&&!planFor(h,k)&&!(S.minDays||{})[k]; // sin hora y sin plan: ficha de un toque
+  const chips=hs.filter(chip),rest=hs.filter(h=>!chip(h));
+  const pend=rest.filter(h=>!isDone(h,k)),done=rest.filter(h=>isDone(h,k));
+  const nowM=new Date().getHours()*60+new Date().getMinutes(),fut=k>t;
+  const free=k>=t?freeParts(dayEvents(k)).filter(f=>f.e-f.s>=30&&(k>t||f.e>nowM)):[];
+  const row=h=>{const x=habitTime(h,k);return {t:x&&x.start?tm(x.start):9999,html:`<div class="tlr ${isDone(h,k)?'on':''}" style="--hc:${h.color}"><div class="tlr-t">${x&&x.start?fmtT(tm(x.start)):''}</div><div class="tlr-c">${hcHTML(h,k)}</div></div>`};};
+  const freeRow=f=>({t:f.s,html:`<div class="tlr free" style="--hc:var(--ok)"><div class="tlr-t">${fmtT(f.s)}</div><button class="tl-free" onclick="evSheet('${k}','${f.ev.id}')">☕ <b>${esc(f.ev.title||'Tiempo libre')}</b> · ${fmtDur(f.e-f.s)}</button></div>`});
+  const chipHTML=chips.length?`<div class="ntc-row">${chips.map(h=>`<button class="ntc ${isDone(h,k)?'on':''}" id="hc-${h.id}" style="--hc:${h.color}" onclick="act('${h.id}')" ${fut?'disabled':''} aria-pressed="${isDone(h,k)}"><span class="ntc-e">${esc(h.emoji)}</span>${esc(h.name)}${isDone(h,k)?' ✓':''}</button>`).join('')}</div>`:'';
   const order=['manana','tarde','noche','any'];let seq=order.map(m=>({m,past:false}));
   if(isToday){const now=momentOfTime(fmtT(new Date().getHours()*60+new Date().getMinutes())),i=order.indexOf(now);
     seq=[...order.slice(i,3).map(m=>({m,past:false})),{m:'any',past:false},...order.slice(0,i).map(m=>({m,past:true}))];}
   let html='';
   for(const{m,past}of seq){
-    const g=pend.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));if(!g.length)continue;
+    const g=pend.filter(h=>momentFor(h,k)===m).sort((a,b)=>tt(a)-tt(b));
+    const fr=past||m==='any'?[]:free.filter(f=>momentOfTime(fmtT(f.s))===m);
+    if(!g.length&&!(m==='any'&&chips.length))continue; // el tiempo libre solo acompaña a los hábitos de su franja
+    const items=[...g.map(row),...fr.map(freeRow)].sort((a,b)=>a.t-b.t).map(x=>x.html).join('');
     const label=MOMENTS.find(x=>x[0]===m)[1];
-    html+=`<div class="sec ${past?'sec-late':''}"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[m]]}">${ic(MOMENT_IC[m])}</span>${label}${past?' · aún pendiente':''}${past&&overdue(k).length?`<button class="sec-act" onclick="replanSheet()">Recolocar</button>`:''}</div>`+g.map(h=>hcHTML(h,k)).join('');
+    html+=`<div class="sec ${past?'sec-late':''}"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[m]]}">${ic(MOMENT_IC[m])}</span>${label}${past?' · aún pendiente':''}${past&&overdue(k).length?`<button class="sec-act" onclick="replanSheet()">Recolocar</button>`:''}</div>`+(m==='any'?chipHTML:'')+items;
   }
-  if(!pend.length&&done.length&&k<=t)html+=`<div class="all-done">🔥 Todo hecho${isToday?' hoy':''}. ¡Bien!</div>`;
+  if(!heroPend&&!pend.length&&(done.length||chips.length)&&chips.every(h=>isDone(h,k))&&k<=t)html+=`<div class="all-done">🔥 Todo hecho${isToday?' hoy':''}. ¡Bien!</div>`;
   if(done.length){
     const key='done:'+k,open=OPEN[key]===true;
     html+=`<button class="sec sec-btn" onclick="OPEN['${key}']=${!open};render()" aria-expanded="${open}">✅ Hechos${isToday?' hoy':''} (${done.length}) <span>${open?'Ocultar ▴':'Ver ▾'}</span></button>`;
-    if(open)html+=done.sort((a,b)=>tt(a)-tt(b)).map(h=>hcHTML(h,k)).join('');
+    if(open)html+=done.sort((a,b)=>tt(a)-tt(b)).map(h=>row(h).html).join('');
   }
   return html;
 }
@@ -1632,9 +1761,9 @@ function noticeList(k){
 }
 function banners(k){return noticeList(k).map(x=>x.html).join('');}
 // La tarjeta destacada: un aviso importante; si no hay, lo que toca según la hora (check-in, ahora/después o mañana)
-function spotlight(k){
+function spotlight(k,noNow){
   const ns=noticeList(k),h=new Date().getHours();
-  const ci=checkinCard(k),nc=nowCard(k),tc=h>=20?tomorrowCard():'';
+  const ci=checkinCard(k),nc=noNow?'':nowCard(k),tc=h>=20?tomorrowCard():'';
   const moment=[h<13&&ci,h>=20&&tc,nc,ci].filter(Boolean);
   const cards=[];if(ns.length&&ns[0].prio===1)cards.push(ns.shift().html);
   if(moment.length)cards.push(moment.shift());
@@ -1642,6 +1771,18 @@ function spotlight(k){
   const main=cards.shift()||'';
   return {main,rest:[...cards,...ns.map(x=>x.html),...moment.filter(x=>x!==main&&!cards.includes(x))]};
 }
+
+/* La tarjeta «Ahora» (diseño C): el hábito pendiente que está en su hora o, si no, el siguiente de hoy */
+function heroPick(k,hs){
+  if(k!==todayK())return null;
+  const n=new Date(),m=n.getHours()*60+n.getMinutes();let cur=null,nxt=null;
+  for(const h of hs){if(isDone(h,k))continue;const x=habitTime(h,k);if(!x||!x.start)continue;const s=tm(x.start),e=tm(x.end);
+    if(s<=m&&m<e){if(!cur||s<cur.s)cur={h,s,e};}else if(s>m&&(!nxt||s<nxt.s))nxt={h,s,e};}
+  if(cur)return{...cur,now:true,left:cur.e-m};
+  return nxt?{...nxt,now:false,left:nxt.s-m}:null;
+}
+function heroTag(x){const d=x.left,t=d>=60?`${Math.floor(d/60)} h ${pad(d%60)} min`:`${d} min`;
+  return `<div class="hero-tag"><span class="now ${x.now?'':'next'}">${x.now?'AHORA':'SIGUIENTE'}</span>${x.now?`quedan ${t}`:`empieza en ${t}`}</div>`;}
 let _bell=[];
 function setBell(items){_bell=items;const b=$('#hoyBell');if(!b)return;b.hidden=!items.length;$('#hoyBellN').textContent=items.length||'';b.setAttribute('aria-label',`Avisos (${items.length})`);}
 function noticesSheet(){openSheet(`<div class="sheet-title">Más para hoy</div><div class="sub mb12">Lo que no cabe arriba en Hoy</div>${_bell.join('')||'<p class="hint">No hay nada más.</p>'}`);}
@@ -1662,7 +1803,7 @@ function metaText(h,k){
   return parts.join(' · ');
 }
 
-function hcHTML(h,k){
+function hcHTML(h,k,o={}){
   const fut=k>todayK(),e=entry(h,k)||{},done=isDone(h,k),p=progress(h,k);
   const running=S.timer&&S.timer.hid===h.id&&S.timer.k===k;
   const dis=fut?'disabled':'';
@@ -1683,15 +1824,15 @@ function hcHTML(h,k){
   const open=cardOpen(h,k,done);
   const plan=pl&&open?(pl.blocks?`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}${pl.min?` · ${pl.min} min`:''}</div>`:''}${blocksHTML(h,pl)}${hasCourse(h)?`<button class="crs-link" onclick="event.stopPropagation();courseSheet('${h.id}')">📅 Plan completo · 🧰 Material · 📊 Notas</button>`:''}</div>`
     :`<div class="hc-plan">${pl.tag?`<div class="pl-tag">${esc(pl.tag)}</div>`:''}${fmtPlan(pl.text)}</div>`):'';
-  const start=open&&!done&&k===todayK()&&!(S.minDays||{})[k]?`<button class="start-btn" onclick="focusMode('${h.id}')">▶ Empezar${h.type==='time'?'':' con cronómetro'}</button>`:'';
+  const start=open&&!done&&k===todayK()&&!(S.minDays||{})[k]?`<button class="start-btn" onclick="focusMode('${h.id}')">▶ ${o.hero&&p>0?'Continuar':'Empezar'}${h.type==='time'||o.hero?'':' con cronómetro'}</button>`:'';
   const minBtns=minOn&&!done?`<div class="hc-min"><button class="btn pri" onclick="doMin('${h.id}')">✓ Versión mínima hecha</button></div>`:'';
   const more=pl&&!open?`<button class="hc-more" onclick="toggleCard('${k}','${h.id}',1)">Ver plan del día ▾</button>`:'';
   const steps=minOn||!open?'':h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="stepT('${h.id}','${s.id}')" ${dis}><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:'';
   // Deslizar a la izquierda (solo si está pendiente y el día no ha pasado): Mañana / Saltar
   const swipe=!done&&k>=todayK()&&!isExtra(h,k)&&!movedFrom(h,k);
   const acts=swipe?`<div class="hc-acts"><button class="hc-act move" onclick="swipeAct('${k}','${h.id}','move')">⏭️<span>Mañana</span></button><button class="hc-act skip" onclick="swipeAct('${k}','${h.id}','skip')">⊘<span>Saltar</span></button></div>`:'';
-  return `<div class="hc ${done?'done':''}" id="hc-${h.id}" style="--hc:${h.color}">${acts}<div class="hc-in" ${swipe?'data-swipe="1"':''}>
-    <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div>
+  return `<div class="hc ${done?'done':''} ${o.hero?'hero':''}" id="hc-${h.id}" style="--hc:${h.color}">${acts}<div class="hc-in" ${swipe?'data-swipe="1"':''}>${o.hero?heroTag(o.hero):''}
+    <div class="hc-row">${p>0&&!done?`<span class="hc-fill" style="width:calc((100% + 24px) * ${p.toFixed(3)})"></span>`:''}<div class="hc-ico">${esc(h.emoji)}</div>
       <button class="hc-info" onclick="${pl?`toggleCard('${k}','${h.id}',${open?0:1})`:`cardMenu('${h.id}')`}" aria-expanded="${!!(pl&&open)}"><div class="hc-name">${esc(h.name)}</div><div class="hc-meta">${metaText(h,k)}</div></button>
       <button class="hc-menu" onclick="cardMenu('${h.id}')" aria-label="Opciones de ${esc(h.name)}"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       <div class="hc-ctl">${ctl}</div></div>${plan}${start}${minBtns}${steps}${more}</div></div>`;
@@ -1888,7 +2029,8 @@ function resetDayPlan(id){const h=getH(id);pushUndo();if(h.plan&&h.plan.dates)de
 /* ═════════════ AGENDA ═════════════ */
 const KIND={fijo:['Obligatorio','#F97316'],habito:['Hábito',null],comida:['Comida','#84CC16'],trayecto:['Trayecto','#64748B'],libre:['Tiempo libre','#55555F'],sueno:['Sueño','#6366F1'],rutina:['Día a día','#94A3B8']};
 const KIND_COLOR={clase:'#60A5FA',futbol:'#F97316',partido:'#F97316',mimi:'#E879F9'};
-let agView='day';
+let agView='week';
+const WKX={open:false,wide:null,scroll:false}; // Semana: plegada (miniatura) o desplegada por horas; wide = día ensanchado
 const AG0=6*60,AG1=24*60+40;
 function evColor(e){if(e.kind==='habito'){const h=getH(e.habit);return h?h.color:'#22C55E';}return KIND_COLOR[e.id]||KIND[e.kind][1];}
 function evIcon(e){if(e.kind==='habito'){const h=getH(e.habit);return h?h.emoji:'•';}return {clase:'🎓',futbol:'⚽',partido:'⚽',mimi:'🏃‍♀️',desayuno:'☕',comida:'🍽️',cena:'🍽️',merienda:'🍎',taper:'🥡',dormir:'😴'}[e.id]||{trayecto:'🚶',libre:'·',comida:'🍽️'}[e.kind]||'';}
@@ -1927,39 +2069,15 @@ function layout(evs){ // reparte en columnas los bloques que se solapan
   flush();return res;
 }
 function renderAgenda(){
-  const k=sel,t=todayK();
-  $('#agTitle').textContent=k===t?'Agenda · hoy':'Agenda';
-  $('#agSub').textContent=longDate(k);
+  const k=sel,t=todayK();agView='week'; // v1.30: la agenda es solo la semana (el día se abre ensanchándolo)
+  $('#agTitle').textContent='Agenda';
+  const ws=weekStartK(k);$('#agSub').textContent=`${shortDate(ws)} – ${shortDate(addDays(ws,6))}`;
   renderWeek('#agWeek');
   const body=$('#agBody');
-  const seg=`<div class="ag-bar"><div class="seg">${[['day','Día'],['3','3 días'],['week','Semana']].map(([v,l])=>`<button class="${agView===v?'on':''}" onclick="agView='${v}';renderAgenda()">${l}</button>`).join('')}</div></div>`;
-  const evs=dayEvents(k),nt=noTimeHabits(k);
-  if(!evs.length&&agView==='day'&&nt.length){body.innerHTML=seg+noTimeHTML(k,nt)+`<div class="card empty"><p>Sin agenda cargada para este día.</p></div>`;return;}
-  if(!evs.length&&agView==='day'){
-    const until=S.agendaUntil;
-    body.innerHTML=seg+`<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda para este día</h3><p>${until&&k>until?`La agenda está hecha hasta el ${shortDate(until)}. Pásame el horario del 2.º cuatrimestre y la alargo.`:'Todavía no hay agenda cargada. Se carga sola con el plan.'}</p></div>`;
-    return;
-  }
-  if(agView==='week'||agView==='3'){body.innerHTML=seg+classesNote(k)+weekGrid(agView==='3'?3:7);return;}
-  const PX=1.1,H=(AG1-AG0)*PX;
-  let html=`<div class="ag-day" style="height:${H+10}px">`;
-  for(let m=AG0,i=0;m<AG1;m+=60,i++)html+=`<div class="ag-hour ${i%2?'alt':''}" style="top:${(m-AG0)*PX}px;height:${Math.min(60,AG1-m)*PX}px"><span>${pad((m/60)%24)}:00</span></div>`;
-  // Tiempo libre = hueco de fondo: se recorta alrededor de lo demás y no quita ancho a nada
-  for(const f of freeParts(evs)){const s=Math.max(f.s,AG0),en=Math.min(f.e,AG1);if(en-s<10)continue;const top=(s-AG0)*PX,h=(en-s)*PX-2;
-    html+=`<button class="ag-ev libre ${h<34?'short':''}" style="--c:${evColor(f.ev)};top:${top}px;height:${h}px;width:calc(100% - 44px);left:44px" onclick="evSheet('${k}','${f.ev.id}')"><b>· ${esc(f.ev.title)}</b><small>${fmtT(s)}–${fmtT(en)}</small></button>`;}
-  for(const e of layout(evs.filter(e=>e.kind!=='libre').map(e=>({...e})))){
-    const s=Math.max(tm(e.start),AG0),en=Math.min(tm(e.end),AG1),top=(s-AG0)*PX,h=Math.max(16,(en-s)*PX-2);
-    const w=`calc((100% - 44px) / ${e._lanes})`,left=`calc(44px + (100% - 44px) / ${e._lanes} * ${e._lane})`;
-    const hb=e.habit?getH(e.habit):null,done=hb&&isDone(hb,k);
-    const flags=(e.cancelled?' · anulado':'')+(e.edited?' · ✏️':'')+(e.moved?' · ↪':'');
-    const short=h<34;
-    html+=`<button class="ag-ev ${e.kind} ${e.cancelled?'cancel':''} ${short?'short':''}" style="--c:${evColor(e)};top:${top}px;height:${h}px;width:${w};left:${left}" onclick="evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,AG0,AG1)}>
-      <b>${evIcon(e)} ${esc(e.title)}${done?' <span class="ok">✓</span>':''}</b><small>${fmtT(tm(e.start))}–${fmtT(tm(e.end))}${flags}</small></button>`;
-  }
-  if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();if(m>=AG0&&m<=AG1)html+=`<div class="ag-now" style="top:${(m-AG0)*PX}px"></div>`;}
-  html+=`</div>`;
-  body.innerHTML=seg+classesNote(k)+noTimeHTML(k,nt)+html;
-  if(k===t){const now=new Date(),m=now.getHours()*60+now.getMinutes();setTimeout(()=>{const y=$('#agBody').getBoundingClientRect().top+window.scrollY+(m-AG0)*PX-160;if(m>AG0)window.scrollTo({top:Math.max(0,y),behavior:'smooth'});},60);}
+  body.innerHTML=classesNote(k)+(WKX.open?`<div class="wk-hint"><span>${WKX.wide?'Toca otra vez el día para volver':'Toca un día para verlo en grande'}</span><button onclick="WKX.open=false;WKX.wide=null;renderAgenda()">Plegar ▴</button></div>`+weekGrid(7):weekMini())+rachasHTML(k);
+  // al desplegar la semana de hoy, baja hasta la hora actual
+  if(WKX.open&&WKX.scroll){WKX.scroll=false;const n=new Date(),m=n.getHours()*60+n.getMinutes(),d=$('.agw-day[data-colk="'+t+'"]'),h0=d?+d.dataset.h0:0;
+    if(d&&m>h0)setTimeout(()=>{const y=d.getBoundingClientRect().top+window.scrollY+(m-h0)*(52/60)-220;window.scrollTo({top:Math.max(0,y),behavior:'smooth'});},60);}
 }
 /* Hábitos del día sin hora: no tienen bloque, pero salen en la agenda (franja «Sin hora») */
 function noTimeHabits(k){const ev=dayEvents(k);return dayHabits(k).filter(h=>!ev.some(e=>e.habit===h.id));}
@@ -1984,35 +2102,68 @@ function weekRelevant(e){ // en la semana solo lo importante; el detalle está e
   return (e.id==='comida'||e.id==='cena')&&tm(e.end)-tm(e.start)>=30;
 }
 function classesNote(k){const c=S.classesKnownUntil;return c&&k>c?`<div class="banner warn">🎓<div><b>Clases de este periodo sin añadir</b><small>Tengo tu horario hasta el ${shortDate(c)}. Pásamelo y ajusto entreno y agenda.</small></div></div>`:'';}
+
+/* Semana plegada: cada día es una columna con barras de color por bloque (toca para desplegar) */
+function weekMini(){
+  const ws=weekStartK(sel),t=todayK();
+  const days=[...Array(7)].map((_,i)=>addDays(ws,i));
+  const cols=days.map(k=>{const evs=dayEvents(k).filter(e=>!e.cancelled&&(weekRelevant(e)||e.kind==='libre'));
+    const bars=evs.map(e=>{const h=e.habit?getH(e.habit):null,d=tm(e.end)-tm(e.start);return `<i class="${e.kind==='libre'?'libre':''} ${h&&isDone(h,k)?'ok':''}" style="--c:${evColor(e)};height:${Math.max(6,Math.min(40,Math.round(d*.1)))}px"></i>`;}).join('');
+    return `<div class="wkm-d ${k===t?'today':''}"><small>${DOW_L[dow(k)]}</small><b>${pk(k).getDate()}</b>${bars}</div>`;}).join('');
+  return `<div class="wk-hint"><span>Tu semana de un vistazo</span></div><button class="wk-open" onclick="WKX.open=true;WKX.wide=null;WKX.scroll=true;renderAgenda()" aria-label="Desplegar la semana por horas"><div class="wkm">${cols}</div></button>`;
+}
+function wkWide(k){WKX.wide=WKX.wide===k?null:k;renderAgenda();}
+/* Rachas de la semana (diseño C): racha grande, check de hoy y la fila L–D */
+function rachasHTML(k){
+  const ws=weekStartK(k),t=todayK(),days=[...Array(7)].map((_,i)=>addDays(ws,i));
+  const hs=S.habits.filter(h=>!h.archived&&!h.tutorial&&days.some(d=>showOnBase(h,d)||hasLog(h,d)));
+  if(!hs.length)return '';
+  return `<div class="sec">Rachas</div><div class="hkg">${hs.map(h=>{const st=streaks(h);
+    const d7=days.map(d=>{const due=showOnBase(h,d)||hasLog(h,d),ok=isDone(h,d);return `<i class="${ok?'on':due?'':'off'} ${d===t?'t':''}">${DOW_L[dow(d)]}</i>`;}).join('');
+    const due=days.filter(d=>showOnBase(h,d)||hasLog(h,d)).length,dn=days.filter(d=>isDone(h,d)).length,today=dayHabits(t).includes(h);
+    return `<button class="hk" style="--hc:${h.color}" onclick="openDetail('${h.id}')">${today?`<span class="hk-ok ${isDone(h,t)?'on':''}">${ic('check',3)}</span>`:''}
+      <div class="hk-n">${st.cur}<small style="font-size:16px"> 🔥</small></div><div class="hk-u">${st.unit==='sem'?'semanas':'días'}</div>
+      <div class="hk-nm">${esc(h.emoji)} <span>${esc(h.name)}</span><em>${dn}/${h.schedule.mode==='xweek'?h.schedule.times:due}</em></div><div class="hk-d7">${d7}</div></button>`;}).join('')}</div>`;
+}
 function weekGrid(n=7){
   const ws=n===7?weekStartK(sel):sel,t=todayK(),HP=52;
   const days=[...Array(n)].map((_,i)=>addDays(ws,i));
-  const evs=days.map(k=>dayEvents(k).filter(weekRelevant));
-  const all=evs.flat();
+  const fit=n===7,wide=fit&&days.includes(WKX.wide)?WKX.wide:null;
+  const full=days.map(k=>dayEvents(k).filter(e=>e.kind!=='sueno'&&tm(e.end)>tm(e.start)));
+  // el día ancho enseña todo (como la antigua vista Día); los estrechos, solo lo importante
+  const evs=days.map((k,i)=>full[i].filter(e=>e.kind!=='libre'&&(k===wide||weekRelevant(e))));
+  const all=full.flat().filter(e=>e.kind!=='libre');
   if(!all.length)return `<div class="card empty"><div class="big">🗓️</div><h3>Sin agenda esta semana</h3><p>${S.agendaUntil?`La agenda está hecha hasta el ${shortDate(S.agendaUntil)}.`:''}</p></div>`;
   const h0=Math.max(6,Math.floor(Math.min(...all.map(e=>tm(e.start)))/60)),h1=Math.min(24,Math.ceil(Math.max(...all.map(e=>tm(e.end)))/60));
   const H=(h1-h0)*HP,PX=HP/60;
   const lines=`background-image:linear-gradient(to bottom,var(--border) 1px,transparent 1px);background-size:100% ${HP}px`;
-  let html=`<div class="agw-wrap" id="agwWrap"><div class="agw" style="${n===3?'grid-template-columns:40px repeat(3,1fr);min-width:0':''}"><div class="agw-hd" style="cursor:default"></div>`;
-  days.forEach(k=>{html+=`<div class="agw-hd ${k===t?'today':''} ${k===sel?'sel':''}" onclick="sel='${k}';agView='day';renderAgenda()"><b>${DOW_N[dow(k)].slice(0,3)}</b><span>${pk(k).getDate()}</span></div>`;});
+  const cols=fit?`40px ${days.map(k=>k===wide?'minmax(0,6.5fr)':'minmax(0,1fr)').join(' ')}`:'40px repeat(3,1fr)';
+  let html=`<div class="agw-wrap" id="agwWrap"><div class="agw ${fit?'fit':''} ${wide?'has-wide':''}" style="grid-template-columns:${cols};min-width:0"><div class="agw-hd" style="cursor:default"></div>`;
+  days.forEach(k=>{html+=`<div class="agw-hd ${k===t?'today':''} ${k===sel?'sel':''} ${k===wide?'wide':''}" onclick="${fit?`wkWide('${k}')`:`sel='${k}';renderAgenda()`}"><b>${DOW_N[dow(k)].slice(0,3)}</b><span>${pk(k).getDate()}</span></div>`;});
   const nts=days.map(k=>noTimeHabits(k));
-  if(nts.some(x=>x.length)){html+=`<div class="agw-nt-l">Sin<br>hora</div>`;days.forEach((k,i)=>{const L=nts[i];html+=`<button class="agw-nt" onclick="sel='${k}';agView='day';renderAgenda()" aria-label="${L.length} sin hora el ${longDate(k)}">${L.slice(0,4).map(h=>`<span class="${isDone(h,k)?'done':''}">${esc(h.emoji)}</span>`).join('')}${L.length>4?`<small>+${L.length-4}</small>`:''}</button>`;});}
+  if(nts.some(x=>x.length)){html+=`<div class="agw-nt-l">Sin<br>hora</div>`;days.forEach((k,i)=>{const L=nts[i];
+    if(k===wide){html+=`<div class="agw-nt wide">${L.map(h=>`<button class="${isDone(h,k)?'done':''}" onclick="evSheet('${k}','h:${h.id}')" aria-label="${esc(h.name)}">${esc(h.emoji)}</button>`).join('')}</div>`;return;}
+    html+=`<button class="agw-nt" onclick="${fit?`wkWide('${k}')`:`sel='${k}';renderAgenda()`}" aria-label="${L.length} sin hora el ${longDate(k)}">${L.slice(0,4).map(h=>`<span class="${isDone(h,k)?'done':''}">${esc(h.emoji)}</span>`).join('')}${L.length>4?`<small>+${L.length-4}</small>`:''}</button>`;});}
   html+=`<div class="agw-hrs" style="height:${H}px">`;
   for(let h=h0+1;h<h1;h++)html+=`<span style="top:${(h-h0)*HP}px">${pad(h)}:00</span>`;
   html+=`</div>`;
   days.forEach((k,i)=>{
-    html+=`<div class="agw-day" data-colk="${k}" style="height:${H}px;${lines}">`;
+    const cmp=fit&&k!==wide; // columnas estrechas: solo icono y hora
+    html+=`<div class="agw-day ${k===wide?'wide':''}" data-colk="${k}" data-h0="${h0*60}" style="height:${H}px;${lines}" ${fit?`onclick="wkWide('${k}')"`:''}>`;
+    // tiempo libre de fondo, recortado alrededor de lo demás (se toca para cambiarlo)
+    for(const f of freeParts(full[i])){const st=Math.max(f.s,h0*60),en=Math.min(f.e,h1*60);if(en-st<15)continue;
+      html+=`<button class="agw-ev libre ${cmp?'cmp':''}" style="--c:${evColor(f.ev)};top:${(st-h0*60)*PX}px;height:${(en-st)*PX-2}px;left:1px;width:calc(100% - 2px);right:auto" onclick="event.stopPropagation();evSheet('${k}','${f.ev.id}')">${cmp?'':`<b>☕ ${esc(f.ev.title)}</b><small>${fmtT(st)}–${fmtT(en)}</small>`}</button>`;}
     for(const e of layout(evs[i].map(x=>({...x})))){
-      const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60),top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
-      const w=100/e._lanes,title=WEEK_SHORT[e.id]||e.title.replace(/ · /,' ');
+      const st=Math.max(tm(e.start),h0*60),en=Math.min(tm(e.end),h1*60);if(en<=st)continue;const top=(st-h0*60)*PX,ht=Math.max(18,(en-st)*PX-2);
+      const w=100/e._lanes,title=k===wide?e.title:WEEK_SHORT[e.id]||e.title.replace(/ · /,' ');
       const hb=e.habit?getH(e.habit):null,ok=hb&&isDone(hb,k)?' ✓':'';
-      const narrow=e._lanes>1,lbl=narrow?`<b>${evIcon(e)}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`:`<b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`;
-      html+=`<button class="agw-ev ${e.cancelled?'cancel':''} ${narrow?'narrow':''}" title="${esc(e.title)} ${fmtT(tm(e.start))}–${fmtT(tm(e.end))}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 1px);width:calc(${w}% - 2px);right:auto" onclick="evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,h0*60,h1*60)}>${lbl}</button>`;
+      const narrow=e._lanes>1&&k!==wide,lbl=narrow||cmp?`<b>${evIcon(e)}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`:`<b>${evIcon(e)} ${esc(title)}${ok}</b>${ht>=30?`<small>${fmtT(tm(e.start))}</small>`:''}`;
+      html+=`<button class="agw-ev ${e.cancelled?'cancel':''} ${narrow?'narrow':''} ${cmp?'cmp':''}" title="${esc(e.title)} ${fmtT(tm(e.start))}–${fmtT(tm(e.end))}" style="--c:${evColor(e)};top:${top}px;height:${ht}px;left:calc(${w*e._lane}% + 1px);width:calc(${w}% - 2px);right:auto" onclick="event.stopPropagation();evSheet('${k}','${e.id}')"${dragAttrs(k,e,PX,h0*60,h1*60)}>${lbl}</button>`;
     }
+    if(k===t){const nw=new Date(),m=nw.getHours()*60+nw.getMinutes();if(m>=h0*60&&m<=h1*60)html+=`<div class="agw-now" style="top:${(m-h0*60)*PX}px"></div>`;}
     html+=`</div>`;
   });
-  html+=`</div></div><p class="hint" style="text-align:center">Solo lo importante. Toca un día para verlo entero o un bloque para modificarlo. <b>Mantén pulsado un bloque y arrástralo</b> para cambiarle la hora.</p>`;
-  if(n===7)setTimeout(()=>{const w=$('#agwWrap');if(!w)return;const i=days.indexOf(sel);if(i>2)w.scrollLeft=(i-2)*80;},30);
+  html+=`</div></div><p class="hint" style="text-align:center">Toca un bloque para modificarlo. <b>Mantén pulsado un bloque y arrástralo</b> para cambiarle la hora o el día.</p>`;
   return html;
 }
 function evSheet(k,id){
@@ -2152,9 +2303,13 @@ function openDetail(id){
   const st=streaks(h),r=habitRate(h,30),tot=countDone(h),W=weeksSince(h.start,53,12),hm=heatCells(h,W,true);
   const idx=S.habits.indexOf(h);
   const dp=Object.keys((h.plan&&h.plan.dates)||{}).filter(k=>k>=todayK()).sort();
+  const t=todayK(),td=dayHabits(t).includes(h),ht=habitTime(h,t),e=entry(h,t)||{};
+  const nx=[];for(let i=1;i<=45&&nx.length<3;i++){const d=addDays(t,i);if(showOn(h,d)){const x=habitTime(h,d);nx.push(`<div class="nx-row"><b>${DOW_N[dow(d)].slice(0,3)} ${pk(d).getDate()} ${MES[pk(d).getMonth()]}</b><span>${x&&x.start?fmtT(tm(x.start))+'–'+fmtT(tm(x.end)):'Sin hora'}</span></div>`);}}
   openSheet(`<div style="--hc:${h.color}">
-    <div class="hc-row"><div class="hc-ico">${esc(h.emoji)}</div><div class="hc-info"><div class="sheet-title" style="margin:0">${esc(h.name)}</div>
-      <div class="hc-meta">${schedText(h)}${targetText(h)?' · '+esc(targetText(h)):''} · desde ${shortDate(h.start)}</div></div></div>
+    <div class="det-hero"><div class="dh1"><div class="hc-ico">${esc(h.emoji)}</div><div style="min-width:0"><h2 class="sheet-title" style="margin:0">${esc(h.name)}</h2>
+      <div class="dmeta">${ht&&ht.start&&td?fmtT(tm(ht.start))+'–'+fmtT(tm(ht.end))+' · ':''}${schedText(h)}${targetText(h)?' · '+esc(targetText(h)):''} · desde ${shortDate(h.start)}</div></div></div>
+      <div class="dchips"><span>🔥 ${st.cur} ${st.unit==='sem'?'sem':'días'}</span>${td?`<span>${isDone(h,t)?'✓ Hecho hoy':h.type==='checklist'?`${h.steps.filter(s=>(e.steps||[]).includes(s.id)).length}/${h.steps.length} pasos hoy`:'Pendiente hoy'}</span>`:''}</div>
+      ${td&&h.type==='checklist'?`<div class="steps">${h.steps.map(s=>{const on=(e.steps||[]).includes(s.id);return `<button class="step ${on?'on':''}" onclick="detStep('${h.id}','${s.id}')"><span class="sb">${on?ic('check',3.2):''}</span>${esc(s.text)}</button>`;}).join('')}</div>`:''}</div>
     ${h.desc?`<p class="hint">${esc(h.desc)}</p>`:''}
     <div class="det-kpis">
       <div><b>${st.cur}</b><span>Racha${st.unit==='sem'?' sem':''}</span></div>
@@ -2164,8 +2319,8 @@ function openDetail(id){
     </div>
     ${HOURS_IDS.includes(h.id)?`<div class="sec">⏱ Horas de estudio</div>${hoursCard(h)}`:''}
     ${h.schedule.mode==='xweek'?'':`<div class="freeze"><span>🧊</span><div><b>${st.freeze} comodín${st.freeze===1?'':'es'} de racha${st.frozen&&st.frozen.length?` · ${st.frozen.length} usado${st.frozen.length===1?'':'s'}`:''}</b><small>Ganas uno cada semana que llegas al total (máx. 2). Si fallas un día, se gasta solo y la racha no se rompe. En el mapa, en azul hielo.</small></div></div>`}
-    <div class="hm-wrap" id="hmWrap"><div class="hm-months" style="grid-template-columns:repeat(${W},13px)">${hm.months}</div>
-      <div class="hm-big" style="grid-template-columns:repeat(${W},13px)">${hm.cells}</div></div>
+    ${nx.length?`<div class="sec">Próximas sesiones</div><div class="card" style="padding:0">${nx.join('')}</div>`:''}
+    <div class="sec">Mes a mes</div><div class="card" style="padding:0">${monthsGrid(h)}</div>
     ${weekHistBlock(h)}
     ${h.id==='en'?mocksBlock(true):''}
     ${metricsBlock(h)}
@@ -2181,7 +2336,22 @@ function openDetail(id){
       <button class="btn ghost" onclick="archiveH('${id}')">${h.archived?'📤 Desarchivar':'🗄️ Archivar'}</button>
       <button class="btn danger" onclick="deleteH('${id}')">🗑️ Eliminar</button>
     </div></div>`);
-  setTimeout(()=>{const w=$('#hmWrap');if(w)w.scrollLeft=w.scrollWidth;},50);
+}
+
+/* Mapa de calor por meses (diseño C): desde que empezó, hasta 12 meses; mismos colores que antes (hecho, a medias, fallo, comodín) */
+function detStep(hid,sid){const s0=sel;sel=todayK();stepT(hid,sid);sel=s0;render();openDetail(hid);}
+function monthsGrid(h){
+  const t=todayK(),fz=new Set(h.schedule.mode==='xweek'?[]:streaks(h).frozen||[]);
+  let y=+t.slice(0,4),m=+t.slice(5,7)-1;const out=[];
+  const first=h.start<t?h.start:t;
+  for(let i=0;i<12;i++){
+    const m0=`${y}-${pad(m+1)}-01`;if(i&&m0.slice(0,7)<first.slice(0,7))break;
+    const n=new Date(y,m+1,0).getDate(),off=(new Date(y,m,1).getDay()+6)%7;let cells='<i style="background:transparent"></i>'.repeat(off);
+    for(let d=1;d<=n;d++){const k=`${y}-${pad(m+1)}-${pad(d)}`;cells+=`<i style="background:${k>t?'transparent':cellColor(h,k,t,fz)};${k===t?'box-shadow:inset 0 0 0 1.5px var(--hc)':k>t?'box-shadow:inset 0 0 0 1px var(--border)':''}"></i>`;}
+    out.unshift(`<div class="mo"><small>${MONTHS[m].slice(0,3)}</small><div>${cells}</div></div>`);
+    if(--m<0){m=11;y--;}
+  }
+  return `<div class="mos">${out.join('')}</div>`;
 }
 function moveH(id,d){const i=S.habits.findIndex(h=>h.id===id),j=i+d;if(j<0||j>=S.habits.length)return;[S.habits[i],S.habits[j]]=[S.habits[j],S.habits[i]];save();openDetail(id);render();}
 function archiveH(id){const h=getH(id);h.archived=!h.archived;if(S.timer&&S.timer.hid===id)S.timer=null;save();closeSheet();render();toast(h.archived?'Hábito archivado':'Hábito recuperado',[['Deshacer',()=>{h.archived=!h.archived;save();render();}]]);}
@@ -2253,7 +2423,8 @@ function edR(){
 
   $('#sheetBody').innerHTML=`
     <div class="sheet-title">${D._tplEdit!=null?'Editar plantilla':D._new?'Nuevo hábito':'Editar hábito'}</div>
-    <label class="lbl">Nombre</label><input value="${esc(D.name)}" placeholder="Ej.: Boxeo, Francés, Leer…" oninput="D.name=this.value">
+    <div class="ed-prev" id="edPrev">${edPrevHTML()}</div>
+    <label class="lbl">Nombre</label><input value="${esc(D.name)}" placeholder="Ej.: Boxeo, Francés, Leer…" oninput="D.name=this.value;edPrevU()">
     ${D._fromTpl?`<p class="hint" style="margin-top:6px">📋 Desde la plantilla «${esc(D._fromTpl)}»: es una copia, cámbiala como quieras.</p>`:''}
     ${edTimeHTML()}
     ${edWhenHTML()}
@@ -2261,7 +2432,7 @@ function edR(){
 
     <label class="lbl">Icono</label>
     <div class="emojis">${EMOJIS.map(e=>`<button class="${D.emoji===e?'on':''}" onclick="D.emoji='${e}';edR()">${e}</button>`).join('')}</div>
-    <input class="mt8" value="${esc(D.emoji)}" placeholder="O escribe cualquier emoji" oninput="D.emoji=this.value.trim()">
+    <input class="mt8" value="${esc(D.emoji)}" placeholder="O escribe cualquier emoji" oninput="D.emoji=this.value.trim();edPrevU()">
     <label class="lbl">Color</label>
     <div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${D.color===c?'on':''}" onclick="D.color='${c}';edR()" aria-label="${c}"></button>`).join('')}</div>
 
@@ -2288,6 +2459,15 @@ function edR(){
     <div class="btns"><button class="btn ghost" onclick="closeSheet()">Cancelar</button><button class="btn pri" onclick="edSave()">${D._tplEdit!=null?'Guardar plantilla':D._new?'Crear hábito':'Guardar'}</button></div>
     ${!D._new&&D._tplEdit==null&&getH(D.id)?`<button class="btn danger" style="width:100%;margin-top:10px" onclick="deleteH('${D.id}')">🗑️ Eliminar hábito</button>`:''}`;
 }
+
+/* Vista previa en vivo de cómo saldrá en Hoy */
+function edPrevHTML(){
+  const t=D.time&&D.time.start?`${D.time.start}–${fmtT(tm(D.time.start)+(D.time.dur||30))}`:hasBase(D)?'Hora de tu agenda':'Sin hora';
+  const what=D.type==='checklist'?`0/${(D.steps||[]).filter(x=>x.text&&x.text.trim()).length||(D.steps||[]).length} pasos`:D.type==='time'?`0/${D.target||0} min`:D.type==='count'?`0/${D.target||1} ${esc(D.unit||'')}`:'Marcar';
+  const when=D._when==='once'?`Solo el ${shortDate(D.start)}`:D._when==='repeat'||!D._new?schedText(D):'¿Cuándo?';
+  return `<small>Así saldrá en Hoy</small><div class="ed-pc" style="--hc:${D.color}"><div class="hc-ico">${esc(D.emoji||'•')}</div><div style="min-width:0"><b>${esc(D.name||'Nombre del hábito')}</b><small>${t} · ${what} · ${when}</small></div><span class="ed-ring"></span></div>`;
+}
+function edPrevU(){const e=$('#edPrev');if(e)e.innerHTML=edPrevHTML();}
 function edType(v){
   D.type=v;
   if(v==='checklist'&&!D.steps.length)D.steps=[{id:uid(),text:''},{id:uid(),text:''}];
@@ -2698,10 +2878,11 @@ const TOUR_STEPS=[
   {id:'pasos',seccion:'hoy',selector:'#hc-tour .steps',accion:'click',texto:'Ahora tacha los que quedan para completar el hábito.',validar:()=>isDone(getH('tour'),todayK())},
   {id:'campana',seccion:'hoy',selector:'#hoyBell:not([hidden])',accion:'info',si:()=>!$('#hoyBell').hidden,texto:'En la campana 🔔 está lo del día que no cabe arriba: revisión, pendientes, avisos…'},
   // Agenda
-  {id:'vista',seccion:'agenda',selector:'.ag-bar .seg button[onclick*="\'3\'"]',accion:'click',texto:'Esta es tu agenda hora a hora. Cambia a la vista de 3 días.',validar:()=>agView==='3'},
-  {id:'dia',seccion:'agenda',selector:'.ag-bar .seg button[onclick*="\'day\'"]',accion:'click',texto:'Vuelve a la vista de un día.',validar:()=>agView==='day'},
-  {id:'bloque',seccion:'agenda',selector:'.ag-ev[onclick*="h:tour"]',accion:'click',texto:'Este es tu hábito de prueba en el día. Tócalo.',
-    antes:()=>{agView='day';sel=todayK();render();},validar:sheetOn},
+  {id:'vista',seccion:'agenda',selector:'.wk-open',accion:'click',texto:'Esta es tu semana de un vistazo. Tócala para verla hora a hora.',
+    antes:()=>{WKX.open=false;WKX.wide=null;sel=todayK();render();},validar:()=>WKX.open},
+  {id:'dia',seccion:'agenda',selector:'.agw-hd.today',accion:'click',texto:'Toca hoy para verlo en grande. (Otro toque lo devuelve a su tamaño.)',validar:()=>WKX.wide===todayK()},
+  {id:'bloque',seccion:'agenda',selector:'.agw-day.wide .agw-ev[onclick*="h:tour"]',accion:'click',texto:'Este es tu hábito de prueba. Tócalo.',
+    antes:()=>{WKX.open=true;WKX.wide=todayK();sel=todayK();render();},validar:sheetOn},
   {id:'bloque-x',seccion:'agenda',selector:'#sheet .sheet-x',accion:'click',texto:'Desde aquí cambias la hora, lo mueves o lo saltas. Pulsa ✕ para cerrar.',validar:()=>!sheetOn()},
   // Progreso
   {id:'detalle',seccion:'prog',selector:'#habBody [onclick="openDetail(\'tour\')"]',accion:'click',texto:'Toca el hábito de prueba para ver su progreso.',validar:sheetOn},

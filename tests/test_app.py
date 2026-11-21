@@ -22,9 +22,9 @@ async def main():
         check(st["note"] == "hola", "migración: conserva las notas antiguas")
         check(st["hasAg"], "plan.json carga la agenda")
         # 2. Agenda del lunes 23
-        await pg.evaluate("sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(400)
-        n = await pg.evaluate("document.querySelectorAll('.ag-ev').length")
-        check(n >= 12, f"agenda del 23 nov pinta {n} bloques")
+        await pg.evaluate("sel='2026-11-23';WKX.open=true;WKX.wide='2026-11-23';go('agenda')"); await pg.wait_for_timeout(400)
+        n = await pg.evaluate("document.querySelectorAll('.agw-day[data-colk=\"2026-11-23\"] .agw-ev:not(.libre)').length")
+        check(n >= 12, f"agenda del 23 nov (día ancho) pinta {n} bloques")
         await pg.screenshot(path="/tmp/t/ag_day.png", full_page=True)
         # 3. Anular francés el 23 → desaparece de Hoy y no rompe la racha
         await pg.evaluate("evSheet('2026-11-23','h:fr')"); await pg.wait_for_timeout(300)
@@ -58,7 +58,7 @@ async def main():
         await pg.evaluate("evSheet('2026-11-25','clase');evCancel('2026-11-25','clase')")
         check(await pg.evaluate("dayEvents('2026-11-25').find(e=>e.id==='clase').cancelled"), "anular clase: sale tachada en la agenda")
         # 8. Vista semana y Hoy sin errores
-        await pg.evaluate("agView='week';sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(300)
+        await pg.evaluate("agView='week';WKX.open=true;sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(300)
         await pg.screenshot(path="/tmp/t/ag_week.png", full_page=True)
         await pg.evaluate("go('hoy')"); await pg.wait_for_timeout(300)
         await pg.screenshot(path="/tmp/t/hoy_after.png", full_page=True)
@@ -103,10 +103,10 @@ async def main():
         r = await pg.evaluate("buildICS('2026-11-23','2026-11-24',false)")
         t = r["text"]
         check(r["n"] > 4 and t.count("BEGIN:VEVENT") == r["n"] and "TRIGGER:-PT5M" in t and "UID:2026-11-23-h-fr@ironhabits" in t, f"ics: {r['n']} eventos con aviso")
-        # 18. Vista 3 días
-        await pg.evaluate("agView='3';sel='2026-11-23';go('agenda')"); await pg.wait_for_timeout(300)
-        r = await pg.evaluate("({cols:document.querySelectorAll('.agw-hd').length, sw:document.querySelector('#agwWrap').scrollWidth<=document.querySelector('#agwWrap').clientWidth+2})")
-        check(r["cols"] == 4 and r["sw"], f"vista 3 días sin scroll lateral {r}")
+        # 18. Agenda: solo la semana (sin pestañas Día / 3 días) y sin scroll lateral
+        await pg.evaluate("sel='2026-11-23';WKX.open=true;WKX.wide=null;go('agenda')"); await pg.wait_for_timeout(300)
+        r = await pg.evaluate("({tabs:!!document.querySelector('.ag-bar'),cols:document.querySelectorAll('.agw-hd').length, sw:document.querySelector('#agwWrap').scrollWidth<=document.querySelector('#agwWrap').clientWidth+2})")
+        check(not r["tabs"] and r["cols"] == 8 and r["sw"], f"agenda solo semana, sin scroll lateral {r}")
         await pg.screenshot(path="/tmp/t/ag_3d.png", full_page=True)
         # 19. Diálogo propio
         r = await pg.evaluate("(async()=>{const p=ask('x','Ok');document.querySelectorAll('#sheet .btn')[1].click();const a=await p;const q=ask('y');closeSheet();const b=await q;return [a,b];})()")

@@ -19,8 +19,9 @@ async def main():
         ov = lambda k, i: pg.evaluate(f"agOv('{k}','{i}')")
         sheet_open = lambda: pg.evaluate("document.querySelector('#sheet').classList.contains('on')")
 
-        for view, sel_ in (("week", ".agw-ev[data-id='h:fr'][data-k='2026-11-24']"), ("day", ".ag-ev[data-id='h:fr'][data-k='2026-11-24']")):
-            await pg.evaluate(f"S.agenda={{}};save();sel='2026-11-24';agView='{view}';go('agenda')"); await pg.wait_for_timeout(400)
+        for view, sel_ in (("week", ".agw-ev[data-id='h:fr'][data-k='2026-11-24']"), ("day", ".agw-day.wide .agw-ev[data-id='h:fr'][data-k='2026-11-24']")):
+            wv = "null" if view == "week" else "'2026-11-24'"
+            await pg.evaluate(f"S.agenda={{}};save();sel='2026-11-24';WKX.open=true;WKX.wide={wv};go('agenda')"); await pg.wait_for_timeout(400)
             el = pg.locator(sel_).first
             await el.scroll_into_view_if_needed(); bx = await el.bounding_box()
             x, y = bx["x"] + bx["width"] / 2, bx["y"] + min(10, bx["height"] / 2)
@@ -54,7 +55,7 @@ async def main():
         # 4. Ratón (ordenador)
         ctx2 = await b.new_context(viewport={"width": 1200, "height": 900}); pg2 = await ctx2.new_page()
         await pg2.goto(URL); await pg2.wait_for_timeout(1500)
-        await pg2.evaluate("sel='2026-11-24';agView='week';go('agenda')"); await pg2.wait_for_timeout(400)
+        await pg2.evaluate("sel='2026-11-24';agView='week';WKX.open=true;go('agenda')"); await pg2.wait_for_timeout(400)
         el = pg2.locator(".agw-ev[data-id='h:fr'][data-k='2026-11-24']").first; bx = await el.bounding_box(); px = float(await el.get_attribute("data-px"))
         await pg2.mouse.move(bx["x"] + 20, bx["y"] + 8); await pg2.mouse.down()
         for i in range(1, 9): await pg2.mouse.move(bx["x"] + 20, bx["y"] + 8 - 30 * px * i / 8)

@@ -3,7 +3,7 @@
 // - Iconos y manifest: lo guardado al momento y se actualiza por detrás.
 // - Solo se guardan respuestas correctas de esta web; las llamadas a GitHub (nube) no pasan por aquí.
 // - Avisos: recibe los del servidor de avisos y, al tocarlos, abre la app.
-const CACHE = 'ironhabits-v17';
+const CACHE = 'ironhabits-v18';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './favicon.png', './plan.json'];
 const TIMEOUT = 3000;
 

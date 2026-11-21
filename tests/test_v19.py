@@ -78,11 +78,11 @@ async def main():
         check(r and r["n"] > 0 and r["wake"] and r["bed"], f"resumen de mañana: {r and r['t']}")
 
         # ── Arrastrar a otro día ──
-        await pg.evaluate("S.agenda={};S.logs={};save();sel='2026-11-24';agView='week';go('agenda')"); await pg.wait_for_timeout(400)
+        await pg.evaluate("S.agenda={};S.logs={};save();sel='2026-11-24';agView='week';WKX.open=true;go('agenda')"); await pg.wait_for_timeout(400)
         cdp = await ctx.new_cdp_session(pg)
         async def touch(t, x=0, y=0): await cdp.send("Input.dispatchTouchEvent", {"type": t, "touchPoints": [] if t == "touchEnd" else [{"x": x, "y": y}]})
         async def drag(hid, frm, to):
-            el = pg.locator(f".agw-ev[data-id='h:{hid}'][data-k='{frm}']").first; await el.scroll_into_view_if_needed(); bx = await el.bounding_box()
+            el = pg.locator(f".agw-ev[data-id='h:{hid}'][data-k='{frm}']").first; await el.evaluate("e=>e.scrollIntoView({block:'center'})"); await pg.wait_for_timeout(150); bx = await el.bounding_box()
             col = await pg.locator(f".agw-day[data-colk='{to}']").bounding_box()
             x0, y0 = bx["x"] + bx["width"] / 2, bx["y"] + 6; x1 = col["x"] + col["width"] / 2
             await touch("touchStart", x0, y0); await pg.wait_for_timeout(450)
