@@ -2,6 +2,11 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.34 · 22 nov 2026
+- **Logo nuevo** (imagen original, 1254 px, sin retocar: `logo.png`). Iconos (180/192/512/maskable/favicon) y las 24 pantallas de arranque de iOS se generan directamente desde él (Lanczos). Fuera `icon.svg`.
+- **Pantalla de carga**: el logo nuevo en un recuadro redondeado como el icono del iPhone; entra con zoom suave, un brillo recorre las piezas de metal, una barra fina se llena por etapas y al acabar hace un «pop». Sigue el tema claro/oscuro.
+- Tests: `test_v134`; `test_v131` actualizado.
+
 ## v1.33 · 22 nov 2026
 - **Hoy**: en la línea del día salen 🍳 Desayuno, 🍽️ Comida y 🍲 Cena (con su hora y duración; al tocarlas se abre su hoja) en lugar de «Descanso». Las que ya han pasado no salen.
 - **Ajustes**: arreglados los interruptores, que siempre se veían apagados (una regla CSS con `#hapticSw` dentro de `:not()` ganaba a `:checked`).

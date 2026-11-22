@@ -45,8 +45,8 @@ async def main():
         check(len(dk) * 2 == len(r) and all(h.endswith('-dark.png') for h in dk), f"pantallas de arranque de iOS en claro y en oscuro ({len(r)})")
         ok = await pg2.evaluate("(hs)=>Promise.all(hs.map(u=>fetch(u).then(r=>r.ok)))", [h for h, _ in r])
         check(all(ok), "todas existen")
-        r = await pg2.evaluate("fetch('icon.svg').then(r=>r.text()).then(t=>t.includes('#E63946')&&t.includes('#2BB673'))")
-        check(r, "el logo nuevo (icon.svg) está en la app")
+        r = await pg2.evaluate("new Promise(res=>{const i=new Image();i.onload=()=>res(i.naturalWidth);i.onerror=()=>res(0);i.src='logo.png'})")
+        check(r == 1254, f"v1.34: el logo original (logo.png, 1254 px) está en la app ({r})")
         check(await pg2.evaluate("APP_VERSION") >= "1.31", "versión 1.31")
         await b.close()
 

@@ -17,6 +17,7 @@ if(t==='auto')t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').ma
 var r=document.documentElement;r.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#F5F5F7':'#0B0B0F';})();</script>
 
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preload" as="image" href="icon-512.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <!-- Pantallas de arranque de iOS (al abrir desde la pantalla de inicio) -->
 <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1080x2340-dark.png">
@@ -697,19 +698,26 @@ html[data-theme=light] #boot .boot-name{color:#15151A}
 .boot-ic{width:116px;height:116px;border-radius:26px;margin-top:-60px;box-shadow:0 16px 36px rgba(0,0,0,.45)}
 html[data-theme=light] .boot-ic{box-shadow:0 30px 60px rgba(0,0,0,.18)}
 .boot-name{color:#F4F4F6;font:800 30px/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
-/* animación de carga: los 6 tramos brillan en ola, el 7.º se dibuja con el progreso y, al acabar, el anillo se ilumina entero */
-.boot-ic{overflow:visible}
-.boot-ic .bseg{animation:bwave 1.4s ease-in-out infinite;animation-delay:calc(var(--i) * .12s)}
-@keyframes bwave{0%,60%,100%{filter:none}30%{filter:brightness(1.45) saturate(1.2)}}
-#bootRing,.b7g{transition:stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1)}
+/* v1.34 · logo nuevo (imagen tal cual) en un recuadro redondeado como el icono del iPhone.
+   Animación: entra con un leve zoom, un brillo pasa por las piezas de metal (overlay: el blanco y el negro no cambian),
+   la barra se llena por etapas y al acabar el logo hace un pequeño «pop». */
+.boot-ic{position:relative;overflow:hidden;animation:bin .7s cubic-bezier(.2,.8,.2,1) both}
+.boot-ic img{width:100%;height:100%;display:block}
+.boot-shine{position:absolute;inset:-20%;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.95) 50%,transparent 62%);
+  mix-blend-mode:overlay;transform:translateX(-120%);animation:bshine 1.6s .35s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes bin{from{opacity:0;transform:scale(.86);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes bshine{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
+.boot-bar{width:96px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:-6px}
+html[data-theme=light] .boot-bar{background:rgba(0,0,0,.08)}
+#bootRing{display:block;height:100%;width:100%;border-radius:2px;background:linear-gradient(90deg,#8D949C,#E9ECEF 55%,#A9B0B7);transform-origin:left;transform:scaleX(0);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+html[data-theme=light] #bootRing{background:linear-gradient(90deg,#15151A,#6B7280 55%,#15151A)}
 #boot.done .boot-ic{animation:bpop .6s cubic-bezier(.2,.8,.2,1)}
-#boot.done .bseg{animation:none;filter:brightness(1.25)}
-#boot.done .b7g{opacity:1}
+#boot.done .boot-shine{animation:bshine .7s cubic-bezier(.4,0,.2,1) 1 forwards}
 @keyframes bpop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
 #boot.out .boot-ic{transform:scale(1.15);transition:transform .4s ease}
 .boot-name{animation:bname .7s .1s both cubic-bezier(.2,.8,.2,1)}
 @keyframes bname{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){#bootRing,.b7g{transition:none}.boot-ic .bseg,#boot.done .boot-ic,.boot-name{animation:none}}
+@media (prefers-reduced-motion:reduce){#bootRing{transition:none}.boot-ic,.boot-shine,#boot.done .boot-ic,.boot-name{animation:none}}
 
 /* ═════════════ v1.20 · Tema claro ═════════════ */
 :root{--acc:var(--acc-raw,#22C55E);--heat-off:#121217;--heat-empty:#18181E;--heat-miss:#24242C;--grid-alt:rgba(255,255,255,.018);--grid-dash:rgba(255,255,255,.05)}
@@ -1086,54 +1094,9 @@ html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:
 <body>
 <!-- Pantalla de arranque animada: el anillo se llena mientras carga (sigue a la pantalla de arranque de iOS, en la misma posición) -->
 <div id="boot" aria-hidden="true">
-  <svg class="boot-ic" viewBox="0 0 512 512" aria-hidden="true"><defs><clipPath id="bi-round"><rect width="512" height="512" rx="115"></rect></clipPath></defs><g clip-path="url(#bi-round)"><defs><radialGradient id="bi-bgG" cx="256" cy="215" r="362" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2C3036"></stop><stop offset="0.6" stop-color="#15171A"></stop><stop offset="1" stop-color="#0B0C0E"></stop></radialGradient></defs><rect width="512" height="512" fill="url(#bi-bgG)"></rect>
-<defs>
-<filter id="bi-rWide" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8"></feGaussianBlur></filter>
-<filter id="bi-rTight" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.5"></feGaussianBlur></filter>
-<filter id="bi-rGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"></feGaussianBlur></filter>
-<radialGradient id="bi-rRad" cx="256" cy="256" r="204.0" gradientUnits="userSpaceOnUse"><stop offset="0.863" stop-color="#FFFFFF" stop-opacity="0.38"></stop><stop offset="0.931" stop-color="#FFFFFF" stop-opacity="0"></stop><stop offset="1" stop-color="#000000" stop-opacity="0.28"></stop></radialGradient>
-<linearGradient id="bi-rTop" x1="0" y1="52" x2="0" y2="460" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"></stop><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"></stop><stop offset="1" stop-color="#000000" stop-opacity="0.18"></stop></linearGradient>
-<mask id="bi-rMask" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
-<path d="M283.17 67.95 A190 190 0 0 1 386.08 117.51" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-<path d="M419.96 160.00 A190 190 0 0 1 445.38 271.35" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-<path d="M433.29 324.33 A190 190 0 0 1 362.07 413.64" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-<path d="M313.11 437.21 A190 190 0 0 1 198.89 437.21" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-<path d="M149.93 413.64 A190 190 0 0 1 78.71 324.33" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-<path d="M66.62 271.35 A190 190 0 0 1 92.04 160.00" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-<path d="M125.92 117.51 A190 190 0 0 1 228.83 67.95" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"></path>
-</mask></defs>
-<g opacity="0.5" filter="url(#bi-rWide)" transform="translate(0 6)"><path d="M283.17 67.95 A190 190 0 0 1 386.08 117.51" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M419.96 160.00 A190 190 0 0 1 445.38 271.35" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M433.29 324.33 A190 190 0 0 1 362.07 413.64" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M313.11 437.21 A190 190 0 0 1 198.89 437.21" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M149.93 413.64 A190 190 0 0 1 78.71 324.33" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M66.62 271.35 A190 190 0 0 1 92.04 160.00" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M125.92 117.51 A190 190 0 0 1 228.83 67.95" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path></g>
-<g opacity="0.35" filter="url(#bi-rTight)" transform="translate(0 2)"><path d="M283.17 67.95 A190 190 0 0 1 386.08 117.51" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M419.96 160.00 A190 190 0 0 1 445.38 271.35" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M433.29 324.33 A190 190 0 0 1 362.07 413.64" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M313.11 437.21 A190 190 0 0 1 198.89 437.21" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M149.93 413.64 A190 190 0 0 1 78.71 324.33" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M66.62 271.35 A190 190 0 0 1 92.04 160.00" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path><path d="M125.92 117.51 A190 190 0 0 1 228.83 67.95" fill="none" stroke="#000000" stroke-width="28" stroke-linecap="round"></path></g>
-<g opacity="0.55" filter="url(#bi-rGlow)"><path d="M283.17 67.95 A190 190 0 0 1 386.08 117.51" fill="none" stroke="#E63946" stroke-width="28" stroke-linecap="round"></path><path d="M419.96 160.00 A190 190 0 0 1 445.38 271.35" fill="none" stroke="#F3722C" stroke-width="28" stroke-linecap="round"></path><path d="M433.29 324.33 A190 190 0 0 1 362.07 413.64" fill="none" stroke="#F9A847" stroke-width="28" stroke-linecap="round"></path><path d="M313.11 437.21 A190 190 0 0 1 198.89 437.21" fill="none" stroke="#F9C74F" stroke-width="28" stroke-linecap="round"></path><path d="M149.93 413.64 A190 190 0 0 1 78.71 324.33" fill="none" stroke="#90BE6D" stroke-width="28" stroke-linecap="round"></path><path d="M66.62 271.35 A190 190 0 0 1 92.04 160.00" fill="none" stroke="#2BB673" stroke-width="28" stroke-linecap="round"></path></g>
-<path class="bseg" style="--i:0" d="M283.17 67.95 A190 190 0 0 1 386.08 117.51" fill="none" stroke="#E63946" stroke-width="28" stroke-linecap="round"></path><path class="bseg" style="--i:1" d="M419.96 160.00 A190 190 0 0 1 445.38 271.35" fill="none" stroke="#F3722C" stroke-width="28" stroke-linecap="round"></path><path class="bseg" style="--i:2" d="M433.29 324.33 A190 190 0 0 1 362.07 413.64" fill="none" stroke="#F9A847" stroke-width="28" stroke-linecap="round"></path><path class="bseg" style="--i:3" d="M313.11 437.21 A190 190 0 0 1 198.89 437.21" fill="none" stroke="#F9C74F" stroke-width="28" stroke-linecap="round"></path><path class="bseg" style="--i:4" d="M149.93 413.64 A190 190 0 0 1 78.71 324.33" fill="none" stroke="#90BE6D" stroke-width="28" stroke-linecap="round"></path><path class="bseg" style="--i:5" d="M66.62 271.35 A190 190 0 0 1 92.04 160.00" fill="none" stroke="#2BB673" stroke-width="28" stroke-linecap="round"></path><path d="M125.92 117.51 A190 190 0 0 1 228.83 67.95" fill="none" stroke="#34373C" stroke-width="28" stroke-linecap="round"></path>
-<g class="b7"><path d="M125.92 117.51 A190 190 0 0 1 228.83 67.95" fill="none" stroke="#34D399" stroke-width="28" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" filter="url(#bi-rGlow)" opacity=".7" class="b7g"></path><path id="bootRing" d="M125.92 117.51 A190 190 0 0 1 228.83 67.95" fill="none" stroke="#34D399" stroke-width="28" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></path></g><rect width="512" height="512" fill="url(#bi-rRad)" mask="url(#bi-rMask)"></rect>
-<rect width="512" height="512" fill="url(#bi-rTop)" mask="url(#bi-rMask)"></rect>
-
-<defs>
-<linearGradient id="bi-plate" x1="161" y1="160" x2="217" y2="352" gradientUnits="userSpaceOnUse">
-<stop offset="0" stop-color="#E9ECEF"></stop><stop offset="0.35" stop-color="#C4CAD0"></stop><stop offset="0.55" stop-color="#DDE1E5"></stop><stop offset="0.8" stop-color="#A9B0B7"></stop><stop offset="1" stop-color="#BFC5CB"></stop>
-</linearGradient>
-<pattern id="bi-brushI" width="3" height="192" patternUnits="userSpaceOnUse"><rect width="1" height="192" fill="#FFFFFF" opacity="0.10"></rect></pattern>
-<linearGradient id="bi-sweep" x1="161" y1="160" x2="217" y2="260" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"></stop><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.35"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></linearGradient>
-<linearGradient id="bi-hBase" x1="222" y1="160" x2="349" y2="352" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F7F8FA"></stop><stop offset="0.3" stop-color="#E3E6EA"></stop><stop offset="0.55" stop-color="#C9CED4"></stop><stop offset="0.8" stop-color="#DADEE2"></stop><stop offset="1" stop-color="#B4BAC1"></stop></linearGradient>
-<radialGradient id="bi-hl1" cx="318" cy="190" r="70" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></radialGradient>
-<radialGradient id="bi-hl2" cx="250" cy="248" r="48" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></radialGradient>
-<radialGradient id="bi-hl3" cx="330" cy="318" r="42" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></radialGradient>
-<linearGradient id="bi-hEdge" x1="297" y1="0" x2="349" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#000000" stop-opacity="0"></stop><stop offset="0.75" stop-color="#000000" stop-opacity="0"></stop><stop offset="1" stop-color="#000000" stop-opacity="0.12"></stop></linearGradient>
-<clipPath id="bi-iclip"><rect x="161" y="160" width="56" height="192" rx="5"></rect></clipPath>
-<filter id="bi-wide" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="12"></feGaussianBlur></filter>
-<filter id="bi-tight" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>
-</defs>
-<g opacity="0.6" filter="url(#bi-wide)"><rect x="161" y="169" width="56" height="192" rx="5" fill="#000000"></rect><rect x="222" y="242" width="75" height="44" fill="#000000"></rect><rect x="297" y="169" width="52" height="192" rx="5" fill="#000000"></rect></g><g opacity="0.45" filter="url(#bi-tight)"><rect x="161" y="163" width="56" height="192" rx="5" fill="#000000"></rect><rect x="222" y="236" width="75" height="44" fill="#000000"></rect><rect x="297" y="163" width="52" height="192" rx="5" fill="#000000"></rect></g><rect x="222" y="233" width="75" height="44" fill="url(#bi-hBase)"></rect><rect x="297" y="160" width="52" height="192" rx="5" fill="url(#bi-hBase)"></rect><rect x="222" y="233" width="75" height="44" fill="url(#bi-hl1)"></rect><rect x="297" y="160" width="52" height="192" rx="5" fill="url(#bi-hl1)"></rect><rect x="222" y="233" width="75" height="44" fill="url(#bi-hl2)"></rect><rect x="297" y="160" width="52" height="192" rx="5" fill="url(#bi-hl2)"></rect><rect x="222" y="233" width="75" height="44" fill="url(#bi-hl3)"></rect><rect x="297" y="160" width="52" height="192" rx="5" fill="url(#bi-hl3)"></rect><rect x="222" y="233" width="75" height="44" fill="url(#bi-hEdge)"></rect><rect x="297" y="160" width="52" height="192" rx="5" fill="url(#bi-hEdge)"></rect><g clip-path="url(#bi-iclip)">
-<polygon points="161,160 217,160 211,166 167,166" fill="#F7F9FA"></polygon>
-<polygon points="161,160 167,166 167,346 161,352" fill="#D9DEE2"></polygon>
-<polygon points="217,160 217,352 211,346 211,166" fill="#737A82"></polygon>
-<polygon points="161,352 167,346 211,346 217,352" fill="#565D65"></polygon>
-<rect x="167" y="166" width="44" height="180" fill="url(#bi-plate)"></rect>
-<rect x="167" y="166" width="44" height="180" fill="url(#bi-brushI)"></rect><rect x="167" y="166" width="44" height="1" fill="#8D949C" opacity="0.6"></rect><rect x="167" y="166" width="1" height="180" fill="#8D949C" opacity="0.5"></rect><rect x="167" y="166" width="44" height="180" fill="url(#bi-sweep)"></rect>
-</g><rect x="161.5" y="160.5" width="55" height="191" rx="4.5" fill="none" stroke="#1B1F24" stroke-width="1"></rect>
-</g></svg>
+  <div class="boot-ic"><img src="icon-512.png" alt="" decoding="sync"><i class="boot-shine"></i></div>
   <div class="boot-name">IronHabits</div>
+  <div class="boot-bar"><i id="bootRing"></i></div>
 </div>
 <div id="app">
 
@@ -1194,7 +1157,7 @@ html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.33';
+const APP_VERSION='1.34';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -4507,10 +4470,10 @@ swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
 if(S._removedDup){const n=S._removedDup;delete S._removedDup;save();setTimeout(()=>toast('🧹 Quitados los hábitos repetidos: '+n.join(', ')),1600);}
 /* ═════════════ ARRANQUE ═════════════
-   El anillo del logo se llena por etapas (código listo → plan cargado → listo) y la pantalla se desvanece.
+   La barra bajo el logo se llena por etapas (código listo → plan cargado → listo) y la pantalla se desvanece.
    No espera a internet: la sincronización sigue por detrás. */
 const BOOT_T0=performance.now();
-function bootProgress(p){const v=String(1-Math.max(0,Math.min(1,p)));document.querySelectorAll('#bootRing,#boot .b7g').forEach(e=>e.style.strokeDashoffset=v);}
+function bootProgress(p){const e=document.getElementById('bootRing');if(e)e.style.transform='scaleX('+Math.max(0,Math.min(1,p))+')';}
 let _booted=false;
 function bootDone(){if(_booted)return;_booted=true;bootProgress(1);const b=document.getElementById('boot');if(!b)return;setTimeout(()=>b.classList.add('done'),380);
   const wait=Math.max(0,650-(performance.now()-BOOT_T0)); // que se vea el anillo completo un instante

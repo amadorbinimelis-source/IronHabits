@@ -1,10 +1,12 @@
-"""Genera los iconos y las pantallas de arranque de iOS a partir de icon.svg (logo de la app).
-Uso: python gen/build_icons.py  (necesita Playwright y Chrome)."""
+"""Genera los iconos y las pantallas de arranque de iOS a partir de logo.png (logo original de la app, 1254×1254, sin tocar).
+Los iconos se reducen con Lanczos directamente desde el original (sin pasos intermedios).
+Uso: python gen/build_icons.py  (necesita Pillow, Playwright y Chrome)."""
 import asyncio, base64, pathlib
 from playwright.async_api import async_playwright
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SVG = (ROOT / "icon.svg").read_text()
-URI = "data:image/svg+xml;base64," + base64.b64encode(SVG.encode()).decode()
+from PIL import Image
+LOGO = Image.open(ROOT / "logo.png").convert("RGB")
+URI = "data:image/png;base64," + base64.b64encode((ROOT / "logo.png").read_bytes()).decode()
 ICONS = {"favicon.png": 64, "icon-180.png": 180, "icon-192.png": 192, "icon-512.png": 512, "icon-maskable-512.png": 512}
 SPLASH = [(750,1334),(828,1792),(1080,2340),(1125,2436),(1170,2532),(1179,2556),(1206,2622),(1242,2208),(1242,2688),(1284,2778),(1290,2796),(1320,2868)]
 THEMES = {"": ("#F5F5F7", "#15151A", "0 30px 60px rgba(0,0,0,.18)"), "-dark": ("#0B0B0F", "#F4F4F6", "0 16px 36px rgba(0,0,0,.45)")}
@@ -13,9 +15,7 @@ async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path="/usr/bin/google-chrome")
         for name, n in ICONS.items():
-            pg = await b.new_page(viewport={"width": n, "height": n})
-            await pg.set_content(f'<html><body style="margin:0"><img src="{URI}" style="width:{n}px;height:{n}px;display:block"></body></html>')
-            await pg.wait_for_timeout(150); await pg.screenshot(path=str(ROOT / name)); await pg.close()
+            LOGO.resize((n, n), Image.LANCZOS).save(ROOT / name, optimize=True)
         for w, h in SPLASH:
             for suf, (bg, ink, sh) in THEMES.items():
                 sc = 2 if w in (750, 828) else 3
