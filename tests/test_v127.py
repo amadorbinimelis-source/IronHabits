@@ -1,4 +1,4 @@
-"""Pruebas de la v1.27: vibración mínima en todos los botones y sonido al abrir (en el primer toque)."""
+"""Pruebas de la v1.27: vibración mínima en todos los botones (el sonido al abrir se quitó en la v1.33)."""
 import asyncio, sys
 from playwright.async_api import async_playwright
 URL = "http://localhost:8765/index.html"
@@ -15,18 +15,14 @@ async def main():
         pg = await ctx.new_page(); await pg.clock.install(time="2026-11-25T09:00:00+01:00")
         errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
         await pg.goto(URL); await pg.wait_for_timeout(2500)
-        await pg.evaluate("window._hi=0;const f=fxHello;window.fxHello=()=>{_hi++;f()};0")
-        await pg.locator("nav button[data-v=agenda]").tap(); await pg.wait_for_timeout(200)
-        check(await pg.evaluate("_hi") == 1, "suena al abrir, con el primer toque")
-        await pg.locator("nav button[data-v=prog]").tap(); await pg.wait_for_timeout(200)
-        check(await pg.evaluate("_hi") == 1, "solo una vez")
+        check(await pg.evaluate("typeof fxHello==='undefined'&&typeof HELLO==='undefined'"), "v1.33: ya no hay sonido al abrir")
         n0 = await pg.evaluate("_vib.length")
         await pg.locator("nav button[data-v=set]").tap(); await pg.wait_for_timeout(150)
         await pg.locator("nav button[data-v=hoy]").tap(); await pg.wait_for_timeout(150)
         check(await pg.evaluate("_vib.length") - n0 == 2 and await pg.evaluate("_vib.every(x=>x===12)"), "cada botón da un toque mínimo")
         await pg.evaluate("go('set')"); await pg.wait_for_timeout(200)
         t = await pg.inner_text("#setBody")
-        check("Vibración al tocar" in t and "Sonido al abrir" in t, "se pueden quitar en Ajustes")
+        check("Vibración al tocar" in t and "Sonido al abrir" not in t, "la vibración se puede quitar en Ajustes (y ya no está «Sonido al abrir»)")
         await pg.evaluate("S.settings.tapHaptic=false;save()"); n1 = await pg.evaluate("_vib.length")
         await pg.locator("nav button[data-v=hoy]").tap(); await pg.wait_for_timeout(150)
         check(await pg.evaluate("_vib.length") == n1, "con la vibración apagada, no vibra")

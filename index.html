@@ -657,8 +657,8 @@ input[type=checkbox]:checked::after{content:'';width:6px;height:11px;border:soli
 #hapticSw input{-webkit-appearance:auto!important;appearance:auto!important;display:block}
 input[type=checkbox][switch]:not(#hapticSw input){width:48px;height:30px;border-radius:99px;border:none;background:var(--card2);box-shadow:inset 0 0 0 1px var(--border);position:relative;display:block}
 input[type=checkbox][switch]:not(#hapticSw input)::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;border:none;transform:none;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:left .18s}
-input[type=checkbox][switch]:checked{background:var(--acc);box-shadow:none}
-input[type=checkbox][switch]:checked::after{left:21px;transform:none;width:24px;height:24px;border:none}
+input[type=checkbox][switch]:not(#hapticSw input):checked{background:var(--acc);box-shadow:none}
+input[type=checkbox][switch]:not(#hapticSw input):checked::after{left:21px;transform:none;width:24px;height:24px;border:none}
 /* v1.18 · Hoy inteligente */
 .sec-late{color:var(--warn)}
 .sec-btn{width:100%;min-height:44px;cursor:pointer}
@@ -809,7 +809,6 @@ html[data-theme=light] .hc-act{color:#fff}
 .tpl-tx{flex:1;min-width:0}.tpl-tx small{display:block;color:var(--muted);font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tpl-row .btn{width:auto;padding:0 12px;min-height:44px}
 .ed-need{color:var(--warn)}
-.hello-seg{margin:-4px 0 0}
 .chip.qt.on{background:color-mix(in srgb,var(--acc) 22%,var(--card));border-color:var(--acc)}
 
 /* Modo «Empezar»: anillo de progreso + barra de tiempo */
@@ -1077,6 +1076,11 @@ html:not(.no-tint) .hc.thin .hc-in{background:var(--card)}
 html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:var(--e1)}
 .hc.thin.done{opacity:.7}
 .hc-acts{top:1px;bottom:1px;right:1px;border-radius:0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0;overflow:hidden}
+
+/* v1.33 · comidas en la línea del día */
+.tl-meal{width:100%;min-height:44px;margin-bottom:var(--s2);border-radius:var(--r-lg);border:1px solid var(--border);background:color-mix(in srgb,var(--warn) 8%,var(--card));display:flex;align-items:center;gap:10px;padding:0 14px;text-align:left;color:var(--muted);font-size:var(--fs-sm)}
+.tl-meal b{color:var(--text);font-weight:600;font-size:var(--fs-body)}
+.tlr.meal .tlr-t::after{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--warn) 70%,transparent)}
 </style>
 </head>
 <body>
@@ -1190,7 +1194,7 @@ html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.32';
+const APP_VERSION='1.33';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -1290,7 +1294,7 @@ const ICON_HUE={sun:'var(--warn)',sunset:'var(--brand)',moon:'#A5B4FC',clock:'va
 function ri(n){return `<span class="ri" style="--ic:${ICON_HUE[n]||'var(--acc)'}">${ic(n)}</span>`;}
 
 /* ═════════════ ESTADO ═════════════ */
-const SCHEMA=4;
+const SCHEMA=5;
 const PLAN_KEY='ironhabits_plan_v1'; // (antiguo) el plan vivía en localStorage; ahora va en IndexedDB
 /* El plan (agenda y programas, lo pesado) se guarda en IndexedDB, que no tiene el límite de ~5 MB de localStorage.
    En memoria se guarda una copia (PLANCACHE) para que load() siga siendo inmediato. */
@@ -1360,6 +1364,25 @@ function migrate(s){
   // v4: plantillas de hábitos. Se crean a partir de tus hábitos actuales (Francés con sus pasos, Inglés, Fuerza…); no se toca nada más
   if(s.schema<4){s.templates=(s.habits||[]).filter(h=>!h.archived&&!h.example&&!h.tutorial).map(tplFrom);s.schema=4;}
   if(!Array.isArray(s.templates))s.templates=[];
+  // v5: quita hábitos repetidos: «Gimnasio» (ya está «Fuerza / calistenia») y copias de los del plan (p. ej. un segundo
+  //     «Estudio de exámenes»). Si la copia tiene registros, pasan al hábito del plan (sin pisar los que ya tenga ese día).
+  //     Queda marcado como borrado para que la nube no lo devuelva.
+  if(s.schema<5){
+    const PLAN=['fuerza','boxeo','fr','en','estudio','dx'],nrm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const plan=(s.habits||[]).filter(h=>PLAN.includes(h.id)),has=id=>plan.some(h=>h.id===id);
+    const twin=h=>{if(PLAN.includes(h.id)||h.tutorial)return null;const n=nrm(h.name);
+      if(n==='gimnasio'&&has('fuerza'))return 'fuerza';
+      if(/^estudio (de|para)( los)? examenes$/.test(n)&&has('estudio'))return 'estudio';
+      const p=plan.find(x=>nrm(x.name)===n);return p?p.id:null;};
+    const gone=[];
+    for(const h of s.habits||[]){const to=twin(h);if(!to)continue;gone.push(h);
+      for(const k in s.logs||{}){const d=s.logs[k];if(d&&d[h.id]!==undefined){if(d[to]===undefined)d[to]=d[h.id];delete d[h.id];}}}
+    if(gone.length){s.touch=s.touch||{};const now=Date.now();
+      for(const h of gone){s.touch['h:'+h.id]=now;for(const k in s.agenda||{})for(const x of ['h:'+h.id,'in:'+h.id])if(s.agenda[k][x])delete s.agenda[k][x];}
+      s.habits=s.habits.filter(h=>!gone.includes(h));s._removedDup=gone.map(h=>h.name);}
+    if(s.settings){delete s.settings.bootSound;delete s.settings.helloStyle;}
+    s.schema=5;
+  }
   return s;
 }
 function load(){
@@ -1480,48 +1503,6 @@ document.addEventListener('click',e=>{
   if(S.settings.tapHaptic===false)return;const t=e.target;if(!t||!t.closest||t.closest('#hapticSw'))return;
   if(t.closest('button,a,[role=button],.step,label,select,input[type=checkbox],input[type=radio]'))buzz();
 },true);
-/* Sonido al abrir: el iPhone no deja sonar nada hasta el primer toque, así que suena en tu primer toque al abrir la app.
-   Dos notas suaves hacia arriba (la «firma» de IronHabits). Ajustes › Apariencia › «Sonido al abrir». */
-let _hello=false;const _t0=Date.now();
-/* Tres sonidos de arranque, cada uno un único gesto que sube de grave a agudo (sin notas sueltas).
-   Cadena: fuentes → pasa-bajos → ganancia con rampas exponenciales → compresor-limitador → salida (+ reverberación corta). */
-const HELLO={
-  a:{n:'Swell cálido',d:'Un «mhmmm» suave: un acorde que se abre y sube'},
-  b:{n:'Aire',d:'Un «bfffff»: un soplo de aire que sube, con un fondo grave'},
-  c:{n:'Cristal',d:'Un brillo limpio que sube y se queda flotando'},
-};
-function helloChain(ac,t0,dur,att,peak,lp0,lp1){
-  const lp=ac.createBiquadFilter();lp.type='lowpass';lp.Q.value=.7;lp.frequency.setValueAtTime(lp0,t0);lp.frequency.exponentialRampToValueAtTime(lp1,t0+dur*.75);
-  const g=ac.createGain();g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(peak,t0+att);g.gain.setValueAtTime(peak,t0+att);g.gain.exponentialRampToValueAtTime(peak*.7,t0+dur*.6);g.gain.exponentialRampToValueAtTime(.0001,t0+dur); // sube, se sostiene y se apaga sola
-  const lim=ac.createDynamicsCompressor();lim.threshold.value=-12;lim.knee.value=6;lim.ratio.value=12;lim.attack.value=.003;lim.release.value=.25;
-  lp.connect(g);g.connect(lim);lim.connect(bus(ac).inp);return lp;
-}
-function fxHello(style){const ac=audio();if(!ac)return;style=style||S.settings.helloStyle||'a';const t0=ac.currentTime+.02;
-  if(style==='a'){ // acorde cálido (raíz, quinta, octava) que sube una cuarta con osciladores ligeramente desafinados
-    const dur=1.3,inp=helloChain(ac,t0,dur,.28,.13,260,2600);
-    [[1,0],[1.5,-6],[2,5],[1,7]].forEach(([m,det])=>{const o=ac.createOscillator();o.type=m===1&&det?'sawtooth':'triangle';o.detune.value=det;
-      o.frequency.setValueAtTime(130.81*m,t0);o.frequency.exponentialRampToValueAtTime(174.61*m,t0+dur*.8);
-      const g=ac.createGain();g.gain.value=m===1&&det?.08:m===1?.5:m===1.5?.28:.18;o.connect(g);g.connect(inp);o.start(t0);o.stop(t0+dur+.1);});
-  }else if(style==='b'){ // ruido rosado filtrado en barrido + un seno grave que sube
-    const dur=1.1,inp=helloChain(ac,t0,dur,.2,.16,500,7000);
-    const len=Math.floor(ac.sampleRate*(dur+.1)),buf=ac.createBuffer(1,len,ac.sampleRate),d=buf.getChannelData(0);
-    let b0=0,b1=0,b2=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;b0=.99765*b0+w*.099;b1=.963*b1+w*.2965;b2=.57*b2+w*1.0526;d[i]=(b0+b1+b2+w*.1848)*.18;}
-    const src=ac.createBufferSource();src.buffer=buf;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.4;
-    bp.frequency.setValueAtTime(350,t0);bp.frequency.exponentialRampToValueAtTime(3800,t0+dur*.85);
-    const ng=ac.createGain();ng.gain.value=.9;src.connect(bp);bp.connect(ng);ng.connect(inp);src.start(t0);src.stop(t0+dur+.1);
-    const o=ac.createOscillator();o.type='sine';o.frequency.setValueAtTime(98,t0);o.frequency.exponentialRampToValueAtTime(196,t0+dur*.85);
-    const og=ac.createGain();og.gain.value=.35;o.connect(og);og.connect(inp);o.start(t0);o.stop(t0+dur+.1);
-  }else{ // senos puros en octavas con un leve vibrato, que suben una quinta y se quedan flotando
-    const dur=1.45,inp=helloChain(ac,t0,dur,.18,.11,1200,6000);
-    const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=5;lg.gain.value=4;lfo.connect(lg);lfo.start(t0);lfo.stop(t0+dur+.1);
-    [[1,.5],[2,.3],[3,.08],[4,.12]].forEach(([m,v])=>{const o=ac.createOscillator();o.type='sine';lg.connect(o.detune);
-      o.frequency.setValueAtTime(392*m/2,t0);o.frequency.exponentialRampToValueAtTime(587.33*m/2,t0+dur*.55);
-      const g=ac.createGain();g.gain.value=v;o.connect(g);g.connect(inp);o.start(t0);o.stop(t0+dur+.1);});
-  }
-}
-['touchend','click'].forEach(ev=>document.addEventListener(ev,()=>{
-  if(_hello)return;_hello=true;if(S.settings.bootSound===false||S.settings.sound===false||Date.now()-_t0>60000)return;fxHello();
-},{capture:true,passive:true}));
 function fxGoal(big){
   const ac=audio();
   if(ac){
@@ -1869,9 +1850,15 @@ function habitSections(hs,k,heroPend){
   const chips=hs.filter(chip),rest=hs.filter(h=>!chip(h));
   const pend=rest.filter(h=>!isDone(h,k)),done=rest.filter(h=>isDone(h,k));
   const nowM=new Date().getHours()*60+new Date().getMinutes(),fut=k>t;
-  const free=k>=t?freeParts(dayEvents(k)).filter(f=>f.e-f.s>=30&&(k>t||f.e>nowM)):[];
+  const free=k>=t?freeParts(dayEvents(k)).filter(f=>f.e-f.s>=30&&(k>t||f.e>nowM)&&!/descanso/i.test(f.ev.title||'')):[];
+  // desayuno, comida y cena de la agenda, como filas de la línea del día
+  const meals=k>=t?dayEvents(k).map(e=>{const ti=e.title||'';let m=null;
+      if(e.kind==='rutina'&&/desayun/i.test(ti))m=['🍳','Desayuno'];
+      else if((e.kind==='comida'||e.kind==='cena')&&!/merienda/i.test(ti))m=tm(e.start)>=18*60?['🍲','Cena']:['🍽️','Comida'];
+      return m&&!e.cancelled&&(k>t||tm(e.end)>nowM)?{e,m}:null;}).filter(Boolean):[];
   const row=h=>{const x=habitTime(h,k);return {t:x&&x.start?tm(x.start):9999,html:`<div class="tlr ${isDone(h,k)?'on':''}" style="--hc:${h.color}"><div class="tlr-t">${x&&x.start?fmtT(tm(x.start)):''}</div><div class="tlr-c">${hcHTML(h,k,{row:true})}</div></div>`};};
   const freeRow=f=>({t:f.s,html:`<div class="tlr free" style="--hc:var(--ok)"><div class="tlr-t">${fmtT(f.s)}</div><button class="tl-free" onclick="evSheet('${k}','${f.ev.id}')">☕ <b>${esc(f.ev.title||'Tiempo libre')}</b> · ${fmtDur(f.e-f.s)}</button></div>`});
+  const mealRow=x=>({t:tm(x.e.start),html:`<div class="tlr meal" style="--hc:var(--warn)"><div class="tlr-t">${fmtT(tm(x.e.start))}</div><button class="tl-meal" onclick="evSheet('${k}','${x.e.id}')">${x.m[0]} <b>${x.m[1]}</b> · ${fmtDur(tm(x.e.end)-tm(x.e.start))}</button></div>`});
   const chipHTML=chips.length?`<div class="ntc-row">${chips.map(h=>`<button class="ntc ${isDone(h,k)?'on':''}" id="hc-${h.id}" style="--hc:${h.color}" onclick="act('${h.id}')" ${fut?'disabled':''} aria-pressed="${isDone(h,k)}"><span class="ntc-e">${esc(h.emoji)}</span>${esc(h.name)}${isDone(h,k)?' ✓':''}</button>`).join('')}</div>`:'';
   // v1.32: sin franjas. Arriba «Sin hora» (fichas) y debajo una sola línea del día, en orden de hora
   const nowMin=new Date().getHours()*60+new Date().getMinutes();
@@ -1881,7 +1868,7 @@ function habitSections(hs,k,heroPend){
   let html='';
   if(chips.length)html+=`<div class="sec"><span class="sec-ic" style="color:${ICON_HUE.clock}">${ic('clock')}</span>Sin hora</div>`+chipHTML;
   if(timed.length||untimed.length){
-    const items=[...timed.map(rowL),...(timed.length?free.map(freeRow):[])].sort((a,b)=>a.t-b.t).map(x=>x.html).join('')+untimed.map(h=>row(h).html).join('');
+    const items=[...timed.map(rowL),...(timed.length?[...free.map(freeRow),...meals.map(mealRow)]:[])].sort((a,b)=>a.t-b.t).map(x=>x.html).join('')+untimed.map(h=>row(h).html).join('');
     const od=isToday?overdue(k).length:0;
     html+=`<div class="sec"><span class="sec-ic" style="color:${ICON_HUE[MOMENT_IC[isToday?momentOfTime(fmtT(nowMin)):'manana']]}">${ic(MOMENT_IC[isToday?momentOfTime(fmtT(nowMin)):'manana'])}</span>${isToday?'Resto del día':'El día'}${od?`<button class="sec-act" onclick="replanSheet()">Recolocar ${od}</button>`:''}</div><div class="tl-day">${items}</div>`;
   }
@@ -2806,8 +2793,6 @@ function renderSet(){
     <div class="hint" style="margin:14px 0 8px">Color de acento</div><div class="colors">${COLORS.map(c=>`<button style="background:${c}" class="${acc===c?'on':''}" onclick="setAccent('${c}')" aria-label="Acento ${c}"></button>`).join('')}</div></div>
     <label class="chk card" style="justify-content:space-between"><span>🎨 Tarjetas de color<small class="hint" style="display:block">Cada hábito con el fondo de su color en «Hoy»</small></span><input type="checkbox" switch ${S.settings.cardTint===false?'':'checked'} onchange="S.settings.cardTint=this.checked;save();applyTheme()"></label>
     <label class="chk card" style="justify-content:space-between"><span>📳 Vibración al tocar<small class="hint" style="display:block">Un toque mínimo en cada botón</small></span><input type="checkbox" switch ${S.settings.tapHaptic===false?'':'checked'} onchange="S.settings.tapHaptic=this.checked;save()"></label>
-    <label class="chk card" style="justify-content:space-between"><span>🎵 Sonido al abrir<small class="hint" style="display:block">Suena en tu primer toque (el iPhone no deja que suene antes)</small></span><input type="checkbox" switch ${S.settings.bootSound===false?'':'checked'} onchange="S.settings.bootSound=this.checked;save();if(this.checked)fxHello()"></label>
-    ${S.settings.bootSound===false?'':`<div class="seg hello-seg">${Object.entries(HELLO).map(([k,x])=>`<button class="${(S.settings.helloStyle||'a')===k?'on':''}" onclick="S.settings.helloStyle='${k}';save();fxHello('${k}');renderSet()">${x.n}</button>`).join('')}</div><p class="hint" style="margin-top:4px">${esc(HELLO[S.settings.helloStyle||'a'].d)}. Toca uno para escucharlo.</p>`}
     <label class="chk card" style="justify-content:space-between"><span>🔊 Sonido al completar<small class="hint" style="display:block">Una nota en cada paso y otra al acabar. Con el iPhone en silencio no suena</small></span><input type="checkbox" switch ${S.settings.sound===false?'':'checked'} onchange="S.settings.sound=this.checked;save();if(this.checked)fxStep(.5)"></label>
     <button class="row-btn" onclick="tplSheet()">${ri('note')}<div>Plantillas de hábitos<small>${(S.templates||[]).length} plantillas · edita sus pasos o bórralas</small></div></button>
     <button class="row-btn" onclick="sortSheet()">${ri('move')}<div>Ordenar tus hábitos<small>Arrástralos para cambiar el orden</small></div></button>
@@ -4520,6 +4505,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 })();
 swipeWeek($('#wkDays'));swipeWeek($('#agWeek'));
 if(S._needPlanSave){delete S._needPlanSave;savePlan();save();}
+if(S._removedDup){const n=S._removedDup;delete S._removedDup;save();setTimeout(()=>toast('🧹 Quitados los hábitos repetidos: '+n.join(', ')),1600);}
 /* ═════════════ ARRANQUE ═════════════
    El anillo del logo se llena por etapas (código listo → plan cargado → listo) y la pantalla se desvanece.
    No espera a internet: la sincronización sigue por detrás. */

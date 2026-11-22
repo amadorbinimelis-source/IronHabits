@@ -2,6 +2,13 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.33 · 22 nov 2026
+- **Hoy**: en la línea del día salen 🍳 Desayuno, 🍽️ Comida y 🍲 Cena (con su hora y duración; al tocarlas se abre su hoja) en lugar de «Descanso». Las que ya han pasado no salen.
+- **Ajustes**: arreglados los interruptores, que siempre se veían apagados (una regla CSS con `#hapticSw` dentro de `:not()` ganaba a `:checked`).
+- **Fuera el sonido al abrir**: quitados el ajuste y todo su código.
+- **Hábitos repetidos**: migración (esquema 5) que quita «Gimnasio» y las copias de hábitos del plan (p. ej. «Estudio para los exámenes»). Sus registros pasan al hábito del plan sin pisar los que ya tenga; quedan marcados como borrados para que la nube no los devuelva. Aviso al abrir.
+- Tests: `test_v133`; `test_v127` actualizado.
+
 ## v1.32 · 22 nov 2026
 - Hoy sin franjas (mañana / tarde / noche): arriba «Sin hora» y debajo una sola línea del día en orden de hora; lo atrasado lleva la hora en ámbar y «Recolocar N» va en la cabecera. Filas blancas con sombra suave, como la maqueta C.
 - Rachas (Agenda › Semana) en color sólido del hábito, con texto blanco y los días hechos en blanco.

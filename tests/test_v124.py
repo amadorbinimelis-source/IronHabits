@@ -23,7 +23,7 @@ async def main():
         old = await pg.evaluate("(()=>{const st=JSON.parse(localStorage.getItem(KEY));st.schema=3;delete st.templates;localStorage.setItem(KEY,JSON.stringify(st));return JSON.stringify([st.habits,st.logs])})()")
         await pg.reload(); await pg.wait_for_timeout(2500)
         r = await pg.evaluate("[S.schema,S.templates.map(t=>t.name),(S.templates.find(t=>t.name==='Francés')||{}).steps,JSON.stringify([lightState().habits,S.logs])]")
-        check(r[0] == 4 and "Francés" in r[1] and "Inglés" in r[1], f"migración a v4: plantillas desde tus hábitos {r[1]}")
+        check(r[0] >= 4 and "Francés" in r[1] and "Inglés" in r[1], f"migración a v4: plantillas desde tus hábitos {r[1]}")
         check(r[2] and len(r[2]) == 3 and "Smart Review" in r[2][0], f"la plantilla de Francés trae sus 3 pasos {r[2]}")
         check(json.loads(r[3])[1] == json.loads(old)[1] and len(json.loads(r[3])[0]) == len(json.loads(old)[0]), "la migración no toca hábitos ni registros")
 
