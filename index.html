@@ -17,7 +17,7 @@ if(t==='auto')t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').ma
 var r=document.documentElement;r.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#F5F5F7':'#0B0B0F';})();</script>
 
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="preload" as="image" href="icon-512.png">
+<link rel="preload" as="image" href="logo-p1.png"><link rel="preload" as="image" href="logo-p2.png"><link rel="preload" as="image" href="logo-p3.png"><link rel="preload" as="image" href="logo-p4.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <!-- Pantallas de arranque de iOS (al abrir desde la pantalla de inicio) -->
 <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="splash/splash-1080x2340-dark.png">
@@ -698,26 +698,34 @@ html[data-theme=light] #boot .boot-name{color:#15151A}
 .boot-ic{width:116px;height:116px;border-radius:26px;margin-top:-60px;box-shadow:0 16px 36px rgba(0,0,0,.45)}
 html[data-theme=light] .boot-ic{box-shadow:0 30px 60px rgba(0,0,0,.18)}
 .boot-name{color:#F4F4F6;font:800 30px/1 -apple-system,"SF Pro Display",Inter,system-ui,sans-serif;letter-spacing:-.02em}
-/* v1.34 · logo nuevo (imagen tal cual) en un recuadro redondeado como el icono del iPhone.
-   Animación: entra con un leve zoom, un brillo pasa por las piezas de metal (overlay: el blanco y el negro no cambian),
-   la barra se llena por etapas y al acabar el logo hace un pequeño «pop». */
-.boot-ic{position:relative;overflow:hidden;animation:bin .7s cubic-bezier(.2,.8,.2,1) both}
-.boot-ic img{width:100%;height:100%;display:block}
-.boot-shine{position:absolute;inset:-20%;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.95) 50%,transparent 62%);
-  mix-blend-mode:overlay;transform:translateX(-120%);animation:bshine 1.6s .35s cubic-bezier(.4,0,.2,1) infinite}
-@keyframes bin{from{opacity:0;transform:scale(.86);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
-@keyframes bshine{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
-.boot-bar{width:96px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:-6px}
+/* v1.35 · el logo va directamente sobre el fondo (sin recuadro), recortado en sus 4 piezas (logo-p1..4.png, píxeles originales).
+   Animación de apertura: las piezas llegan desde fuera y encajan (las negras por los lados, las de metal desde arriba y abajo),
+   después un brillo recorre solo el metal (máscara con el propio logo) y la barra se llena; al acabar, «pop» y fuera. */
+.boot-ic{position:relative;width:176px;height:176px;margin-top:-60px;border-radius:0;box-shadow:none!important;overflow:visible}
+.boot-ic .bp{position:absolute;display:block;opacity:0;animation:bfly .85s cubic-bezier(.22,1.25,.36,1) both}
+.bp1{--fx:18px;--fy:-90px;--fr:14deg;animation-delay:.05s!important}
+.bp4{--fx:-18px;--fy:90px;--fr:14deg;animation-delay:.12s!important}
+.bp2{--fx:-110px;--fy:12px;--fr:-22deg;animation-delay:.22s!important}
+.bp3{--fx:110px;--fy:-12px;--fr:-22deg;animation-delay:.29s!important}
+@keyframes bfly{0%{opacity:0;transform:translate(var(--fx),var(--fy)) rotate(var(--fr)) scale(.7);filter:blur(5px)}
+  55%{opacity:1;filter:none}100%{opacity:1;transform:none;filter:none}}
+.boot-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.9) 50%,transparent 65%) no-repeat;
+  background-size:250% 100%;background-position:120% 0;mix-blend-mode:overlay;
+  -webkit-mask:url(logo-a.png) center/100% 100% no-repeat;mask:url(logo-a.png) center/100% 100% no-repeat;
+  animation:bshine 1.7s 1.05s ease-in-out infinite}
+@keyframes bshine{0%{background-position:120% 0}55%,100%{background-position:-20% 0}}
+html:not([data-theme=light]) #boot{background-image:radial-gradient(circle at 50% 42%,#2A2A31 0,#16161B 32%,#0B0B0F 62%)}
+.boot-bar{width:96px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:-6px;animation:bname .6s .7s both cubic-bezier(.2,.8,.2,1)}
 html[data-theme=light] .boot-bar{background:rgba(0,0,0,.08)}
 #bootRing{display:block;height:100%;width:100%;border-radius:2px;background:linear-gradient(90deg,#8D949C,#E9ECEF 55%,#A9B0B7);transform-origin:left;transform:scaleX(0);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 html[data-theme=light] #bootRing{background:linear-gradient(90deg,#15151A,#6B7280 55%,#15151A)}
 #boot.done .boot-ic{animation:bpop .6s cubic-bezier(.2,.8,.2,1)}
-#boot.done .boot-shine{animation:bshine .7s cubic-bezier(.4,0,.2,1) 1 forwards}
+#boot.done .boot-shine{animation:bshine .8s ease-in-out 1 forwards}
 @keyframes bpop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
 #boot.out .boot-ic{transform:scale(1.15);transition:transform .4s ease}
-.boot-name{animation:bname .7s .1s both cubic-bezier(.2,.8,.2,1)}
+.boot-name{animation:bname .7s .55s both cubic-bezier(.2,.8,.2,1)}
 @keyframes bname{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){#bootRing{transition:none}.boot-ic,.boot-shine,#boot.done .boot-ic,.boot-name{animation:none}}
+@media (prefers-reduced-motion:reduce){#bootRing{transition:none}.boot-ic .bp{animation:none;opacity:1}.boot-shine,#boot.done .boot-ic,.boot-name,.boot-bar{animation:none}}
 
 /* ═════════════ v1.20 · Tema claro ═════════════ */
 :root{--acc:var(--acc-raw,#22C55E);--heat-off:#121217;--heat-empty:#18181E;--heat-miss:#24242C;--grid-alt:rgba(255,255,255,.018);--grid-dash:rgba(255,255,255,.05)}
@@ -1094,7 +1102,7 @@ html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:
 <body>
 <!-- Pantalla de arranque animada: el anillo se llena mientras carga (sigue a la pantalla de arranque de iOS, en la misma posición) -->
 <div id="boot" aria-hidden="true">
-  <div class="boot-ic"><img src="icon-512.png" alt="" decoding="sync"><i class="boot-shine"></i></div>
+  <div class="boot-ic"><img class="bp bp1" src="logo-p1.png" alt="" style="left:42.708%;top:10.547%;width:27.735%;height:35.547%"><img class="bp bp2" src="logo-p2.png" alt="" style="left:13.542%;top:30.208%;width:24.739%;height:33.724%"><img class="bp bp3" src="logo-p3.png" alt="" style="left:62.5%;top:30.078%;width:25.000%;height:35.807%"><img class="bp bp4" src="logo-p4.png" alt="" style="left:30.339%;top:49.74%;width:28.255%;height:36.588%"><i class="boot-shine"></i></div>
   <div class="boot-name">IronHabits</div>
   <div class="boot-bar"><i id="bootRing"></i></div>
 </div>
@@ -1157,7 +1165,7 @@ html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.34';
+const APP_VERSION='1.35';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -4476,8 +4484,8 @@ const BOOT_T0=performance.now();
 function bootProgress(p){const e=document.getElementById('bootRing');if(e)e.style.transform='scaleX('+Math.max(0,Math.min(1,p))+')';}
 let _booted=false;
 function bootDone(){if(_booted)return;_booted=true;bootProgress(1);const b=document.getElementById('boot');if(!b)return;setTimeout(()=>b.classList.add('done'),380);
-  const wait=Math.max(0,650-(performance.now()-BOOT_T0)); // que se vea el anillo completo un instante
-  setTimeout(()=>{b.classList.add('out');setTimeout(()=>b.remove(),400);},wait+1000);} // da tiempo a ver el anillo completo y el destello
+  const wait=Math.max(0,1250-(performance.now()-BOOT_T0)); // que se vea el anillo completo un instante
+  setTimeout(()=>{b.classList.add('out');setTimeout(()=>b.remove(),400);},wait+700);} // da tiempo a ver el anillo completo y el destello
 requestAnimationFrame(()=>bootProgress(.35));
 setTimeout(bootDone,3000); // por si algo tarda: nunca bloquea la app
 

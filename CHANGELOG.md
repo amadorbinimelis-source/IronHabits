@@ -2,6 +2,11 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.35 · 22 nov 2026
+- **Logo sin recuadro** en la pantalla de carga y en las pantallas de arranque de iOS: el fondo blanco del logo pasa a transparente (`logo-a.png`, `gen/cut_logo.py`); las piezas conservan sus píxeles originales. Los iconos de la app no cambian.
+- **Animación de apertura**: las 4 piezas (`logo-p1..4.png`) llegan desde fuera y encajan (metal desde arriba y abajo, negras por los lados), luego un brillo recorre solo el metal y la barra se llena; al acabar, «pop». En oscuro, foco suave detrás del logo para que se vean las piezas negras.
+- Tests: `test_v135`; `test_v119` y `test_v134` actualizados.
+
 ## v1.34 · 22 nov 2026
 - **Logo nuevo** (imagen original, 1254 px, sin retocar: `logo.png`). Iconos (180/192/512/maskable/favicon) y las 24 pantallas de arranque de iOS se generan directamente desde él (Lanczos). Fuera `icon.svg`.
 - **Pantalla de carga**: el logo nuevo en un recuadro redondeado como el icono del iPhone; entra con zoom suave, un brillo recorre las piezas de metal, una barra fina se llena por etapas y al acabar hace un «pop». Sigue el tema claro/oscuro.

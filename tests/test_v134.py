@@ -24,9 +24,9 @@ async def main():
             await ctx.add_init_script("localStorage.setItem('ironhabits_v1',JSON.stringify({habits:[],settings:{theme:'%s'}}))" % theme)
             pg = await ctx.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
             await pg.goto(URL, wait_until="domcontentloaded"); await pg.wait_for_timeout(250)
-            r = await pg.evaluate("""(()=>{const b=document.getElementById('boot'),i=b.querySelector('.boot-ic img'),s=b.querySelector('.boot-shine');
-              return [getComputedStyle(b).backgroundColor,i.getAttribute('src'),i.offsetWidth,getComputedStyle(s).mixBlendMode,getComputedStyle(s).animationName,!!b.querySelector('svg')]})()""")
-            check(r[0] == bg and r[1] == "icon-512.png" and r[2] == 116 and r[3] == "overlay" and r[4] == "bshine" and not r[5], f"{theme}: pantalla de carga con el logo nuevo y el brillo {r}")
+            r = await pg.evaluate("""(()=>{const b=document.getElementById('boot'),s=b.querySelector('.boot-shine');
+              return [getComputedStyle(b).backgroundColor,getComputedStyle(s).mixBlendMode,!!b.querySelector('svg')]})()""")
+            check(r[0] == bg and r[1] == "overlay" and not r[2], f"{theme}: pantalla de carga con el logo nuevo y el brillo {r}")
             await pg.wait_for_function("document.getElementById('bootRing')&&getComputedStyle(document.getElementById('bootRing')).transform.startsWith('matrix(1,')", timeout=4000)
             check(True, f"{theme}: la barra se llena")
             await pg.wait_for_timeout(3000)

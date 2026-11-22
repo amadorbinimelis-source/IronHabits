@@ -17,7 +17,7 @@ async def main():
         errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
         await pg.goto(URL, wait_until="domcontentloaded")
         r0 = await pg.evaluate("[!!document.getElementById('boot'),getComputedStyle(document.getElementById('boot')).pointerEvents]")
-        await pg.wait_for_timeout(2000)
+        await pg.wait_for_timeout(3000)
         r1 = await pg.evaluate("[!!document.getElementById('boot'),document.getElementById('bootRing')?document.getElementById('bootRing').style.strokeDashoffset:'']")
         check(r0 == [True, "none"] and r1[0] is False, f"pantalla de arranque con el anillo: aparece, no bloquea toques y se va sola ({r0}, {r1})")
         # Iconos y arranque
