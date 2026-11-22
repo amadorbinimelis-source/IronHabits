@@ -27,7 +27,7 @@ jobs:
         run: python tests/test_agenda.py
       - name: Probar la app en un navegador
         run: |
-          pip install playwright
+          pip install playwright pillow numpy
           python -m http.server 8765 >/dev/null 2>&1 &
           sleep 2
           mkdir -p /tmp/t
