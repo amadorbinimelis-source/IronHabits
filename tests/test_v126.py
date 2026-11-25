@@ -45,7 +45,7 @@ async def main():
         await pg.locator("#hc-en .blk-go.cl").first.click(); await pg.wait_for_timeout(400)
         clip = await pg.evaluate("navigator.clipboard.readText()")
         check(clip.startswith("WRITING TAREA · Essay"), f"el botón copia la orden exacta para Claude ({clip})")
-        check(len(popups) >= 1 and "claude.ai" in popups[-1].url, "y abre Claude")
+        check(len(popups) >= 1 and "claude.ai" in popups[-1].url, f"y abre Claude {[x.url for x in popups]}")
         # plan completo
         await pg.evaluate("courseSheet('en')"); await pg.wait_for_timeout(500)
         t = await pg.inner_text("#sheetBody")

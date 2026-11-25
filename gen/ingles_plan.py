@@ -1,4 +1,8 @@
-"""Plan de inglés para llegar «casi C1» al Cambridge B2 First (sábado 19 de junio de 2027).
+"""Plan de inglés para el Cambridge B2 First (sábado 19 de junio de 2027) con meta 180 (nota A → certificado C1).
+
+v14 (25 nov 2026), ajustado a su nivel real de noviembre: Reading & UoE 34/52 (~165), Listening 21/30 (~170, Part 2 floja: 2/10),
+Writing 13/20 (~160, sin opinión ni conclusión). Cambios: controles 170/175/180; Listening Part 2 lunes y viernes en las
+semanas 2–4; traducción inversa semanal de un texto modelo (martes → jueves) en las fases 1–2; plan de 5 min en cada writing.
 
 Ritmo: L–V 75 min (Smart Review 10 + isla 10 + bloque B2 55), sábado 60 (10 + 50), domingo 40 (10 + 30).
 Cada día lleva «blocks»: bloques con minutos, cómo hacerlo y UNA acción (abrir enlace exacto, copiar la línea para Claude…).
@@ -19,7 +23,9 @@ PHASES = [  # (nombre, primera semana, última semana, objetivo)
     ("Examen por partes, cronometrado", 19, 26, "Tiempo real de examen y las partes flojas"),
     ("Simulacros", 27, 30, "Tres exámenes completos y semana final suave"),
 ]
-CONTROLS = {"2027-01-23": ("Control 1", 155), "2027-03-27": ("Control 2", 168), "2027-05-15": ("Control 3", 175)}
+CONTROLS = {"2027-01-23": ("Control 1", 170), "2027-03-27": ("Control 2", 175), "2027-05-15": ("Control 3", 180)}
+GOAL = 180
+LP2 = {2: (10, 9), 3: (8, 7), 4: (6, 1)}   # semana → tests de 7ESL cuya Listening Part 2 se hace el lunes y el viernes (el 1 = repetir el del test de nivel)
 
 TOPICS = ["Travel and holidays", "Work and jobs", "Health and fitness", "Technology", "The environment",
           "Education and studying", "Sport", "Media and social networks", "Cities and housing", "Food and eating habits",
@@ -70,7 +76,7 @@ GRAMMAR = {
 WRITE_TYPES = ["Essay", "Email / letter", "Article", "Essay", "Review", "Report"]
 
 # ── Material (lo que hay que tener; la fecha en que se necesita la calcula build() a partir del primer uso) ──
-CLAUDE_PROJECT = """Eres mi profesor y examinador de Cambridge B2 First (FCE). Mi lengua es el español. Me examino el sábado 19 de junio de 2027 y mi objetivo es 175 en la escala de Cambridge («casi C1»). Mis puntos flojos: vocabulario y writing.
+CLAUDE_PROJECT = """Eres mi profesor y examinador de Cambridge B2 First (FCE). Mi lengua es el español. Me examino el sábado 19 de junio de 2027 y mi objetivo es 180 en la escala de Cambridge (nota A, certificado C1). Nivel de partida (noviembre 2026): Reading & Use of English 34/52, Listening 21/30 (Part 2 floja: escribo de más y fallo la ortografía), Writing 13/20 (no doy mi opinión ni cierro con conclusión; calcos del español). Mis puntos flojos: writing, vocabulario y Listening Part 2.
 
 Reglas siempre:
 - Explicaciones y correcciones en español; el inglés que me enseñes, natural y de nivel B2–C1.
@@ -85,6 +91,8 @@ REESCRIBIR → (pego mi versión reescrita) dime si he corregido bien los errore
 SPEAKING P1 / P2 / P3 / P4 · tema → hazme esa parte del Speaking como examinador, una pregunta cada vez y espera mi respuesta. En P2 yo describo dos fotos de mi móvil o del libro: dame la pregunta típica. Al final, nota 0–5 (Grammar & Vocabulary, Discourse Management, Pronunciation, Interactive Communication) y mis 5 errores principales.
 SPEAKING COMPLETO → las 4 partes seguidas, como el examen real, y nota final.
 CONVERSACIÓN · tema → charla natural de 20 minutos; enséñame 10 collocations o phrasal verbs del tema y oblígame a usarlas; al final corrige mis errores.
+MODELO · tipo · tema → escribe un texto modelo de nota máxima (B2 First, 170–190 palabras) de ese tipo y tema: opinión clara, un párrafo por idea (idea → por qué → ejemplo) y conclusión. Debajo, en 5 líneas, las estructuras y collocations que le dan la nota. Nada más.
+COMPARA → (pego mi traducción inversa) compárala con el modelo original: lista de diferencias (mi frase → la del modelo → por qué suena mejor) y las 8 «Frases para HyperLingua» que más me conviene aprender.
 WORD FORMATION · tema → 15 frases tipo Part 3 (palabra en mayúsculas para transformar), y después las soluciones con la regla.
 TRANSFORMATIONS → 10 frases tipo Part 4 con la solución y la regla de cada una.
 VOCAB SEMANA · tema → 40 frases de ejemplo en inglés con collocations, phrasal verbs y familias de palabras B2+ del tema. Formato: una frase por línea, sin numerar, sin traducción, listas para importar en HyperLingua.
@@ -183,9 +191,21 @@ def listening_block(w):
 def writing_block(w, topic, mins_write):
     wtype = WRITE_TYPES[(w - 1) % len(WRITE_TYPES)]
     part = "Part 1" if wtype == "Essay" else "Part 2"
-    return [B("✍️", f"Writing · {wtype} ({part})", 5, ["Pide la tarea y haz un esquema de 4 párrafos."], claude(f"WRITING TAREA · {wtype} · {topic}")),
+    return [B("✍️", f"Writing · {wtype} ({part})", 5, ["Pide la tarea y planifica 5 min antes de escribir:", "tu opinión en una frase · un párrafo por idea (idea → por qué → ejemplo) · conclusión con tu opinión."], claude(f"WRITING TAREA · {wtype} · {topic}")),
             B("✍️", f"Escríbelo · {mins_write} min", mins_write, ["En tu nota «Writings», sin traductor.", "140–190 palabras. Antes de acabar, pasa el checklist oficial."], note("Notas › Writings", "notes")),
             B("🔍", "Corrígelo con Claude", 55 - 5 - mins_write, ["Pega tu texto después de la orden.", "Las «Frases para HyperLingua» que te da, a tu colección «Errores»."], claude("CORRIGE"))]
+
+def lp2_block(w, which):
+    n = LP2[w][which]
+    how = ["Lee las 10 frases antes de escuchar y piensa qué tipo de palabra falta.", "Escribe solo la palabra clave (1–3 palabras) y revisa la ortografía.", ERR]
+    if n == 1: how.insert(0, "Es el de tu test de nivel (2/10): compara cuántas sacas ahora.")
+    return B("🎧", f"Listening Part 2 · 7ESL Test {n}", 15, how, url(f"Abrir Listening {n}", l7(n), "7esl"))
+
+def inverse_blocks(w, topic, step):
+    wtype = WRITE_TYPES[(w - 1) % len(WRITE_TYPES)]
+    if step == 1:
+        return B("🔁", "Traducción inversa · 1/2 (modelo → español)", 10, ["Pide el modelo y tradúcelo al español en tu nota «Writings».", "No lo relees hasta el jueves."], claude(f"MODELO · {wtype} · {topic}"))
+    return B("🔁", "Traducción inversa · 2/2 (español → inglés)", 10, ["Sin mirar el modelo, pasa tu traducción del martes al inglés.", "Pégala tras la orden: las diferencias son lo que aún piensas en español."], claude("COMPARA"))
 
 def speaking_block(w, topic, mins):
     p = ["P1", "P2", "P3", "P4"][(w - 1) % 4]
@@ -213,11 +233,18 @@ def day_blocks(d, w, wd):
         a = url("Abrir el test", src[1], src[2]) if src[1] else book(f"{BOOK} · Test 4 · audio")
         return f"📍 {name} · Listening", [B("📍", src[0], 40, ["Las 4 partes, cada audio dos veces.", "Apunta tus aciertos en 📊 Notas."], a, kit=src[2])], "control"
     if w <= 18:
-        if wd == 0: return "Gramática + Use of English", [grammar_block(w, 0)] + uoe_block(w, 35), None
-        if wd == 1: return "Reading", reading_block(w), None
+        lp = w in LP2
+        if wd == 0:
+            if lp: return "Gramática + Use of English + Listening Part 2", [grammar_block(w, 0)] + uoe_block(w, 20) + [lp2_block(w, 0)], None
+            return "Gramática + Use of English", [grammar_block(w, 0)] + uoe_block(w, 35), None
+        if wd == 1:
+            rb = reading_block(w); rb[0]["m"] = 30; rb[1]["m"] = 15
+            return "Reading + traducción inversa", rb + [inverse_blocks(w, topic, 1)], None
         if wd == 2: return "Writing", writing_block(w, topic, 35 if w <= 10 else 40), None
-        if wd == 3: return "Listening + word formation", [listening_block(w), B("🔧", "Word formation (Part 3)", 20, ["15 frases del tema; corrige con las soluciones.", ERR], claude(f"WORD FORMATION · {topic}"))], None
-        if wd == 4: return "Speaking + gramática", [speaking_block(w, topic, 35), grammar_block(w, 1)], None
+        if wd == 3: return "Listening + word formation + traducción inversa", [listening_block(w), B("🔧", "Word formation (Part 3)", 10, ["8 frases del tema; corrige con las soluciones.", ERR], claude(f"WORD FORMATION · {topic}")), inverse_blocks(w, topic, 2)], None
+        if wd == 4:
+            if lp: return "Speaking + gramática + Listening Part 2", [speaking_block(w, topic, 20), grammar_block(w, 1), lp2_block(w, 1)], None
+            return "Speaking + gramática", [speaking_block(w, topic, 35), grammar_block(w, 1)], None
     # Fase 3: examen por partes, cronometrado
     if 19 <= w <= 26:
         src = {19: ("7esl", 10), 20: ("camb", 2), 21: ("7esl", 6), 22: ("7esl", 7), 23: ("7esl", 8), 24: ("7esl", 9), 25: ("7esl", 2), 26: ("7esl", 3)}[w]
@@ -321,7 +348,7 @@ def build():
     kit = [dict(x, need=first.get(x["id"], PREP[1].isoformat())) for x in KIT]
     return {
         "id": "en", "name": "Inglés", "emoji": "🇬🇧", "color": "#14B8A6",
-        "desc": "75 min L–V, 60 el sábado y 40 el domingo · objetivo: 175 («casi C1») en el B2 First del 19 de junio de 2027",
+        "desc": "75 min L–V, 60 el sábado y 40 el domingo · objetivo: 180 (nota A, certificado C1) en el B2 First del 19 de junio de 2027",
         "type": "checklist", "target": 1, "unit": "", "step": 1,
         "steps": [{"id": "en-sr", "text": "Smart Review · 10 min"},
                   {"id": "en-isla", "text": "Isla · 10 min"},
@@ -333,7 +360,7 @@ def build():
         "course": {"exam": EXAM.isoformat(), "examLabel": "Cambridge B2 First", "start": START.isoformat(),
                    "phases": [{"name": p[0], "from": (START + datetime.timedelta(weeks=p[1] - 1)).isoformat(), "to": min(EXAM, START + datetime.timedelta(weeks=p[2], days=-1)).isoformat(), "goal": p[3]} for p in PHASES],
                    "controls": [{"date": k, "name": v[0], "goal": v[1]} for k, v in CONTROLS.items()],
-                   "targets": [160, 175, 180]},
+                   "targets": [160, GOAL, 190], "goal": GOAL},
     }
 
 def audit(h):

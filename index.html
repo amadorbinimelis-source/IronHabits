@@ -1165,7 +1165,7 @@ html .hc.thin,html:not(.no-tint) .hc.thin{border-color:var(--border);box-shadow:
 
 <script>
 /* ═════════════ CONSTANTES ═════════════ */
-const APP_VERSION='1.35';
+const APP_VERSION='1.36';
 const CHANGELOG=[
   ['1.27','20 nov 2026',['📳 Todos los botones dan un toque de vibración mínimo (se quita en Ajustes › Apariencia)','🎵 Sonido de IronHabits al abrir la app: suena con tu primer toque, porque el iPhone no deja que suene antes']],
   ['1.26','20 nov 2026',['🇬🇧 Inglés nuevo hacia «casi C1»: 75 min L–V, 60 el sábado y 40 el domingo, con la gramática, los tests y las tareas exactas de cada día hasta el 19 de junio','Cada clase en bloques con su minuto y un solo botón: abrir el test exacto o copiar la orden para tu proyecto de Claude','📅 Plan completo: las 30 semanas por fases, con controles 📍, simulacros 🧪 y examen 🎯','🧰 Material: lo que hay que comprar, descargar o crear, con «Lo tengo», la fecha en que lo necesitas y aviso 3 días antes','📊 Apuntar resultado por partes: la app hace las cuentas y te da la nota en la escala oficial de Cambridge']],
@@ -3534,12 +3534,12 @@ function scoreChart(ms){
   const pts=ms.map(m=>({k:m.date,v:mockScore(m).overall})).filter(p=>p.v!=null);if(pts.length<2)return '';
   const W=320,H=140,y=v=>H-10-(Math.max(120,Math.min(190,v))-120)/70*(H-20),x=i=>16+i*(W-48)/(pts.length-1);
   return `<svg class="sc-chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Evolución de tu nota">
-    ${[[160,'var(--muted)'],[175,'var(--acc)'],[180,'var(--ok)']].map(([v,c])=>`<line x1="0" x2="${W-26}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-dasharray="4 4"/><text x="${W-2}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="${c}">${v}</text>`).join('')}
+    ${[[160,'var(--muted)'],[180,'var(--acc)']].map(([v,c])=>`<line x1="0" x2="${W-26}" y1="${y(v)}" y2="${y(v)}" stroke="${c}" stroke-dasharray="4 4"/><text x="${W-2}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="${c}">${v}</text>`).join('')}
     <polyline fill="none" stroke="var(--text)" stroke-width="2.5" points="${pts.map((p,i)=>x(i)+','+y(p.v)).join(' ')}"/>${pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.v)}" r="4" fill="var(--text)"/>`).join('')}</svg>`;
 }
 function scoresHTML(h){
   const nextC=(h.course.controls||[]).find(x=>x.date>=todayK());
-  return `<p class="hint" style="margin-top:0">Escala oficial de Cambridge para tests de práctica. 160 = aprobado (B2) · <b>175 = tu meta</b> · 180 = C1.${nextC?` Próximo control: ${shortDate(nextC.date)}, meta ${nextC.goal}.`:''}</p>${mocksBlock(true)}`;
+  return `<p class="hint" style="margin-top:0">Escala oficial de Cambridge para tests de práctica. 160 = aprobado (B2) · <b>${(h.course&&h.course.goal)||180} = tu meta</b> (180 = nota A, certificado C1).${nextC?` Próximo control: ${shortDate(nextC.date)}, meta ${nextC.goal}.`:''}</p>${mocksBlock(true)}`;
 }
 
 /* ═════════════ RESUMEN DEL MES (con imagen para compartir) ═════════════ */

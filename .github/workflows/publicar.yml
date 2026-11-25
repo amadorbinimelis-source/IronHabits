@@ -58,6 +58,7 @@ jobs:
           python tests/test_v133.py
           python tests/test_v134.py
           python tests/test_v135.py
+          python tests/test_v136.py
       - name: Preparar la web
         run: |
           mkdir _site

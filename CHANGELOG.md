@@ -2,6 +2,16 @@
 
 Hasta la v1.14 la app se llamaba «Rutina».
 
+## v1.36 · 25 nov 2026
+- **Plan de inglés ajustado a tu nivel real** (plan v14). Nivel de partida: Reading & UoE 34/52, Listening 21/30 (Part 2: 2/10), Writing 13/20.
+  - Meta **180** (nota A → certificado C1); controles a 170 (ene), 175 (mar) y 180 (may). En 📊 Notas: «180 = tu meta».
+  - **Listening Part 2** los lunes y viernes de las semanas 2–4 (7ESL tests 10, 9, 8, 7, 6 y repetir el 1 para comparar).
+  - **Traducción inversa** cada semana (fases 1–2): martes, el modelo al español; jueves, de vuelta al inglés y comparar con Claude.
+  - Cada writing empieza con **5 min de plan** (opinión · idea → por qué → ejemplo · conclusión).
+  - Proyecto de Claude: nuevas órdenes **MODELO** y **COMPARA**, meta y nivel de partida actualizados.
+  - Los días L–V siguen siendo de 75 min.
+- Tests: `test_v136`.
+
 ## v1.35 · 22 nov 2026
 - **Logo sin recuadro** en la pantalla de carga y en las pantallas de arranque de iOS: el fondo blanco del logo pasa a transparente (`logo-a.png`, `gen/cut_logo.py`); las piezas conservan sus píxeles originales. Los iconos de la app no cambian.
 - **Animación de apertura**: las 4 piezas (`logo-p1..4.png`) llegan desde fuera y encajan (metal desde arriba y abajo, negras por los lados), luego un brillo recorre solo el metal y la barra se llena; al acabar, «pop». En oscuro, foco suave detrás del logo para que se vean las piezas negras.
